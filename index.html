@@ -885,7 +885,7 @@ table.civil-tbl{width:100%;border-collapse:collapse;font-size:12.5px}
 
     /* ── Real Firebase config (sdcc-daily-report) ── */
     const firebaseConfig = {
-      apiKey:            "AIzaSyAONpE7zTPR2JQhy_FW4kvy4OWiPvVnuc4",
+      apiKey:            "AIzaSyBhz2rCaRCCGkE_example_replace_with_real_key",
       authDomain:        "sdcc-daily-report.firebaseapp.com",
       projectId:         "sdcc-daily-report",
       storageBucket:     "sdcc-daily-report.firebasestorage.app",
@@ -1045,8 +1045,10 @@ table.civil-tbl{width:100%;border-collapse:collapse;font-size:12.5px}
       <label>Status</label>
       <select id="flt-status" onchange="renderCivilTable()">
         <option value="">All Statuses</option>
-        <option>On Track</option><option>At Risk</option>
-        <option>Delayed</option><option>Completed</option><option>Not Started</option>
+        <option>Completed</option>
+        <option>In Progress</option>
+        <option>Delayed</option>
+        <option>Not Started</option>
       </select>
       <div class="filter-divider"></div>
       <button class="filter-chip off" id="flt-delayed-btn" onclick="toggleDelayedFilter()">🔴 Delayed Only</button>
@@ -1511,10 +1513,34 @@ function stClass(s){
 }
 function worstStatus(statuses){
   if(statuses.includes('Delayed'))    return 'Delayed';
-  if(statuses.includes('At Risk'))    return 'At Risk';
+  if(statuses.includes('In Progress'))return 'In Progress';
   if(statuses.includes('Not Started'))return 'Not Started';
   if(statuses.every(s=>s==='Completed')) return 'Completed';
   return 'On Track';
+}
+
+/* ── Auto-calculate status from progress + dates ── */
+function calcAutoStatus(sp, plannedFinish, reportDate){
+  const progress = sp != null ? +sp : 0;
+  if(progress >= 100) return 'Completed';
+  if(progress > 0)    return 'In Progress';
+  // progress === 0:
+  const today = reportDate ? new Date(reportDate+'T00:00:00') : new Date();
+  const pd    = plannedFinish ? _toDateObj(plannedFinish) : null;
+  if(pd && today > pd) return 'Delayed';
+  return 'Not Started';
+}
+
+/* Apply auto-status to all leaves (call before render and before save) */
+function applyAutoStatus(){
+  const reportDate = data.date || new Date().toISOString().slice(0,10);
+  allLeaves(data.civilPkgs||[]).forEach(leaf=>{
+    (data.civilCities||[]).forEach(city=>{
+      const cd = leaf.cityData?.[city];
+      if(!cd) return;
+      cd.status = calcAutoStatus(cd.siteProgress, cd.plannedFinish, reportDate);
+    });
+  });
 }
 
 /* ════ TREE HELPERS ════ */
@@ -1548,6 +1574,9 @@ function switchTab(tab,btn){
 
 /* ════ RENDER DASHBOARD ════ */
 function renderDashboard(){
+  // Recalculate all statuses from progress + dates before rendering
+  applyAutoStatus();
+
   const d = data;
   // Header
   document.getElementById('d-projName').textContent   = d.projName||'—';
@@ -1564,14 +1593,19 @@ function renderDashboard(){
     data.civilCities = JSON.parse(JSON.stringify(DEF_FROZEN.civilCities));
   }
 
-  // Stat bar
+  // Stat bar — use auto-calculated status
   const cities  = d.civilCities||[];
   const leaves  = allLeaves(d.civilPkgs||[]);
-  const allVals = leaves.flatMap(l=>cities.map(c=>l.cityData?.[c]).filter(Boolean));
+  const reportDate = d.date || new Date().toISOString().slice(0,10);
+  const allVals = leaves.flatMap(l=>cities.map(c=>{
+    const cd = l.cityData?.[c];
+    if(!cd) return null;
+    return { ...cd, status: calcAutoStatus(cd.siteProgress, cd.plannedFinish, reportDate) };
+  }).filter(Boolean));
   const total   = allVals.length;
   const done    = allVals.filter(v=>v.status==='Completed').length;
   const delayed = allVals.filter(v=>v.status==='Delayed').length;
-  const atRisk  = allVals.filter(v=>v.status==='At Risk').length;
+  const atRisk  = allVals.filter(v=>v.status==='In Progress').length;
   const progArr = allVals.map(v=>+v.siteProgress||0);
   const avg     = progArr.length ? Math.round(progArr.reduce((s,v)=>s+v,0)/progArr.length) : 0;
   let totMP=0; (d.mpRows||[]).forEach(r=>{totMP+=(+r.alfanar||0)+(+r.subcon||0)+(+r.indirect||0)});
@@ -1625,18 +1659,18 @@ function renderCivilTable(){
   tbody.innerHTML = '';
   let shown = 0;
 
-  const dotCls = s => s==='Completed'?'dot-completed':s==='On Track'?'dot-on-track':s==='At Risk'?'dot-at-risk':s==='Delayed'?'dot-delayed':'dot-not-started';
-  const cardCls= s => s==='Completed'?'cc-completed':s==='On Track'?'cc-on-track':s==='At Risk'?'cc-at-risk':s==='Delayed'?'cc-delayed':'cc-not-started';
-  const dateCls= s => s==='Delayed'?'delayed':s==='At Risk'?'at-risk':s==='Completed'?'completed':'';
+  const dotCls = s => s==='Completed'?'dot-completed':s==='In Progress'?'dot-on-track':s==='Delayed'?'dot-delayed':'dot-not-started';
+  const cardCls= s => s==='Completed'?'cc-completed':s==='In Progress'?'cc-on-track':s==='Delayed'?'cc-delayed':'cc-not-started';
+  const dateCls= s => s==='Delayed'?'delayed':s==='Completed'?'completed':'';
 
-  // ── COLLAPSE FIX — three strict rules:
-  // 1. leafMatches() is ONLY about search/filter data — never looks at expanded state
-  // 2. nodeHasMatchingLeaf() returns true immediately when no filter is active
-  //    (packages always show when unfiltered)
-  // 3. renderNode() ALWAYS appends pkg header rows — never skips them —
-  //    then separately decides whether to render children based on expanded state
+  // ── COLLAPSE FIX — strict separation of filter vs visibility:
+  // Rule 1: When NO filter is active, every node (pkg + leaf) always matches.
+  //         This guarantees pkg headers NEVER disappear during collapse.
+  // Rule 2: leafMatches() is purely about search/filter data — never touches expanded.
+  // Rule 3: renderNode() always appends pkg headers; only hides children when collapsed.
   function leafMatches(leaf){
-    if(!search && !fStatus && !delayedOnly) return true; // no filter = always match
+    // Short-circuit: no filter active = always show
+    if(!search && !fStatus && !delayedOnly) return true;
     if(search && !([leaf.label,leaf.remarks||''].join(' ').toLowerCase().includes(search))) return false;
     if(fStatus||delayedOnly){
       const sts=cities.map(c=>leaf.cityData?.[c]?.status).filter(Boolean);
@@ -1646,8 +1680,10 @@ function renderCivilTable(){
     return true;
   }
   function nodeHasMatchingLeaf(node){
-    if(!search && !fStatus && !delayedOnly) return true; // no filter = always show
+    // Short-circuit: no filter = always show (pkg headers NEVER skipped)
+    if(!search && !fStatus && !delayedOnly) return true;
     if(!node.children||node.children.length===0) return leafMatches(node);
+    // Walk ALL children regardless of expanded state
     return node.children.some(c=>nodeHasMatchingLeaf(c));
   }
 
@@ -1704,23 +1740,25 @@ function renderCivilTable(){
     let cardsHtml = `<div class="city-cards-row">`;
     cities.forEach(city=>{
       const cd  = node.cityData?.[city]||{};
-      const st  = cd.status||'Not Started';
-      const sp  = cd.siteProgress!=null ? cd.siteProgress : '';
+      const sp  = cd.siteProgress!=null ? +cd.siteProgress : 0;
       const del = cd.delivery!=null ? cd.delivery : '';
-      // ── FIX COMPLETED LOGIC: isCompleted if status=Completed OR sp=100 OR planned='Completed'
-      const isCompleted = st==='Completed'||(typeof sp==='number'&&sp>=100)||
-                          cd.plannedFinish==='Completed'||cd.expectedDate==='Completed';
+      // Always use auto-calculated status for rendering
+      const st  = calcAutoStatus(sp, cd.plannedFinish, data.date);
+      const isCompleted = st === 'Completed';
+
+      // Debug: log field values to console so issues are visible
+      // console.log(`[${city}] ${node.label}: sp=${sp} planned=${cd.plannedFinish} expected=${cd.expectedDate} status=${st}`);
 
       if(isCompleted){
         // Clean completed card — no dates, no delay chip
-        const finDate = (cd.expectedDate&&cd.expectedDate!=='Completed'&&cd.expectedDate!=='N/A'&&cd.expectedDate)
-                      || (cd.plannedFinish&&cd.plannedFinish!=='Completed'&&cd.plannedFinish!=='N/A'&&cd.plannedFinish)
-                      || null;
+        const finDate = (cd.expectedDate && cd.expectedDate!=='N/A') ? cd.expectedDate
+                      : (cd.plannedFinish && cd.plannedFinish!=='N/A') ? cd.plannedFinish
+                      : null;
         cardsHtml += `<div class="city-card cc-completed city-card-done">
           <div class="city-card-name">${esc(city)}</div>
           <div class="city-card-row">
             <span class="city-card-row-label">Site %</span>
-            ${pp(sp||100)}
+            ${pp(sp)}
           </div>
           <div class="city-done-footer">
             <span class="city-done-badge">✔ Completed</span>
@@ -1728,11 +1766,16 @@ function renderCivilTable(){
           </div>
         </div>`;
       } else {
-        const dc2 = calcDelay(cd.plannedFinish,cd.expectedDate);
-        const delChip = dc2===null?'':dc2>0?`<span class="dc dc-lt">+${dc2}d late</span>`:dc2<0?`<span class="dc dc-ah">${Math.abs(dc2)}d early</span>`:`<span class="dc dc-ok">On Time</span>`;
+        const dc2 = calcDelay(cd.plannedFinish, cd.expectedDate);
+        const delChip = dc2===null?''
+          : dc2>0 ? `<span class="dc dc-lt">+${dc2}d late</span>`
+          : dc2<0 ? `<span class="dc dc-ah">${Math.abs(dc2)}d early</span>`
+          : `<span class="dc dc-ok">On Time</span>`;
         const ec = dateCls(st);
-        // Show N/A delivery as clean
-        const delDisplay = del==='N/A'?'<span class="pp pp-na">N/A</span>':pp(del);
+        const delDisplay = (del===null||del===''||del==='N/A')
+          ? '<span class="pp pp-na">N/A</span>' : pp(del);
+        const plannedStr  = cd.plannedFinish  && cd.plannedFinish  !== 'N/A' ? fmtDS(cd.plannedFinish)  : '';
+        const expectedStr = cd.expectedDate   && cd.expectedDate   !== 'N/A' ? fmtDS(cd.expectedDate)   : '';
         cardsHtml += `<div class="city-card ${cardCls(st)}">
           <div class="city-card-name">${esc(city)}</div>
           <div class="city-card-row">
@@ -1744,13 +1787,13 @@ function renderCivilTable(){
             ${pp(sp)}
           </div>
           <div class="city-card-dates">
-            ${cd.plannedFinish&&cd.plannedFinish!=='N/A'?`<div class="city-date-row">
+            ${plannedStr?`<div class="city-date-row">
               <span class="city-date-lbl">Planned</span>
-              <span class="city-date-val">${fmtDS(cd.plannedFinish)}</span>
+              <span class="city-date-val">${plannedStr}</span>
             </div>`:''}
-            ${cd.expectedDate&&cd.expectedDate!=='N/A'?`<div class="city-date-row">
+            ${expectedStr?`<div class="city-date-row">
               <span class="city-date-lbl">Expected</span>
-              <span class="city-date-val ${ec}">${fmtDS(cd.expectedDate)}</span>
+              <span class="city-date-val ${ec}">${expectedStr}</span>
             </div>`:''}
             ${delChip?`<div style="text-align:right;margin-top:2px">${delChip}</div>`:''}
           </div>
@@ -1776,31 +1819,33 @@ function renderCivilTable(){
   // ── Defer animation to NEXT paint cycle so browser has committed the DOM ──
   setTimeout(() => animateTableRows(tbody), 0);
 
-  // ── Empty state logic:
-  // IMPORTANT: only append an empty-state row — never overwrite tbody.innerHTML here,
-  // because package header rows may already have been appended above.
-  // "shown===0" just means no LEAF activities are visible (all collapsed or filtered).
-  const hasFilter = search||fStatus||delayedOnly;
-  const totalLeaves = allLeaves(pkgs).length;
-  const hasPkgRows = tbody.querySelectorAll('tr.pkg-row').length > 0;
+  // ── Empty state: ONLY append an empty row — NEVER overwrite tbody.innerHTML ──
+  // pkg header rows are already in tbody; overwriting them would make them disappear.
+  const hasFilter    = !!(search||fStatus||delayedOnly);
+  const totalLeaves  = allLeaves(pkgs).length;
+  const hasPkgRows   = tbody.querySelectorAll('tr.pkg-row').length > 0;
 
-  if(shown===0 && !hasPkgRows){
-    // Only show empty state if there are truly no rows at all (no packages either)
+  if(shown === 0 && !hasPkgRows){
+    // Truly nothing rendered at all (empty data or filter wiped everything)
+    const row = document.createElement('tr');
     if(hasFilter){
-      const row = document.createElement('tr');
       row.innerHTML = `<td colspan="3" class="civil-empty">No activities match filter.
-        <button onclick="document.getElementById('flt-status').value='';delayedOnly=false;document.getElementById('flt-delayed-btn').classList.add('off');document.getElementById('srch-civil').value='';renderCivilTable()"
-          style="margin-left:8px;padding:3px 10px;border:1.5px solid var(--ab-lt);border-radius:5px;background:transparent;color:var(--ab);cursor:pointer;font-size:11px;font-weight:700">Clear Filters</button>
+        <button onclick="document.getElementById('flt-status').value='';delayedOnly=false;
+          document.getElementById('flt-delayed-btn').classList.add('off');
+          document.getElementById('srch-civil').value='';renderCivilTable()"
+          style="margin-left:8px;padding:3px 10px;border:1.5px solid var(--ab-lt);
+            border-radius:5px;background:transparent;color:var(--ab);cursor:pointer;
+            font-size:11px;font-weight:700">Clear Filters</button>
       </td>`;
-      tbody.appendChild(row);
+    } else {
+      row.innerHTML = `<td colspan="3" class="civil-empty">No civil works data yet.</td>`;
     }
-    // If no filter and no rows at all — something went wrong with data, show nothing
+    tbody.appendChild(row);
   }
-  // If shown===0 but hasPkgRows===true: packages are collapsed — package headers are visible,
-  // user can see and click them. No message needed.
+  // If shown===0 but hasPkgRows: packages are collapsed — headers visible, no message needed.
 
   document.getElementById('civil-count').textContent = totalLeaves+' activities';
-  document.getElementById('flt-count').textContent   = hasFilter?`Showing ${shown} of ${totalLeaves}`:'';
+  document.getElementById('flt-count').textContent   = hasFilter ? `Showing ${shown} of ${totalLeaves}` : '';
 }
 
 function toggleDelayedFilter(){
@@ -2033,9 +2078,13 @@ function buildPkgRow(node,depth){
           <div class="fg"><label>Site Progress %</label><input type="number" value="${cd.siteProgress??0}" min="0" max="100" onchange="updNodeCity('${node.id}','${city}','siteProgress',this.value)"/></div>
           <div class="fg"><label>Planned Finish</label><input type="date" value="${cd.plannedFinish||''}" onchange="updNodeCity('${node.id}','${city}','plannedFinish',this.value)"/></div>
           <div class="fg"><label>Expected Finish</label><input type="date" value="${cd.expectedDate||''}" onchange="updNodeCity('${node.id}','${city}','expectedDate',this.value)"/></div>
-          <div class="fg"><label>Status</label><select onchange="updNodeCity('${node.id}','${city}','status',this.value)">
-            ${['On Track','At Risk','Delayed','Completed','Not Started'].map(s=>`<option${s===(cd.status||'Not Started')?' selected':''}>${s}</option>`).join('')}
-          </select></div>
+          <div class="fg"><label>Status (Auto)</label>
+            <div style="padding:8px 11px;border:1.5px solid var(--border);border-radius:var(--rsm);
+              background:var(--surface);font-size:12px;font-weight:700;
+              color:${calcAutoStatus(cd.siteProgress,cd.plannedFinish,data.date)==='Completed'?'var(--success)':calcAutoStatus(cd.siteProgress,cd.plannedFinish,data.date)==='Delayed'?'var(--crit)':calcAutoStatus(cd.siteProgress,cd.plannedFinish,data.date)==='In Progress'?'var(--ab)':'var(--text-muted)'}">
+              ${calcAutoStatus(cd.siteProgress,cd.plannedFinish,data.date)}
+            </div>
+          </div>
         </div>
       </div>`;
     });
@@ -2055,7 +2104,20 @@ function updNodeCity(id,city,k,v){
   const n=findNode(data.civilPkgs,id);if(!n)return;
   if(!n.cityData)n.cityData={};
   if(!n.cityData[city])n.cityData[city]={};
-  n.cityData[city][k]=k==='status'?v:(v===''?null:+v);
+  // String fields: plannedFinish, expectedDate — must NOT be converted to numbers
+  const STRING_FIELDS = ['plannedFinish','expectedDate','status'];
+  if(STRING_FIELDS.includes(k)){
+    n.cityData[city][k] = v||'';
+  } else {
+    // Numeric fields: delivery, siteProgress
+    n.cityData[city][k] = v==='' ? null : +v;
+  }
+  // Recalculate auto status whenever any city field changes
+  n.cityData[city].status = calcAutoStatus(
+    n.cityData[city].siteProgress,
+    n.cityData[city].plannedFinish,
+    data.date
+  );
   renderDashboard();
 }
 function addChildNode(pid){
@@ -2363,6 +2425,9 @@ async function saveSnapshot(){
   if(!_isEditor){ showToast('🔒 Editor sign-in required'); showLogin(); return; }
 
   const dateKey = (data.date || new Date().toISOString().slice(0,10)).trim();
+
+  // Recalculate status before saving
+  applyAutoStatus();
 
   /* 1. Always write to local cache instantly (includes photos) */
   try{ localStorage.setItem(SK, JSON.stringify(data)); }catch(e){}
