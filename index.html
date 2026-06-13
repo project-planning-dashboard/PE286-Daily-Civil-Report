@@ -348,10 +348,15 @@ table.civil-tbl{width:100%;border-collapse:collapse;font-size:12.5px}
 .pkg-summary-item .psi-val.val-late{ color:var(--crit); }
 .pkg-chip{
   display:inline-flex;align-items:center;
-  padding:2px 8px;border-radius:99px;
-  font-size:9px;font-weight:800;
+  padding:5px 14px;border-radius:99px;
+  font-size:11px;font-weight:900;white-space:nowrap;
 }
-.pkg-chip-late{ background:rgba(220,38,38,.1);color:var(--crit);border:1px solid rgba(220,38,38,.2) }
+.pkg-chip-late{
+  background:#FFF0F0 !important;color:#DC2626 !important;
+  border:1.5px solid #FCA5A5 !important;
+  box-shadow:0 4px 14px rgba(220,38,38,.13) !important;
+}
+.pkg-chip-late::before{content:"⚠ "}
 .pkg-chip-ok  { background:rgba(22,163,74,.1); color:var(--success);border:1px solid rgba(22,163,74,.2) }
 .pkg-prog-inline{
   display:inline-flex;align-items:center;gap:5px;
@@ -415,7 +420,7 @@ table.civil-tbl{width:100%;border-collapse:collapse;font-size:12.5px}
 
 /* ── CITY CARD — the visual heart ── */
 .city-card{
-  flex:1;min-width:160px;border-radius:var(--rsm);
+  flex:1;min-width:210px;border-radius:var(--rsm);
   padding:13px 14px;
   display:flex;flex-direction:column;gap:7px;
   transition:transform .2s cubic-bezier(.4,0,.2,1),
@@ -476,12 +481,12 @@ table.civil-tbl{width:100%;border-collapse:collapse;font-size:12.5px}
 .city-card-row{display:flex;align-items:center;justify-content:space-between;gap:6px}
 .city-card-row-label{font-size:9px;color:var(--text-faint);font-weight:600;white-space:nowrap}
 .city-card-dates{
-  display:flex;flex-direction:column;gap:3px;margin-top:2px;
+  display:flex;flex-direction:column;gap:8px;margin-top:6px;
   padding-top:7px;border-top:1px solid var(--border);
 }
 .city-date-row{display:flex;align-items:center;justify-content:space-between;gap:4px}
-.city-date-lbl{font-size:9px;color:var(--text-faint);white-space:nowrap}
-.city-date-val{font-size:10px;font-weight:700;color:var(--text-secondary);white-space:nowrap}
+.city-date-lbl{font-size:12px;font-weight:700;color:#0D4D8B;display:flex;align-items:center;gap:6px;white-space:nowrap}
+.city-date-val{font-size:13px;font-weight:800;color:#0B2F63;white-space:nowrap}
 .city-date-val.delayed  {color:var(--crit)}
 .city-date-val.at-risk  {color:var(--warn)}
 .city-date-val.completed{color:var(--success)}
@@ -492,10 +497,11 @@ table.civil-tbl{width:100%;border-collapse:collapse;font-size:12.5px}
   transition:all .18s ease;
   animation:pillSlideIn .25s cubic-bezier(.22,1,.36,1) both;
 }
-.pp-100{background:rgba(22,163,74,.12);color:#15803d;border:1px solid rgba(22,163,74,.2)}
-.pp-hi {background:#FEF3C7;color:#D97706;border:1px solid #FCD34D}
-.pp-mid{background:#FEF3C7;color:#D97706;border:1px solid #FCD34D}
-.pp-lo {background:rgba(220,38,38,.1); color:#b91c1c;border:1px solid rgba(220,38,38,.15)}
+.pp-100{background:#DCFCE7 !important;color:#16A34A !important;border:1px solid #86EFAC !important}
+.pp-hi {background:#FEF3C7 !important;color:#F59E0B !important;border:1px solid #FCD34D !important}
+.pp-mid{background:#FEF3C7 !important;color:#F59E0B !important;border:1px solid #FCD34D !important}
+.pp-lo {background:#FEE2E2 !important;color:#DC2626 !important;border:1px solid #FCA5A5 !important}
+.pp-zero{background:#FEE2E2 !important;color:#DC2626 !important;border:1px solid #FCA5A5 !important;font-weight:900 !important}
 .pp-na {background:var(--surface);color:var(--text-faint);font-size:10px}
 
 /* Delay chips */
@@ -982,19 +988,20 @@ table.civil-tbl{width:100%;border-collapse:collapse;font-size:12.5px}
   color:var(--text-primary);
 }
 .city-prog-bar-wrap{
-  height:5px;
-  background:rgba(0,96,181,.12);
-  border-radius:3px;
-  margin:10px 0 16px;
-  /* No overflow:hidden — preserves fill during opacity transition */
+  height:7px;
+  background:#DDEBFA;
+  border-radius:999px;
+  margin:12px 0 22px;
+  overflow:hidden;
 }
 .city-prog-bar-fill{
-  height:5px;
-  border-radius:3px;
-  width:0%;          /* JS always resets to 0 then transitions */
+  height:7px;
+  border-radius:999px;
+  background:linear-gradient(90deg,#0060B5 0%,#12C7C3 100%);
+  width:0%;
   transition:width 1.2s cubic-bezier(.22,1,.36,1);
   will-change:width;
-  box-shadow:0 0 5px rgba(44,168,224,.3);
+  box-shadow:none;
 }
 .city-stats-row{
   display:flex;gap:0;
@@ -1185,17 +1192,22 @@ table.civil-tbl{width:100%;border-collapse:collapse;font-size:12.5px}
 .pkg-summary-item{background:rgba(255,255,255,.55);border:1px solid rgba(0,96,181,.10);border-radius:999px;padding:3px 8px;font-size:8.5px;font-weight:800;color:var(--text-muted);box-shadow:0 1px 5px rgba(0,96,181,.05);white-space:nowrap}
 .pkg-summary-item .psi-val{color:var(--ab-dk);font-weight:900;margin-left:4px}
 .pkg-summary-item .psi-val.val-late{color:var(--crit)}
-.pkg-chip{display:inline-flex;align-items:center;border-radius:999px;padding:3px 8px;font-size:8.5px;font-weight:900;box-shadow:0 1px 8px rgba(0,96,181,.06);white-space:nowrap;flex-shrink:0}
-.pkg-chip-late{background:rgba(220,38,38,.10);color:var(--crit);border:1px solid rgba(220,38,38,.20);animation:delayChipPulse 2.2s ease-in-out infinite}
+.pkg-chip{display:inline-flex;align-items:center;border-radius:999px;padding:5px 14px;font-size:11px;font-weight:900;white-space:nowrap;flex-shrink:0}
+.pkg-chip-late{
+  background:#FFF0F0 !important;
+  color:#DC2626 !important;
+  border:1.5px solid #FCA5A5 !important;
+  box-shadow:0 4px 14px rgba(220,38,38,.13) !important;
+  animation:delayChipPulse 2.2s ease-in-out infinite;
+}
+.pkg-chip-late::before{content:"⚠ ";font-size:11px}
 .pkg-chip-ok{background:rgba(22,163,74,.10);color:var(--success);border:1px solid rgba(22,163,74,.20)}
 .pkg-prog-inline{display:inline-flex;align-items:center;gap:6px}
 .pkg-prog-bar-mini{width:54px;height:5px;background:rgba(0,96,181,.16);border-radius:6px;overflow:hidden;box-shadow:inset 0 1px 2px rgba(0,96,181,.12)}
 .pkg-prog-bar-mini-fill{display:block;height:100%;width:0%;border-radius:6px;background:linear-gradient(90deg,var(--ab),var(--cy));box-shadow:0 0 6px rgba(44,168,224,.38);transition:width .8s cubic-bezier(.22,1,.36,1)}
 
 /* Make the top city progress bar elegant, not heavy */
-.city-prog-bar-wrap{height:5px!important;background:rgba(0,96,181,.12)!important;border:none!important;border-radius:4px!important;overflow:hidden!important;box-shadow:inset 0 1px 2px rgba(0,96,181,.08)!important}
-.city-prog-bar-fill{height:5px!important;border-radius:4px!important;box-shadow:0 0 5px rgba(44,168,224,.28)!important;position:relative;overflow:hidden}
-.city-prog-bar-fill::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.45),transparent);transform:translateX(-120%);animation:barShine 2.6s ease-in-out infinite}
+/* city-prog-bar consolidated above */
 @keyframes barShine{0%,55%,100%{transform:translateX(-120%);opacity:0}25%{opacity:1}50%{transform:translateX(160%);opacity:0}}
 
 /* Visible but professional text/card motion for the whole report */
@@ -1226,21 +1238,36 @@ table.civil-tbl{width:100%;border-collapse:collapse;font-size:12.5px}
   box-shadow:0 1px 6px rgba(22,163,74,.10)!important;
 }
 .pp-active{
-  background:rgba(37,99,235,.10)!important;
-  color:#005EB8!important;
-  border:1px solid rgba(37,99,235,.22)!important;
-  box-shadow:0 1px 6px rgba(0,96,181,.08)!important;
+  background:#FEF3C7 !important;
+  color:#F59E0B !important;
+  border:1px solid #FCD34D !important;
+  box-shadow:none !important;
 }
 .pp-zero{
-  background:rgba(220,38,38,.10)!important;
-  color:#dc2626!important;
-  border:1px solid rgba(220,38,38,.25)!important;
-  box-shadow:0 1px 6px rgba(220,38,38,.08)!important;
+  background:#FEE2E2 !important;
+  color:#DC2626 !important;
+  border:1px solid #FCA5A5 !important;
+  box-shadow:0 1px 4px rgba(220,38,38,.18) !important;
+  font-weight:900 !important;
 }
-.pp-hi,.pp-mid,.pp-lo{ /* backward compatibility if any old class remains */
-  background:rgba(37,99,235,.10)!important;
-  color:#005EB8!important;
-  border:1px solid rgba(37,99,235,.22)!important;
+/* High-specificity backup so city-card context cannot override */
+.city-card .pp.pp-zero,
+.civil-tbl .pp.pp-zero{
+  background:#FEE2E2 !important;
+  color:#DC2626 !important;
+  border:1px solid #FCA5A5 !important;
+  box-shadow:0 1px 4px rgba(220,38,38,.18) !important;
+  font-weight:900 !important;
+}
+.pp-hi,.pp-mid{ /* 1-99%: yellow */
+  background:#FEF3C7 !important;
+  color:#F59E0B !important;
+  border:1px solid #FCD34D !important;
+}
+.pp-lo{ /* 0% fallback: red */
+  background:#FEE2E2 !important;
+  color:#DC2626 !important;
+  border:1px solid #FCA5A5 !important;
 }
 
 /* Make main package summary easier to read without increasing the table width */
@@ -1311,25 +1338,787 @@ table.civil-tbl{width:100%;border-collapse:collapse;font-size:12.5px}
 
 
 /* === FINAL OVERRIDE: Activity table percentage pill colors === */
-.city-card .pp:not(.pp-100):not(.pp-lo):not(.pp-na),
-.city-card .pp-hi,
-.city-card .pp-mid{
+.city-card .pp:not(.pp-100):not(.pp-lo):not(.pp-na):not(.pp-zero):not(.pp-mid),
+.city-card .pp-hi{
   background:#FEF3C7 !important;
-  color:#D97706 !important;
+  color:#F59E0B !important;
   border:1px solid #FCD34D !important;
-  box-shadow:0 1px 4px rgba(217,119,6,.12) !important;
+  box-shadow:0 1px 4px rgba(245,158,11,.12) !important;
+}
+.city-card .pp-mid,
+.city-card .pp.pp-mid{
+  background:#FEF3C7 !important;
+  color:#F59E0B !important;
+  border:1px solid #FCD34D !important;
 }
 .city-card .pp-100{
   background:#DCFCE7 !important;
-  color:#15803D !important;
+  color:#16A34A !important;
   border:1px solid #86EFAC !important;
   box-shadow:0 1px 4px rgba(22,163,74,.12) !important;
 }
-.city-card .pp-lo{
+.city-card .pp-lo,
+.city-card .pp.pp-zero{
   background:#FEE2E2 !important;
   color:#DC2626 !important;
   border:1px solid #FCA5A5 !important;
   box-shadow:0 1px 4px rgba(220,38,38,.12) !important;
+}
+
+
+/* === V11: Executive Remarks Styling === */
+.civil-tbl td.rmk-cell{
+  padding:10px 12px !important;
+  vertical-align:top !important;
+  background:linear-gradient(145deg,#FFFDF7,#FFFBEB) !important;
+  border-left:1px solid rgba(245,158,11,.28) !important;
+  min-width:230px !important;
+  width:260px !important;
+  max-width:280px !important;
+}
+.rmk-cell .rmk-text{
+  display:block !important;
+  position:relative !important;
+  color:#7C4A00 !important;
+  font-size:10.5px !important;
+  line-height:1.55 !important;
+  font-weight:600 !important;
+  padding:9px 10px 9px 28px !important;
+  border-radius:10px !important;
+  background:rgba(255,247,214,.82) !important;
+  border:1px solid rgba(244,197,66,.45) !important;
+  box-shadow:0 2px 8px rgba(217,119,6,.08) !important;
+  max-height:74px !important;
+  overflow:hidden !important;
+  word-break:break-word !important;
+}
+.rmk-cell .rmk-text::before{
+  content:"⚠" !important;
+  position:absolute !important;
+  left:9px !important;
+  top:8px !important;
+  font-size:12px !important;
+  color:#D97706 !important;
+}
+.rmk-cell .rmk-text::after{
+  content:"" !important;
+  position:absolute !important;
+  left:0 !important;
+  right:0 !important;
+  bottom:0 !important;
+  height:20px !important;
+  background:linear-gradient(180deg,rgba(255,247,214,0),rgba(255,247,214,.96)) !important;
+  pointer-events:none !important;
+}
+.rmk-cell .rmk-text:hover{
+  max-height:none !important;
+  overflow:visible !important;
+  z-index:20 !important;
+  box-shadow:0 8px 24px rgba(217,119,6,.18) !important;
+}
+.rmk-cell .rmk-text:hover::after{display:none !important;}
+.rmk-cell:empty,
+.rmk-cell .rmk-text:empty{
+  background:transparent !important;
+  border:none !important;
+  box-shadow:none !important;
+}
+.rmk-cell .rmk-empty{
+  color:#9AAFC4 !important;
+  font-style:italic !important;
+  font-size:10px !important;
+}
+
+
+/* === V12: Clean empty remarks + single completed badge === */
+.civil-tbl td.rmk-cell:has(.rmk-empty),
+.civil-tbl td.rmk-cell.rmk-empty-cell{
+  background:transparent !important;
+  border-left:1px solid var(--border) !important;
+  box-shadow:none !important;
+}
+.rmk-cell .rmk-empty{
+  display:none !important;
+}
+.city-done-footer{
+  justify-content:flex-start !important;
+}
+.city-done-footer .city-done-date{
+  display:none !important;
+}
+.city-card-done .city-card-row + .city-done-footer{
+  margin-top:4px !important;
+}
+
+
+/* === V14: City Summary Cards — clean executive style exactly like reference === */
+.city-summary-wrap{
+  gap:18px !important;
+  margin-top:18px !important;
+  margin-bottom:24px !important;
+}
+
+.city-prog-card{
+  background:rgba(255,255,255,.86) !important;
+  border:1px solid #D6E6F7 !important;
+  border-radius:18px !important;
+  padding:24px 28px 22px !important;
+  min-height:250px !important;
+  box-shadow:
+    0 10px 28px rgba(0,96,181,.10),
+    inset 0 1px 0 rgba(255,255,255,.90) !important;
+  overflow:hidden !important;
+}
+
+.city-prog-card::before{
+  height:0 !important;
+  display:none !important;
+}
+
+.city-prog-header{
+  display:flex !important;
+  align-items:center !important;
+  justify-content:space-between !important;
+  margin-bottom:14px !important;
+}
+
+.city-prog-name{
+  display:flex !important;
+  align-items:center !important;
+  gap:10px !important;
+  font-size:19px !important;
+  font-weight:900 !important;
+  letter-spacing:.25px !important;
+  color:#082A63 !important;
+}
+
+.city-prog-name::before{
+  content:"🏗️" !important;
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  width:34px !important;
+  height:34px !important;
+  flex:0 0 34px !important;
+  border-radius:50% !important;
+  background:#F5FAFF !important;
+  border:1px solid #D3E6FA !important;
+  box-shadow:0 3px 10px rgba(0,96,181,.10) !important;
+  font-size:17px !important;
+}
+
+.city-prog-pct{
+  display:flex !important;
+  align-items:center !important;
+  gap:8px !important;
+  font-size:28px !important;
+  font-weight:900 !important;
+  letter-spacing:-.7px !important;
+  line-height:1 !important;
+  color:#159447 !important;
+}
+
+.city-prog-pct::before{
+  content:"📈" !important;
+  font-size:21px !important;
+  line-height:1 !important;
+}
+
+.city-prog-card:has(.city-prog-pct[style*="50"]),
+.city-prog-card:has(.city-prog-pct[style*="0"]){
+  --city-pct-color:#F59E0B;
+}
+.city-prog-card .city-prog-pct{
+  color:var(--city-pct-color,#159447) !important;
+}
+
+.city-prog-bar-wrap{
+  height:7px !important;
+  background:#DDEBFA !important;
+  border-radius:999px !important;
+  margin:12px 0 22px !important;
+  overflow:hidden !important;
+}
+
+.city-prog-bar-fill{
+  height:7px !important;
+  border-radius:999px !important;
+  background:linear-gradient(90deg,#0060B5 0%, #12C7C3 100%) !important;
+  box-shadow:none !important;
+}
+
+.city-stats-row{
+  display:flex !important;
+  gap:0 !important;
+  border-top:none !important;
+  border-bottom:1px dashed #CFE0F2 !important;
+  padding:0 0 18px !important;
+  margin-bottom:16px !important;
+}
+
+.city-stat-item{
+  flex:1 !important;
+  text-align:center !important;
+  padding:0 10px !important;
+  border-right:1px solid #C7DAEF !important;
+}
+
+.city-stat-item:last-child{
+  border-right:none !important;
+}
+
+.city-stat-val{
+  font-size:22px !important;
+  font-weight:900 !important;
+  line-height:1.05 !important;
+  color:#052A63 !important;
+  margin-bottom:4px !important;
+}
+
+.city-stat-val::before{
+  display:block !important;
+  font-size:25px !important;
+  line-height:1 !important;
+  margin-bottom:8px !important;
+  font-weight:400 !important;
+}
+
+.city-stat-item:nth-child(1) .city-stat-val::before{content:"📋" !important;}
+.city-stat-item:nth-child(2) .city-stat-val::before{content:"✅" !important;}
+.city-stat-item:nth-child(3) .city-stat-val::before{content:"🚧" !important;}
+.city-stat-item:nth-child(4) .city-stat-val::before{content:"⌛" !important;}
+
+.city-stat-val.sv-completed,
+.city-stat-item:nth-child(2) .city-stat-val{
+  color:#0F9D52 !important;
+}
+
+.city-stat-val.sv-inprog,
+.city-stat-item:nth-child(3) .city-stat-val{
+  color:#005EB8 !important;
+}
+
+.city-stat-item:nth-child(4) .city-stat-val{
+  color:#5D748C !important;
+}
+
+.city-stat-lbl{
+  font-size:10px !important;
+  font-weight:800 !important;
+  letter-spacing:.55px !important;
+  color:#60778E !important;
+  margin-top:4px !important;
+  text-transform:uppercase !important;
+}
+
+.city-prog-card .city-date-row{
+  display:flex !important;
+  align-items:center !important;
+  justify-content:space-between !important;
+  gap:16px !important;
+  padding:4px 0 !important;
+}
+
+.city-prog-card .city-date-lbl{
+  display:flex !important;
+  align-items:center !important;
+  gap:8px !important;
+  font-size:14px !important;
+  color:#062A63 !important;
+  font-weight:700 !important;
+}
+
+.city-prog-card .city-date-row:first-of-type .city-date-lbl::before{
+  content:"📅" !important;
+  font-size:18px !important;
+}
+
+.city-prog-card .city-date-row:nth-of-type(2) .city-date-lbl::before{
+  content:"🎯" !important;
+  font-size:18px !important;
+}
+
+.city-prog-card .city-date-val{
+  font-size:14px !important;
+  color:#062A63 !important;
+  font-weight:900 !important;
+}
+
+.city-prog-card .city-date-val.delayed,
+.city-prog-card .city-expected-late{
+  color:#E00000 !important;
+}
+
+.city-chip-late{
+  display:inline-flex !important;
+  align-items:center !important;
+  gap:6px !important;
+  margin-top:12px !important;
+  margin-left:auto !important;
+  padding:8px 18px !important;
+  border-radius:999px !important;
+  background:#FFF0F0 !important;
+  color:#E00000 !important;
+  border:1px solid #FFB8B8 !important;
+  font-size:13px !important;
+  font-weight:900 !important;
+  box-shadow:0 4px 14px rgba(220,38,38,.10) !important;
+}
+
+.city-chip-late::before{
+  content:"⚠️" !important;
+  font-size:14px !important;
+}
+
+.city-chip-ok{
+  display:inline-flex !important;
+  align-items:center !important;
+  gap:6px !important;
+  margin-top:12px !important;
+  margin-left:auto !important;
+  padding:8px 18px !important;
+  border-radius:999px !important;
+  background:#ECFDF5 !important;
+  color:#159447 !important;
+  border:1px solid #A7F3D0 !important;
+  font-size:13px !important;
+  font-weight:900 !important;
+}
+
+.city-chip-ok::before{
+  content:"✅" !important;
+  font-size:14px !important;
+}
+
+.city-chip{
+  opacity:1 !important;
+  transform:none !important;
+}
+
+/* Keep top cards clean: no exaggerated animations/glow */
+.city-prog-card:hover{
+  transform:translateY(-3px) !important;
+  box-shadow:0 14px 34px rgba(0,96,181,.13), inset 0 1px 0 rgba(255,255,255,.95) !important;
+}
+
+.city-stat-val.sv-completed,
+.city-stat-val.sv-inprog,
+.city-chip-late.city-chip-anim,
+.city-expected-late{
+  animation:none !important;
+}
+
+
+/* === V16: Keep V14 style + fix In Progress icon + show date icons === */
+
+/* Hide the old emoji-only icon in In Progress and replace with clean SVG */
+.city-stat-item:nth-child(3) .city-stat-val::before{
+  content:"" !important;
+  display:block !important;
+  width:30px !important;
+  height:30px !important;
+  margin:0 auto 8px !important;
+  background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2032%2032%22%3E%0A%20%20%3Cpath%20d%3D%22M6%2024h20%22%20stroke%3D%22%23F59E0B%22%20stroke-width%3D%222.7%22%20stroke-linecap%3D%22round%22/%3E%0A%20%20%3Cpath%20d%3D%22M9%2024l4-10%204%2010M11%2019h4%22%20fill%3D%22none%22%20stroke%3D%22%23F59E0B%22%20stroke-width%3D%222.4%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22/%3E%0A%20%20%3Ccircle%20cx%3D%2222%22%20cy%3D%2210%22%20r%3D%224%22%20fill%3D%22none%22%20stroke%3D%22%23F59E0B%22%20stroke-width%3D%222.4%22/%3E%0A%20%20%3Cpath%20d%3D%22M22%2014v8M19%2018h6%22%20stroke%3D%22%23F59E0B%22%20stroke-width%3D%222.4%22%20stroke-linecap%3D%22round%22/%3E%0A%3C/svg%3E") !important;
+  background-repeat:no-repeat !important;
+  background-position:center !important;
+  background-size:contain !important;
+  font-size:0 !important;
+  line-height:0 !important;
+}
+
+/* Add clear icons beside Planned Finish and Expected Finish */
+.city-prog-card .city-date-lbl{
+  display:flex !important;
+  align-items:center !important;
+  gap:10px !important;
+  font-size:16px !important;
+  font-weight:800 !important;
+  color:#062A63 !important;
+  line-height:1.4 !important;
+  white-space:nowrap !important;
+}
+
+.city-prog-card .city-date-val{
+  font-size:16px !important;
+  font-weight:900 !important;
+  white-space:nowrap !important;
+}
+
+.city-prog-card .city-date-row{
+  min-height:34px !important;
+  align-items:center !important;
+}
+
+.city-prog-card .city-date-row:first-of-type .city-date-lbl::before{
+  content:"" !important;
+  display:inline-block !important;
+  width:22px !important;
+  height:22px !important;
+  flex:0 0 22px !important;
+  background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2032%2032%22%3E%0A%20%20%3Crect%20x%3D%226%22%20y%3D%228%22%20width%3D%2220%22%20height%3D%2218%22%20rx%3D%222.5%22%20fill%3D%22none%22%20stroke%3D%22%23005EB8%22%20stroke-width%3D%222.5%22/%3E%0A%20%20%3Cpath%20d%3D%22M6%2013h20M11%205v6M21%205v6%22%20fill%3D%22none%22%20stroke%3D%22%23005EB8%22%20stroke-width%3D%222.5%22%20stroke-linecap%3D%22round%22/%3E%0A%3C/svg%3E") !important;
+  background-repeat:no-repeat !important;
+  background-position:center !important;
+  background-size:contain !important;
+}
+
+.city-prog-card .city-date-row:nth-of-type(2) .city-date-lbl::before{
+  content:"" !important;
+  display:inline-block !important;
+  width:22px !important;
+  height:22px !important;
+  flex:0 0 22px !important;
+  background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2032%2032%22%3E%0A%20%20%3Ccircle%20cx%3D%2215%22%20cy%3D%2217%22%20r%3D%2210%22%20fill%3D%22none%22%20stroke%3D%22%23005EB8%22%20stroke-width%3D%222.4%22/%3E%0A%20%20%3Ccircle%20cx%3D%2215%22%20cy%3D%2217%22%20r%3D%225.3%22%20fill%3D%22none%22%20stroke%3D%22%23005EB8%22%20stroke-width%3D%222.4%22/%3E%0A%20%20%3Cpath%20d%3D%22M15%2017l10-10M23%207h4v4%22%20fill%3D%22none%22%20stroke%3D%22%23005EB8%22%20stroke-width%3D%222.7%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22/%3E%0A%3C/svg%3E") !important;
+  background-repeat:no-repeat !important;
+  background-position:center !important;
+  background-size:contain !important;
+}
+
+/* If old emojis were inserted as text, neutralize them visually */
+.city-prog-card .city-date-lbl{
+  text-indent:0 !important;
+}
+
+
+/* === V18 FINAL: Exact reference date icons + ongoing icon === */
+
+/* Top City Summary: replace In Progress icon with clean ongoing circular arrows */
+.city-summary-wrap .city-prog-card .city-stats-row .city-stat-item:nth-child(3) .city-stat-val::before,
+.city-summary-wrap .city-prog-card .city-stats-row .city-stat-item:nth-of-type(3) .city-stat-val::before {
+  content:"" !important;
+  display:block !important;
+  width:28px !important;
+  height:28px !important;
+  margin:0 auto 8px !important;
+  background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2064%2064%22%3E%0A%20%20%3Cpath%20d%3D%22M45%2020A17%2017%200%200%200%2016%2026%22%20fill%3D%22none%22%20stroke%3D%22%23005EB8%22%20stroke-width%3D%225.5%22%20stroke-linecap%3D%22round%22/%3E%0A%20%20%3Cpath%20d%3D%22M43%2010v12h12%22%20fill%3D%22none%22%20stroke%3D%22%23005EB8%22%20stroke-width%3D%225.5%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22/%3E%0A%20%20%3Cpath%20d%3D%22M19%2044a17%2017%200%200%200%2029-6%22%20fill%3D%22none%22%20stroke%3D%22%23005EB8%22%20stroke-width%3D%225.5%22%20stroke-linecap%3D%22round%22/%3E%0A%20%20%3Cpath%20d%3D%22M21%2054V42H9%22%20fill%3D%22none%22%20stroke%3D%22%23005EB8%22%20stroke-width%3D%225.5%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22/%3E%0A%3C/svg%3E") !important;
+  background-repeat:no-repeat !important;
+  background-position:center !important;
+  background-size:contain !important;
+  font-size:0 !important;
+  line-height:0 !important;
+  color:transparent !important;
+}
+
+/* Top City Summary: Planned / Expected icons on the LEFT exactly like reference */
+.city-summary-wrap .city-prog-card .city-date-row {
+  display:flex !important;
+  align-items:center !important;
+  justify-content:space-between !important;
+  gap:16px !important;
+}
+
+.city-summary-wrap .city-prog-card .city-date-row .city-date-lbl {
+  display:flex !important;
+  align-items:center !important;
+  gap:8px !important;
+  color:#062A63 !important;
+  font-size:14px !important;
+  font-weight:700 !important;
+  white-space:nowrap !important;
+}
+
+.city-summary-wrap .city-prog-card .city-date-row .city-date-lbl::before {
+  content:"" !important;
+  display:inline-block !important;
+  width:22px !important;
+  height:22px !important;
+  min-width:22px !important;
+  background-repeat:no-repeat !important;
+  background-position:center !important;
+  background-size:contain !important;
+}
+
+.city-summary-wrap .city-prog-card .city-date-row:nth-of-type(1) .city-date-lbl::before,
+.city-summary-wrap .city-prog-card .city-date-row:first-of-type .city-date-lbl::before {
+  background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2064%2064%22%3E%0A%20%20%3Crect%20x%3D%2211%22%20y%3D%2215%22%20width%3D%2242%22%20height%3D%2238%22%20rx%3D%225%22%20fill%3D%22none%22%20stroke%3D%22%23005EB8%22%20stroke-width%3D%224.8%22/%3E%0A%20%20%3Cpath%20d%3D%22M11%2026h42M21%209v12M43%209v12%22%20fill%3D%22none%22%20stroke%3D%22%23005EB8%22%20stroke-width%3D%224.8%22%20stroke-linecap%3D%22round%22/%3E%0A%20%20%3Cpath%20d%3D%22M21%2035h5M32%2035h5M43%2035h5M21%2044h5M32%2044h5%22%20stroke%3D%22%23005EB8%22%20stroke-width%3D%224.4%22%20stroke-linecap%3D%22round%22/%3E%0A%3C/svg%3E") !important;
+}
+
+.city-summary-wrap .city-prog-card .city-date-row:nth-of-type(2) .city-date-lbl::before {
+  background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2064%2064%22%3E%0A%20%20%3Ccircle%20cx%3D%2229%22%20cy%3D%2235%22%20r%3D%2220%22%20fill%3D%22none%22%20stroke%3D%22%23005EB8%22%20stroke-width%3D%224.8%22/%3E%0A%20%20%3Ccircle%20cx%3D%2229%22%20cy%3D%2235%22%20r%3D%2210%22%20fill%3D%22none%22%20stroke%3D%22%23005EB8%22%20stroke-width%3D%224.8%22/%3E%0A%20%20%3Cpath%20d%3D%22M29%2035l24-24M49%2011h10v10%22%20fill%3D%22none%22%20stroke%3D%22%23005EB8%22%20stroke-width%3D%225.5%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22/%3E%0A%3C/svg%3E") !important;
+}
+
+/* Activity City Cards: keep same style as screenshot: icon before date value, not squeezed before text */
+.city-card .city-date-row {
+  display:grid !important;
+  grid-template-columns: 1fr auto !important;
+  align-items:center !important;
+  column-gap:8px !important;
+}
+
+.city-card .city-date-lbl {
+  color:#0D3A68 !important;
+  font-weight:700 !important;
+  display:block !important;
+  padding-left:0 !important;
+}
+
+.city-card .city-date-val {
+  display:inline-flex !important;
+  align-items:center !important;
+  gap:6px !important;
+  font-weight:900 !important;
+}
+
+.city-card .city-date-row:nth-of-type(1) .city-date-val::before,
+.city-card .city-date-row:first-of-type .city-date-val::before {
+  content:"" !important;
+  display:inline-block !important;
+  width:16px !important;
+  height:16px !important;
+  min-width:16px !important;
+  background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2064%2064%22%3E%0A%20%20%3Crect%20x%3D%2211%22%20y%3D%2215%22%20width%3D%2242%22%20height%3D%2238%22%20rx%3D%225%22%20fill%3D%22none%22%20stroke%3D%22%23005EB8%22%20stroke-width%3D%224.8%22/%3E%0A%20%20%3Cpath%20d%3D%22M11%2026h42M21%209v12M43%209v12%22%20fill%3D%22none%22%20stroke%3D%22%23005EB8%22%20stroke-width%3D%224.8%22%20stroke-linecap%3D%22round%22/%3E%0A%20%20%3Cpath%20d%3D%22M21%2035h5M32%2035h5M43%2035h5M21%2044h5M32%2044h5%22%20stroke%3D%22%23005EB8%22%20stroke-width%3D%224.4%22%20stroke-linecap%3D%22round%22/%3E%0A%3C/svg%3E") !important;
+  background-repeat:no-repeat !important;
+  background-position:center !important;
+  background-size:contain !important;
+}
+
+.city-card .city-date-row:nth-of-type(2) .city-date-val::before {
+  content:"" !important;
+  display:inline-block !important;
+  width:16px !important;
+  height:16px !important;
+  min-width:16px !important;
+  background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2064%2064%22%3E%0A%20%20%3Ccircle%20cx%3D%2229%22%20cy%3D%2235%22%20r%3D%2220%22%20fill%3D%22none%22%20stroke%3D%22%23005EB8%22%20stroke-width%3D%224.8%22/%3E%0A%20%20%3Ccircle%20cx%3D%2229%22%20cy%3D%2235%22%20r%3D%2210%22%20fill%3D%22none%22%20stroke%3D%22%23005EB8%22%20stroke-width%3D%224.8%22/%3E%0A%20%20%3Cpath%20d%3D%22M29%2035l24-24M49%2011h10v10%22%20fill%3D%22none%22%20stroke%3D%22%23005EB8%22%20stroke-width%3D%225.5%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22/%3E%0A%3C/svg%3E") !important;
+  background-repeat:no-repeat !important;
+  background-position:center !important;
+  background-size:contain !important;
+}
+
+/* Remove any previous pseudo date icons before labels inside activity cards */
+.city-card .city-date-lbl::before {
+  content:none !important;
+  display:none !important;
+  background-image:none !important;
+}
+
+/* Remove accidental emoji additions */
+.city-stat-item:nth-child(2) .city-stat-lbl::before {
+  content:none !important;
+  display:none !important;
+}
+
+
+/* === V19 FINAL: match reference icons and restore date icons in main cards === */
+
+/* Override any old icon content */
+.city-summary-wrap .city-prog-card .city-stat-item:nth-child(3) .city-stat-val::before,
+.city-summary-wrap .city-prog-card .city-stat-item:nth-of-type(3) .city-stat-val::before {
+  content:"" !important;
+  display:block !important;
+  width:30px !important;
+  height:30px !important;
+  margin:0 auto 8px !important;
+  background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2064%2064%22%3E%0A%20%20%3Cpath%20d%3D%22M44%2018a18%2018%200%200%200-29%208%22%20fill%3D%22none%22%20stroke%3D%22%23F59E0B%22%20stroke-width%3D%225.5%22%20stroke-linecap%3D%22round%22/%3E%0A%20%20%3Cpath%20d%3D%22M43%208v13h13%22%20fill%3D%22none%22%20stroke%3D%22%23F59E0B%22%20stroke-width%3D%225.5%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22/%3E%0A%20%20%3Cpath%20d%3D%22M20%2046a18%2018%200%200%200%2029-8%22%20fill%3D%22none%22%20stroke%3D%22%23F59E0B%22%20stroke-width%3D%225.5%22%20stroke-linecap%3D%22round%22/%3E%0A%20%20%3Cpath%20d%3D%22M21%2056V43H8%22%20fill%3D%22none%22%20stroke%3D%22%23F59E0B%22%20stroke-width%3D%225.5%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22/%3E%0A%3C/svg%3E") !important;
+  background-repeat:no-repeat !important;
+  background-position:center !important;
+  background-size:contain !important;
+  font-size:0 !important;
+  line-height:0 !important;
+  color:transparent !important;
+}
+
+/* Make top date rows same style as the reference image */
+.city-summary-wrap .city-prog-card .city-date-row,
+.city-summary-wrap .city-prog-card .city-date-row-anim {
+  display:flex !important;
+  align-items:center !important;
+  justify-content:space-between !important;
+  gap:18px !important;
+  padding:5px 0 !important;
+}
+
+.city-summary-wrap .city-prog-card .city-date-lbl {
+  display:flex !important;
+  align-items:center !important;
+  gap:9px !important;
+  color:#062A63 !important;
+  font-size:14px !important;
+  font-weight:700 !important;
+  white-space:nowrap !important;
+}
+
+.city-summary-wrap .city-prog-card .city-date-val {
+  color:#062A63 !important;
+  font-size:14px !important;
+  font-weight:900 !important;
+}
+
+.city-summary-wrap .city-prog-card .city-date-val.delayed,
+.city-summary-wrap .city-prog-card .city-date-val.city-expected-late,
+.city-summary-wrap .city-prog-card .city-expected-late {
+  color:#E00000 !important;
+}
+
+/* Calendar icon before Planned Finish */
+.city-summary-wrap .city-prog-card .city-date-row:first-of-type .city-date-lbl::before,
+.city-summary-wrap .city-prog-card .city-date-row:nth-of-type(1) .city-date-lbl::before,
+.city-summary-wrap .city-prog-card .city-date-row:nth-child(1) .city-date-lbl::before {
+  content:"" !important;
+  display:inline-block !important;
+  width:24px !important;
+  height:24px !important;
+  min-width:24px !important;
+  background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2064%2064%22%3E%0A%20%20%3Crect%20x%3D%2211%22%20y%3D%2215%22%20width%3D%2242%22%20height%3D%2238%22%20rx%3D%225%22%20fill%3D%22none%22%20stroke%3D%22%23005EB8%22%20stroke-width%3D%225%22/%3E%0A%20%20%3Cpath%20d%3D%22M11%2026h42M21%209v12M43%209v12%22%20fill%3D%22none%22%20stroke%3D%22%23005EB8%22%20stroke-width%3D%225%22%20stroke-linecap%3D%22round%22/%3E%0A%20%20%3Cpath%20d%3D%22M21%2035h5M32%2035h5M43%2035h5M21%2044h5M32%2044h5%22%20stroke%3D%22%23005EB8%22%20stroke-width%3D%224.4%22%20stroke-linecap%3D%22round%22/%3E%0A%3C/svg%3E") !important;
+  background-repeat:no-repeat !important;
+  background-position:center !important;
+  background-size:contain !important;
+}
+
+/* Target icon before Expected Finish */
+.city-summary-wrap .city-prog-card .city-date-row:nth-of-type(2) .city-date-lbl::before,
+.city-summary-wrap .city-prog-card .city-date-row:nth-child(2) .city-date-lbl::before {
+  content:"" !important;
+  display:inline-block !important;
+  width:24px !important;
+  height:24px !important;
+  min-width:24px !important;
+  background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2064%2064%22%3E%0A%20%20%3Ccircle%20cx%3D%2229%22%20cy%3D%2235%22%20r%3D%2220%22%20fill%3D%22none%22%20stroke%3D%22%23005EB8%22%20stroke-width%3D%225%22/%3E%0A%20%20%3Ccircle%20cx%3D%2229%22%20cy%3D%2235%22%20r%3D%2210%22%20fill%3D%22none%22%20stroke%3D%22%23005EB8%22%20stroke-width%3D%225%22/%3E%0A%20%20%3Cpath%20d%3D%22M29%2035l24-24M49%2011h10v10%22%20fill%3D%22none%22%20stroke%3D%22%23005EB8%22%20stroke-width%3D%225.8%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22/%3E%0A%3C/svg%3E") !important;
+  background-repeat:no-repeat !important;
+  background-position:center !important;
+  background-size:contain !important;
+}
+
+/* If JS renders dates as first/last inside a dates wrapper, force by text content via injected spans */
+.city-summary-wrap .city-prog-card .city-dates .city-date-row:first-child .city-date-lbl::before {
+  background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2064%2064%22%3E%0A%20%20%3Crect%20x%3D%2211%22%20y%3D%2215%22%20width%3D%2242%22%20height%3D%2238%22%20rx%3D%225%22%20fill%3D%22none%22%20stroke%3D%22%23005EB8%22%20stroke-width%3D%225%22/%3E%0A%20%20%3Cpath%20d%3D%22M11%2026h42M21%209v12M43%209v12%22%20fill%3D%22none%22%20stroke%3D%22%23005EB8%22%20stroke-width%3D%225%22%20stroke-linecap%3D%22round%22/%3E%0A%20%20%3Cpath%20d%3D%22M21%2035h5M32%2035h5M43%2035h5M21%2044h5M32%2044h5%22%20stroke%3D%22%23005EB8%22%20stroke-width%3D%224.4%22%20stroke-linecap%3D%22round%22/%3E%0A%3C/svg%3E") !important;
+}
+.city-summary-wrap .city-prog-card .city-dates .city-date-row:last-child .city-date-lbl::before {
+  background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2064%2064%22%3E%0A%20%20%3Ccircle%20cx%3D%2229%22%20cy%3D%2235%22%20r%3D%2220%22%20fill%3D%22none%22%20stroke%3D%22%23005EB8%22%20stroke-width%3D%225%22/%3E%0A%20%20%3Ccircle%20cx%3D%2229%22%20cy%3D%2235%22%20r%3D%2210%22%20fill%3D%22none%22%20stroke%3D%22%23005EB8%22%20stroke-width%3D%225%22/%3E%0A%20%20%3Cpath%20d%3D%22M29%2035l24-24M49%2011h10v10%22%20fill%3D%22none%22%20stroke%3D%22%23005EB8%22%20stroke-width%3D%225.8%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22/%3E%0A%3C/svg%3E") !important;
+}
+
+/* Activity cards: keep icons next to the date value like the screenshot */
+.city-card .city-date-row {
+  display:grid !important;
+  grid-template-columns:1fr auto !important;
+  align-items:center !important;
+  gap:8px !important;
+}
+
+.city-card .city-date-lbl::before {
+  content:none !important;
+  display:none !important;
+}
+
+.city-card .city-date-val {
+  display:inline-flex !important;
+  align-items:center !important;
+  gap:6px !important;
+  font-weight:900 !important;
+}
+
+.city-card .city-date-row:first-child .city-date-val::before,
+.city-card .city-date-row:first-of-type .city-date-val::before {
+  content:"" !important;
+  display:inline-block !important;
+  width:16px !important;
+  height:16px !important;
+  min-width:16px !important;
+  background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2064%2064%22%3E%0A%20%20%3Crect%20x%3D%2211%22%20y%3D%2215%22%20width%3D%2242%22%20height%3D%2238%22%20rx%3D%225%22%20fill%3D%22none%22%20stroke%3D%22%23005EB8%22%20stroke-width%3D%225%22/%3E%0A%20%20%3Cpath%20d%3D%22M11%2026h42M21%209v12M43%209v12%22%20fill%3D%22none%22%20stroke%3D%22%23005EB8%22%20stroke-width%3D%225%22%20stroke-linecap%3D%22round%22/%3E%0A%20%20%3Cpath%20d%3D%22M21%2035h5M32%2035h5M43%2035h5M21%2044h5M32%2044h5%22%20stroke%3D%22%23005EB8%22%20stroke-width%3D%224.4%22%20stroke-linecap%3D%22round%22/%3E%0A%3C/svg%3E") !important;
+  background-repeat:no-repeat !important;
+  background-position:center !important;
+  background-size:contain !important;
+}
+
+.city-card .city-date-row:nth-child(2) .city-date-val::before,
+.city-card .city-date-row:nth-of-type(2) .city-date-val::before {
+  content:"" !important;
+  display:inline-block !important;
+  width:16px !important;
+  height:16px !important;
+  min-width:16px !important;
+  background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2064%2064%22%3E%0A%20%20%3Ccircle%20cx%3D%2229%22%20cy%3D%2235%22%20r%3D%2220%22%20fill%3D%22none%22%20stroke%3D%22%23005EB8%22%20stroke-width%3D%225%22/%3E%0A%20%20%3Ccircle%20cx%3D%2229%22%20cy%3D%2235%22%20r%3D%2210%22%20fill%3D%22none%22%20stroke%3D%22%23005EB8%22%20stroke-width%3D%225%22/%3E%0A%20%20%3Cpath%20d%3D%22M29%2035l24-24M49%2011h10v10%22%20fill%3D%22none%22%20stroke%3D%22%23005EB8%22%20stroke-width%3D%225.8%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22/%3E%0A%3C/svg%3E") !important;
+  background-repeat:no-repeat !important;
+  background-position:center !important;
+  background-size:contain !important;
+}
+
+/* Remove accidental emoji label injection */
+.city-stat-lbl::before {
+  content:none !important;
+}
+
+
+/* === FINAL REAL FIX: top city summary date icons === */
+.city-summary-wrap .city-date-row,
+.city-summary-wrap .city-date-row-anim {
+  display:flex !important;
+  align-items:center !important;
+  justify-content:space-between !important;
+  gap:18px !important;
+  padding:5px 0 !important;
+}
+.city-summary-wrap .city-date-lbl,
+.city-summary-wrap .v-final-date-label {
+  display:flex !important;
+  align-items:center !important;
+  gap:9px !important;
+  color:#062A63 !important;
+  font-size:14px !important;
+  font-weight:700 !important;
+  white-space:nowrap !important;
+}
+.v-final-date-icon {
+  width:24px !important;
+  height:24px !important;
+  min-width:24px !important;
+  display:inline-block !important;
+  background-repeat:no-repeat !important;
+  background-position:center !important;
+  background-size:contain !important;
+}
+.v-final-cal { background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2064%2064%22%3E%0A%20%20%3Crect%20x%3D%2211%22%20y%3D%2215%22%20width%3D%2242%22%20height%3D%2238%22%20rx%3D%225%22%20fill%3D%22none%22%20stroke%3D%22%23005EB8%22%20stroke-width%3D%225%22/%3E%0A%20%20%3Cpath%20d%3D%22M11%2026h42M21%209v12M43%209v12%22%20fill%3D%22none%22%20stroke%3D%22%23005EB8%22%20stroke-width%3D%225%22%20stroke-linecap%3D%22round%22/%3E%0A%20%20%3Cpath%20d%3D%22M21%2035h5M32%2035h5M43%2035h5M21%2044h5M32%2044h5%22%20stroke%3D%22%23005EB8%22%20stroke-width%3D%224.4%22%20stroke-linecap%3D%22round%22/%3E%0A%3C/svg%3E") !important; }
+.v-final-target { background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2064%2064%22%3E%0A%20%20%3Ccircle%20cx%3D%2229%22%20cy%3D%2235%22%20r%3D%2220%22%20fill%3D%22none%22%20stroke%3D%22%23005EB8%22%20stroke-width%3D%225%22/%3E%0A%20%20%3Ccircle%20cx%3D%2229%22%20cy%3D%2235%22%20r%3D%2210%22%20fill%3D%22none%22%20stroke%3D%22%23005EB8%22%20stroke-width%3D%225%22/%3E%0A%20%20%3Cpath%20d%3D%22M29%2035l24-24M49%2011h10v10%22%20fill%3D%22none%22%20stroke%3D%22%23005EB8%22%20stroke-width%3D%225.8%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22/%3E%0A%3C/svg%3E") !important; }
+.city-summary-wrap .city-date-val {
+  font-size:14px !important;
+  font-weight:900 !important;
+}
+
+
+/* === CHATGPT FINAL FIX: Top Summary Date Rows Only === */
+.city-summary-wrap .cgpt-date-row{
+  display:flex !important;
+  align-items:center !important;
+  justify-content:space-between !important;
+  width:100% !important;
+  min-height:34px !important;
+  margin:7px 0 !important;
+}
+.city-summary-wrap .cgpt-date-label{
+  display:flex !important;
+  align-items:center !important;
+  gap:9px !important;
+  font-size:15px !important;
+  font-weight:800 !important;
+  color:#0B3E7A !important;
+  line-height:1 !important;
+  white-space:nowrap !important;
+}
+.city-summary-wrap .cgpt-date-icon{
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  width:22px !important;
+  min-width:22px !important;
+  font-size:18px !important;
+  line-height:1 !important;
+}
+.city-summary-wrap .cgpt-date-value{
+  font-size:16px !important;
+  font-weight:900 !important;
+  color:#062A63 !important;
+  white-space:nowrap !important;
+}
+.city-summary-wrap .cgpt-date-value.expected{
+  color:#E00000 !important;
+}
+.city-summary-wrap .cgpt-date-zone{
+  border-top:1px dashed #CFE0F2 !important;
+  margin-top:14px !important;
+  padding-top:12px !important;
+}
+.city-summary-wrap .city-prog-card.cgpt-fixed .city-date-row,
+.city-summary-wrap .city-prog-card.cgpt-fixed .city-date-row-anim,
+.city-summary-wrap .city-prog-card.cgpt-fixed .city-card-dates{
+  display:none !important;
 }
 
 </style>
@@ -1369,6 +2158,228 @@ table.civil-tbl{width:100%;border-collapse:collapse;font-size:12.5px}
 
     window.dispatchEvent(new Event('fb-ready'));
   </script>
+
+<style>
+/* TOP CITY CARDS - Planned / Expected icons */
+.city-date-lbl{
+ display:flex !important;
+ align-items:center !important;
+ gap:8px !important;
+}
+.city-date-lbl::before{
+ display:inline-block;
+ width:16px;
+ text-align:center;
+ font-size:15px;
+ font-weight:700;
+}
+.city-date-lbl:has(+ .city-date-val)::before{content:"";}
+.city-date-row:first-child .city-date-lbl::before{
+ content:"📅" !important;
+}
+.city-date-row:last-child .city-date-lbl::before{
+ content:"🎯" !important;
+}
+</style>
+
+
+<style>
+/* V24-SUMMARY-ONLY: Bigger/clearer dates ONLY in top main city cards */
+.city-summary-wrap .city-prog-card .city-date-row,
+.city-summary-wrap .city-prog-card .city-date-row-anim{
+    min-height:38px !important;
+    margin-bottom:8px !important;
+    display:flex !important;
+    align-items:center !important;
+    justify-content:space-between !important;
+    gap:16px !important;
+}
+
+.city-summary-wrap .city-prog-card .city-date-lbl,
+.city-summary-wrap .city-prog-card .city-date-label,
+.city-summary-wrap .city-prog-card .v-final-date-label{
+    font-size:16px !important;
+    font-weight:800 !important;
+    color:#173B7A !important;
+    letter-spacing:.2px !important;
+    display:flex !important;
+    align-items:center !important;
+    gap:8px !important;
+}
+
+.city-summary-wrap .city-prog-card .city-date-val{
+    font-size:18px !important;
+    font-weight:900 !important;
+    letter-spacing:.4px !important;
+    color:#062A63 !important;
+}
+
+.city-summary-wrap .city-prog-card .city-date-row:last-child .city-date-val,
+.city-summary-wrap .city-prog-card .city-date-row-anim:last-child .city-date-val,
+.city-summary-wrap .city-prog-card .city-date-val.delayed,
+.city-summary-wrap .city-prog-card .city-expected-late{
+    color:#E53935 !important;
+}
+
+.city-summary-wrap .city-prog-card .city-card-dates,
+.city-summary-wrap .city-prog-card .city-date-section,
+.city-summary-wrap .city-prog-card .city-dates-section{
+    padding-top:14px !important;
+    padding-bottom:14px !important;
+}
+
+.city-summary-wrap .city-prog-card .city-date-lbl::before,
+.city-summary-wrap .city-prog-card .city-date-label::before{
+    font-size:19px !important;
+    margin-right:8px !important;
+}
+
+/* Make emoji icons visible if they are directly inside the label text */
+.city-summary-wrap .city-prog-card .city-date-lbl,
+.city-summary-wrap .city-prog-card .city-date-label{
+    line-height:1.2 !important;
+}
+
+/* Do NOT affect activity cards below */
+.civil-tbl .city-card .city-date-row,
+.civil-tbl .city-card .city-date-row-anim{
+    min-height:unset !important;
+    margin-bottom:unset !important;
+}
+.civil-tbl .city-card .city-date-lbl,
+.civil-tbl .city-card .city-date-label{
+    font-size:9px !important;
+    font-weight:600 !important;
+    color:var(--text-faint) !important;
+}
+.civil-tbl .city-card .city-date-val{
+    font-size:10px !important;
+    font-weight:700 !important;
+}
+</style>
+
+
+<style id="chatgpt-final-fix-disabled">
+/* Hide duplicated old date block in main city cards */
+.city-prog-card .city-date-row:not(.cgpt-date-row){
+    display:none !important;
+}
+/* Keep only the large new date section */
+.cgpt-date-zone{
+    margin-top:14px !important;
+}
+/* Put delay chip below dates */
+.cgpt-date-zone + .city-chip-late,
+.cgpt-date-zone + .delay-chip-big{
+    display:flex !important;
+    margin-top:12px !important;
+}
+</style>
+
+
+<style id="chatgpt-remove-old-date-block-final">
+/* Hide old duplicated date rows ONLY inside the top city summary cards */
+.city-summary-wrap .city-prog-card.cgpt-cleaned .city-date-row,
+.city-summary-wrap .city-prog-card.cgpt-cleaned .city-date-row-anim,
+.city-summary-wrap .city-prog-card.cgpt-cleaned .city-card-dates{
+    display:none !important;
+}
+
+/* New date block only */
+.city-summary-wrap .city-prog-card .cgpt-date-zone{
+    border-top:1px dashed #CFE0F2 !important;
+    margin-top:14px !important;
+    padding-top:14px !important;
+}
+
+/* Put delay chip after new dates */
+.city-summary-wrap .city-prog-card .cgpt-date-zone + .city-chip,
+.city-summary-wrap .city-prog-card .cgpt-date-zone + .city-chip-late,
+.city-summary-wrap .city-prog-card .cgpt-date-zone + .delay-chip-big{
+    margin-top:12px !important;
+    display:inline-flex !important;
+}
+</style>
+
+
+<style id="chatgpt-hard-remove-old-small-dates-css">
+.city-summary-wrap .city-prog-card [data-cgpt-removed-old-date="true"]{
+  display:none !important;
+}
+.city-summary-wrap .city-prog-card .cgpt-date-zone{
+  margin-top:14px !important;
+  padding-top:14px !important;
+  border-top:1px dashed #CFE0F2 !important;
+}
+</style>
+
+
+<style id="summary-date-zone-final-css-v2">
+.city-summary-wrap .city-prog-card .summary-date-zone{
+  border-top:1px dashed #CFE0F2 !important;
+  margin-top:16px !important;
+  padding-top:14px !important;
+  display:flex !important;
+  flex-direction:column !important;
+  gap:10px !important;
+}
+.city-summary-wrap .city-prog-card .summary-date-row{
+  display:flex !important;
+  align-items:center !important;
+  justify-content:space-between !important;
+  gap:18px !important;
+  width:100% !important;
+}
+.city-summary-wrap .city-prog-card .summary-date-label{
+  display:flex !important;
+  align-items:center !important;
+  gap:9px !important;
+  font-size:15px !important;
+  font-weight:900 !important;
+  color:#062A63 !important;
+  white-space:nowrap !important;
+}
+.city-summary-wrap .city-prog-card .summary-date-icon{
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  width:23px !important;
+  min-width:23px !important;
+  font-size:18px !important;
+  line-height:1 !important;
+}
+.city-summary-wrap .city-prog-card .summary-date-value{
+  font-size:16px !important;
+  font-weight:950 !important;
+  color:#062A63 !important;
+  white-space:nowrap !important;
+}
+.city-summary-wrap .city-prog-card .summary-date-value.late{
+  color:#E00000 !important;
+}
+.city-summary-wrap .city-prog-card .summary-variance-wrap{
+  display:flex !important;
+  justify-content:flex-end !important;
+  margin-top:4px !important;
+}
+.city-summary-wrap .city-prog-card .summary-variance-wrap .city-chip{
+  opacity:1 !important;
+  transform:none !important;
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  padding:8px 18px !important;
+  border-radius:999px !important;
+  font-size:13px !important;
+  font-weight:900 !important;
+}
+.city-summary-wrap .city-prog-card .summary-variance-wrap .city-chip-late::before{
+  content:"⚠";
+  margin-right:6px;
+}
+</style>
+
+
 </head>
 <body>
 
@@ -1932,7 +2943,7 @@ function pp(v){
   const n = Math.max(0, Math.min(100, Number(v)||0));
   // Unified visual rule for all percentages:
   // 100% = green, 1–99% = blue, 0% = red
-  const cls = n >= 100 ? 'pp-100' : n <= 0 ? 'pp-zero' : 'pp-active';
+  const cls = n >= 100 ? 'pp-100' : n <= 0 ? 'pp-zero' : 'pp-mid';
   return `<span class="pp ${cls}">${n}%</span>`;
 }
 function stClass(s){
@@ -2147,18 +3158,18 @@ function _renderCityProgressBar(d, leaves, reportDate){
           <div class="city-stat-lbl">Not Started</div>
         </div>
       </div>
-      <!-- Forecast dates -->
-      <div style="border-top:1px solid var(--border);padding-top:10px;display:flex;flex-direction:column;gap:5px">
-        ${allDone ? `<div style="text-align:center;padding:4px 0">${chipHtml}</div>` : `
-        <div style="display:flex;align-items:center;justify-content:space-between;font-size:10px">
-          <span style="color:var(--text-faint);font-weight:600;width:80px">Planned Finish</span>
-          <span style="color:var(--text-secondary);font-weight:700">${fmtD2(pd)}</span>
+      <!-- Forecast dates - single clean block -->
+      <div class="summary-date-zone">
+        ${allDone ? `<div class="summary-variance-wrap">${chipHtml}</div>` : `
+        <div class="summary-date-row">
+          <div class="summary-date-label"><span class="summary-date-icon">📅</span><span>Planned Finish</span></div>
+          <div class="summary-date-value">${fmtD2(pd)}</div>
         </div>
-        <div style="display:flex;align-items:center;justify-content:space-between;font-size:10px">
-          <span style="color:var(--text-faint);font-weight:600;width:80px">Expected Finish</span>
-          <span style="color:${isLate?'var(--crit)':'var(--text-secondary)'};font-weight:${isLate?'800':'700'}">${fmtD2(ed)}</span>
+        <div class="summary-date-row">
+          <div class="summary-date-label"><span class="summary-date-icon">🎯</span><span>Expected Finish</span></div>
+          <div class="summary-date-value ${isLate ? 'late' : ''}">${fmtD2(ed)}</div>
         </div>
-        <div style="text-align:right;margin-top:4px">${chipHtml}</div>`}
+        <div class="summary-variance-wrap">${chipHtml}</div>`}
       </div>
     </div>`;
   }).join('');
@@ -2294,8 +3305,8 @@ function _pkgSummaryHtml(node){
   });
   const diff = (latestPlan && latestExp) ? Math.round((latestExp-latestPlan)/86400000) : null;
   const fmt = d => d ? d.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'2-digit'}) : '—';
-  const chip = diff===null ? `<span class="pkg-chip pkg-chip-ok">No Forecast</span>`
-    : diff>0 ? `<span class="pkg-chip pkg-chip-late">+${diff}d delay</span>`
+  const chip = diff===null ? ''
+    : diff>0 ? `<span class="pkg-chip pkg-chip-late">+${diff}d late</span>`
     : diff<0 ? `<span class="pkg-chip pkg-chip-ok">${Math.abs(diff)}d early</span>`
     : `<span class="pkg-chip pkg-chip-ok">On Time</span>`;
   return `<span class="pkg-summary">
@@ -2470,11 +3481,11 @@ function renderCivilTable(){
           </div>
           <div class="city-card-dates">
             ${plannedStr?`<div class="city-date-row">
-              <span class="city-date-lbl">Planned Finish</span>
+              <span class="city-date-lbl">📅 Planned Finish</span>
               <span class="city-date-val">${plannedStr}</span>
             </div>`:''}
             ${expectedStr?`<div class="city-date-row">
-              <span class="city-date-lbl">Expected Finish</span>
+              <span class="city-date-lbl">🎯 Expected Finish</span>
               <span class="city-date-val ${ec}">${expectedStr}</span>
             </div>`:''}
             ${delChip?`<div style="text-align:right;margin-top:2px">${delChip}</div>`:''}
@@ -2786,8 +3797,8 @@ function buildPkgRow(node,depth){
           <div class="fg"><label>Delivery %</label><input type="number" value="${cd.delivery??0}" min="0" max="100" onchange="updNodeCity('${node.id}','${city}','delivery',this.value);renderCivilForm()"/></div>
           <div class="fg"><label>Delivery Date</label><input type="date" value="${(+cd.delivery>=100)?'':(cd.deliveryDate||'')}" ${(+cd.delivery>=100)?'disabled':''} onchange="updNodeCity('${node.id}','${city}','deliveryDate',this.value)"/></div>
           <div class="fg"><label>Site Progress %</label><input type="number" value="${cd.siteProgress??0}" min="0" max="100" onchange="updNodeCity('${node.id}','${city}','siteProgress',this.value)"/></div>
-          <div class="fg"><label>Planned Finish</label><input type="date" value="${cd.plannedFinish||''}" onchange="updNodeCity('${node.id}','${city}','plannedFinish',this.value)"/></div>
-          <div class="fg"><label>Expected Finish</label><input type="date" value="${cd.expectedDate||''}" onchange="updNodeCity('${node.id}','${city}','expectedDate',this.value)"/></div>
+          <div class="fg"><label>📅 Planned Finish</label><input type="date" value="${cd.plannedFinish||''}" onchange="updNodeCity('${node.id}','${city}','plannedFinish',this.value)"/></div>
+          <div class="fg"><label>🎯 Expected Finish</label><input type="date" value="${cd.expectedDate||''}" onchange="updNodeCity('${node.id}','${city}','expectedDate',this.value)"/></div>
           <div class="fg"><label>Status (Auto)</label>
             <div style="padding:8px 11px;border:1.5px solid var(--border);border-radius:var(--rsm);
               background:var(--surface);font-size:12px;font-weight:700;
@@ -3352,7 +4363,7 @@ function resetData(){
   data=JSON.parse(JSON.stringify(DEF_FROZEN));
   localStorage.removeItem(SK);
   renderForm(); renderDashboard();
-  showToast('🔄 Reset to defaults');
+  showToast('Reset to defaults');
 }
 function exportJSON(){
   const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
@@ -3668,6 +4679,93 @@ updateAuthUI();   // hide Data Entry tab for public users immediately
 // 2. Then init Firebase auth — when ready it will load cloud data and re-render
 initAuth();
 </script>
+
+
+<script>
+/* === V11: Normalize remarks display after every render === */
+(function(){
+  function normalizeRemarks(){
+    document.querySelectorAll('td.rmk-cell').forEach(td=>{
+      if(td.querySelector('.rmk-text')) return;
+      const raw = (td.textContent || '').trim();
+      if(!raw){
+        td.classList.add('rmk-empty-cell'); td.innerHTML = '';
+        return;
+      }
+      td.classList.remove('rmk-empty-cell'); td.innerHTML = '<div class="rmk-text" title="'+raw.replace(/"/g,'&quot;')+'">'+raw+'</div>';
+    });
+  }
+  const oldTrigger = window.triggerDashboardAnimations;
+  window.triggerDashboardAnimations = function(){
+    normalizeRemarks();
+    if(typeof oldTrigger === 'function') oldTrigger.apply(this, arguments);
+  };
+  const mo = new MutationObserver(()=>normalizeRemarks());
+  window.addEventListener('DOMContentLoaded', ()=>{
+    normalizeRemarks();
+    const tbl = document.querySelector('.civil-wrap') || document.body;
+    mo.observe(tbl,{childList:true,subtree:true});
+  });
+})();
+</script>
+
+
+<script>
+/* === V12: runtime cleanup for empty remarks and duplicate completed text === */
+(function(){
+  function cleanV12(){
+    document.querySelectorAll('td.rmk-cell').forEach(td=>{
+      const txt = (td.textContent || '').trim();
+      if(!txt || txt === '—'){
+        td.classList.add('rmk-empty-cell');
+        td.innerHTML = '';
+      }
+    });
+    document.querySelectorAll('.city-card-done .city-done-date').forEach(el=>{
+      if((el.textContent || '').trim().toLowerCase() === 'completed') el.remove();
+    });
+  }
+  const oldTriggerV12 = window.triggerDashboardAnimations;
+  window.triggerDashboardAnimations = function(){
+    cleanV12();
+    if(typeof oldTriggerV12 === 'function') oldTriggerV12.apply(this, arguments);
+  };
+  window.addEventListener('DOMContentLoaded', ()=>{
+    cleanV12();
+    new MutationObserver(cleanV12).observe(document.body,{childList:true,subtree:true});
+  });
+})();
+</script>
+
+
+<script>
+/* V19 runtime: force top-card date icons after render */
+(function(){
+  function fixTopDateIcons(){
+    document.querySelectorAll('.city-summary-wrap .city-prog-card').forEach(card => {
+      const rows = card.querySelectorAll('.city-date-row');
+      rows.forEach((row, idx) => {
+        const lbl = row.querySelector('.city-date-lbl');
+        if(!lbl) return;
+        lbl.classList.remove('v19-cal','v19-target');
+        lbl.classList.add(idx === 0 ? 'v19-cal' : 'v19-target');
+      });
+    });
+  }
+  window.addEventListener('DOMContentLoaded', fixTopDateIcons);
+  new MutationObserver(fixTopDateIcons).observe(document.body, {childList:true, subtree:true});
+})();
+</script>
+<style>
+.city-summary-wrap .city-prog-card .city-date-lbl.v19-cal::before{
+  content:"" !important;display:inline-block !important;width:24px !important;height:24px !important;min-width:24px !important;
+  background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2064%2064%22%3E%0A%20%20%3Crect%20x%3D%2211%22%20y%3D%2215%22%20width%3D%2242%22%20height%3D%2238%22%20rx%3D%225%22%20fill%3D%22none%22%20stroke%3D%22%23005EB8%22%20stroke-width%3D%225%22/%3E%0A%20%20%3Cpath%20d%3D%22M11%2026h42M21%209v12M43%209v12%22%20fill%3D%22none%22%20stroke%3D%22%23005EB8%22%20stroke-width%3D%225%22%20stroke-linecap%3D%22round%22/%3E%0A%20%20%3Cpath%20d%3D%22M21%2035h5M32%2035h5M43%2035h5M21%2044h5M32%2044h5%22%20stroke%3D%22%23005EB8%22%20stroke-width%3D%224.4%22%20stroke-linecap%3D%22round%22/%3E%0A%3C/svg%3E") !important;background-repeat:no-repeat !important;background-position:center !important;background-size:contain !important;
+}
+.city-summary-wrap .city-prog-card .city-date-lbl.v19-target::before{
+  content:"" !important;display:inline-block !important;width:24px !important;height:24px !important;min-width:24px !important;
+  background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2064%2064%22%3E%0A%20%20%3Ccircle%20cx%3D%2229%22%20cy%3D%2235%22%20r%3D%2220%22%20fill%3D%22none%22%20stroke%3D%22%23005EB8%22%20stroke-width%3D%225%22/%3E%0A%20%20%3Ccircle%20cx%3D%2229%22%20cy%3D%2235%22%20r%3D%2210%22%20fill%3D%22none%22%20stroke%3D%22%23005EB8%22%20stroke-width%3D%225%22/%3E%0A%20%20%3Cpath%20d%3D%22M29%2035l24-24M49%2011h10v10%22%20fill%3D%22none%22%20stroke%3D%22%23005EB8%22%20stroke-width%3D%225.8%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22/%3E%0A%3C/svg%3E") !important;background-repeat:no-repeat !important;background-position:center !important;background-size:contain !important;
+}
+</style>
 
 </body>
 </html>
