@@ -360,6 +360,7 @@ table.civil-tbl{width:100%;border-collapse:collapse;font-size:12.5px}
   width:48px;height:4px;background:rgba(0,96,181,.12);border-radius:2px;overflow:hidden;flex-shrink:0;
 }
 .pkg-prog-bar-mini-fill{
+  display:block;
   height:100%;border-radius:2px;
   background:linear-gradient(90deg,var(--ab),var(--cy));
   transition:width .8s cubic-bezier(.22,1,.36,1);
@@ -492,8 +493,8 @@ table.civil-tbl{width:100%;border-collapse:collapse;font-size:12.5px}
   animation:pillSlideIn .25s cubic-bezier(.22,1,.36,1) both;
 }
 .pp-100{background:rgba(22,163,74,.12);color:#15803d;border:1px solid rgba(22,163,74,.2)}
-.pp-hi {background:rgba(0,96,181,.1); color:var(--ab-dk);border:1px solid rgba(0,96,181,.15)}
-.pp-mid{background:rgba(245,158,11,.1);color:#92400e;border:1px solid rgba(245,158,11,.2)}
+.pp-hi {background:#FEF3C7;color:#D97706;border:1px solid #FCD34D}
+.pp-mid{background:#FEF3C7;color:#D97706;border:1px solid #FCD34D}
 .pp-lo {background:rgba(220,38,38,.1); color:#b91c1c;border:1px solid rgba(220,38,38,.15)}
 .pp-na {background:var(--surface);color:var(--text-faint);font-size:10px}
 
@@ -503,6 +504,12 @@ table.civil-tbl{width:100%;border-collapse:collapse;font-size:12.5px}
 .dc-ok{background:rgba(22,163,74,.1); color:#15803d;border:1px solid rgba(22,163,74,.2)}
 .dc-ah{background:rgba(0,96,181,.1);  color:var(--ab-dk);border:1px solid rgba(0,96,181,.15)}
 .dc-lt{background:rgba(220,38,38,.1); color:#b91c1c;border:1px solid rgba(220,38,38,.18)}
+
+
+/* Delivery date compact chip inside city cards */
+.delivery-inline{display:flex;align-items:center;gap:6px;justify-content:flex-end;flex-wrap:wrap}
+.delivery-date-chip{display:inline-flex;align-items:center;justify-content:center;padding:2px 7px;border-radius:99px;font-size:9.5px;font-weight:800;color:var(--text-secondary);background:rgba(0,96,181,.06);border:1px solid rgba(0,96,181,.12);white-space:nowrap}
+.city-card-row.delivery-row{align-items:center}
 
 /* Remarks cell */
 .civil-tbl td.rmk-cell{
@@ -1162,6 +1169,169 @@ table.civil-tbl{width:100%;border-collapse:collapse;font-size:12.5px}
   font-size:11px;font-weight:700;cursor:pointer;transition:all var(--tr);
 }
 .btn-snap-del:hover{background:var(--crit);color:#fff}
+
+
+/* ═══ GPT PATCH — package summaries + stronger full-report motion ═══ */
+.civil-tbl tr.pkg-row td.pkg-cell-flex{
+  display:table-cell;
+  padding:12px 18px;
+  background:linear-gradient(90deg,#EDF4FF,#F0F6FF) !important;
+  border-bottom:1px solid var(--border);
+  width:auto;
+}
+.pkg-row-inner{display:flex;align-items:center;gap:12px;width:100%;min-width:0}
+.pkg-main-left{display:inline-flex;align-items:center;gap:8px;min-width:250px;flex-shrink:0}
+.pkg-summary{margin-left:auto;display:flex;align-items:center;gap:8px;flex-wrap:nowrap;justify-content:flex-end;min-width:0;overflow:hidden}
+.pkg-summary-item{background:rgba(255,255,255,.55);border:1px solid rgba(0,96,181,.10);border-radius:999px;padding:3px 8px;font-size:8.5px;font-weight:800;color:var(--text-muted);box-shadow:0 1px 5px rgba(0,96,181,.05);white-space:nowrap}
+.pkg-summary-item .psi-val{color:var(--ab-dk);font-weight:900;margin-left:4px}
+.pkg-summary-item .psi-val.val-late{color:var(--crit)}
+.pkg-chip{display:inline-flex;align-items:center;border-radius:999px;padding:3px 8px;font-size:8.5px;font-weight:900;box-shadow:0 1px 8px rgba(0,96,181,.06);white-space:nowrap;flex-shrink:0}
+.pkg-chip-late{background:rgba(220,38,38,.10);color:var(--crit);border:1px solid rgba(220,38,38,.20);animation:delayChipPulse 2.2s ease-in-out infinite}
+.pkg-chip-ok{background:rgba(22,163,74,.10);color:var(--success);border:1px solid rgba(22,163,74,.20)}
+.pkg-prog-inline{display:inline-flex;align-items:center;gap:6px}
+.pkg-prog-bar-mini{width:54px;height:5px;background:rgba(0,96,181,.16);border-radius:6px;overflow:hidden;box-shadow:inset 0 1px 2px rgba(0,96,181,.12)}
+.pkg-prog-bar-mini-fill{display:block;height:100%;width:0%;border-radius:6px;background:linear-gradient(90deg,var(--ab),var(--cy));box-shadow:0 0 6px rgba(44,168,224,.38);transition:width .8s cubic-bezier(.22,1,.36,1)}
+
+/* Make the top city progress bar elegant, not heavy */
+.city-prog-bar-wrap{height:5px!important;background:rgba(0,96,181,.12)!important;border:none!important;border-radius:4px!important;overflow:hidden!important;box-shadow:inset 0 1px 2px rgba(0,96,181,.08)!important}
+.city-prog-bar-fill{height:5px!important;border-radius:4px!important;box-shadow:0 0 5px rgba(44,168,224,.28)!important;position:relative;overflow:hidden}
+.city-prog-bar-fill::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.45),transparent);transform:translateX(-120%);animation:barShine 2.6s ease-in-out infinite}
+@keyframes barShine{0%,55%,100%{transform:translateX(-120%);opacity:0}25%{opacity:1}50%{transform:translateX(160%);opacity:0}}
+
+/* Visible but professional text/card motion for the whole report */
+.civil-tbl tr.act-row.anim-ready{opacity:0!important;transform:translateY(8px)!important;transition:none!important}
+.civil-tbl tr.act-row.anim-go{opacity:1!important;transform:translateY(0)!important;transition:opacity .32s ease,transform .32s cubic-bezier(.22,1,.36,1)!important}
+.pkg-summary-item.anim-ready,.pkg-chip.anim-ready,.pkg-prog-inline.anim-ready{opacity:0!important;transform:translateY(5px)!important;transition:none!important}
+.pkg-summary-item.anim-go,.pkg-chip.anim-go,.pkg-prog-inline.anim-go{opacity:1!important;transform:translateY(0)!important;transition:opacity .25s ease,transform .25s cubic-bezier(.22,1,.36,1)!important}
+.city-card .pp{animation:pillSlideIn .38s cubic-bezier(.22,1,.36,1) both}
+.dc-lt{animation:delayChipPulse 2s ease-in-out infinite}
+.act-done-badge,.city-done-badge{position:relative;overflow:hidden}
+.act-done-badge::after,.city-done-badge::after{content:'';position:absolute;top:0;bottom:0;width:32px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.65),transparent);animation:completedSweep 4.5s ease-in-out infinite}
+.mp-card,.photo-card,.section{will-change:transform,opacity}
+
+@media(max-width:1100px){
+  .pkg-summary{display:none}
+  .pkg-main-left{min-width:auto}
+}
+
+
+
+/* ═══ GPT PATCH v7 — unified percentage colors + clearer main package summary ═══ */
+/* All percentage pills across Delivery / Site / Summary follow one visual logic:
+   100% = green, 1–99% = blue, 0% = red */
+.pp-100{
+  background:rgba(22,163,74,.13)!important;
+  color:#15803d!important;
+  border:1px solid rgba(22,163,74,.28)!important;
+  box-shadow:0 1px 6px rgba(22,163,74,.10)!important;
+}
+.pp-active{
+  background:rgba(37,99,235,.10)!important;
+  color:#005EB8!important;
+  border:1px solid rgba(37,99,235,.22)!important;
+  box-shadow:0 1px 6px rgba(0,96,181,.08)!important;
+}
+.pp-zero{
+  background:rgba(220,38,38,.10)!important;
+  color:#dc2626!important;
+  border:1px solid rgba(220,38,38,.25)!important;
+  box-shadow:0 1px 6px rgba(220,38,38,.08)!important;
+}
+.pp-hi,.pp-mid,.pp-lo{ /* backward compatibility if any old class remains */
+  background:rgba(37,99,235,.10)!important;
+  color:#005EB8!important;
+  border:1px solid rgba(37,99,235,.22)!important;
+}
+
+/* Make main package summary easier to read without increasing the table width */
+.pkg-summary{
+  gap:10px!important;
+  align-items:center!important;
+}
+.pkg-summary-item{
+  background:rgba(255,255,255,.74)!important;
+  border:1px solid rgba(0,96,181,.14)!important;
+  padding:4px 10px!important;
+  font-size:9px!important;
+  font-weight:800!important;
+  color:#5B7A99!important;
+  box-shadow:0 2px 8px rgba(0,96,181,.07)!important;
+}
+.pkg-summary-item .psi-val{
+  color:#004A8F!important;
+  font-weight:900!important;
+}
+.pkg-summary-item .psi-val.val-late{
+  color:#DC2626!important;
+}
+.pkg-prog-inline{
+  min-width:150px!important;
+}
+.pkg-prog-bar-mini{
+  width:82px!important;
+  height:6px!important;
+  background:rgba(0,96,181,.13)!important;
+  border-radius:999px!important;
+  overflow:hidden!important;
+  box-shadow:inset 0 1px 3px rgba(0,96,181,.13)!important;
+}
+.pkg-prog-bar-mini-fill{
+  height:6px!important;
+  display:block!important;
+  border-radius:999px!important;
+  background:linear-gradient(90deg,#0060B5,#45D3D3)!important;
+  box-shadow:0 0 8px rgba(69,211,211,.32)!important;
+  min-width:2px;
+}
+.pkg-chip{
+  padding:4px 10px!important;
+  font-size:9px!important;
+  font-weight:900!important;
+}
+.pkg-chip-late{
+  background:rgba(220,38,38,.11)!important;
+  color:#DC2626!important;
+  border:1px solid rgba(220,38,38,.25)!important;
+}
+.pkg-chip-ok{
+  background:rgba(22,163,74,.11)!important;
+  color:#16A34A!important;
+  border:1px solid rgba(22,163,74,.24)!important;
+}
+
+/* Keep package header clean and readable */
+.pkg-row-inner{align-items:center!important;}
+.pkg-main-left{min-width:260px!important;}
+
+@media(max-width:1300px){
+  .pkg-prog-inline{min-width:auto!important;}
+  .pkg-prog-bar-mini{width:54px!important;}
+  .pkg-summary-item{padding:3px 7px!important;font-size:8.2px!important;}
+}
+
+
+/* === FINAL OVERRIDE: Activity table percentage pill colors === */
+.city-card .pp:not(.pp-100):not(.pp-lo):not(.pp-na),
+.city-card .pp-hi,
+.city-card .pp-mid{
+  background:#FEF3C7 !important;
+  color:#D97706 !important;
+  border:1px solid #FCD34D !important;
+  box-shadow:0 1px 4px rgba(217,119,6,.12) !important;
+}
+.city-card .pp-100{
+  background:#DCFCE7 !important;
+  color:#15803D !important;
+  border:1px solid #86EFAC !important;
+  box-shadow:0 1px 4px rgba(22,163,74,.12) !important;
+}
+.city-card .pp-lo{
+  background:#FEE2E2 !important;
+  color:#DC2626 !important;
+  border:1px solid #FCA5A5 !important;
+  box-shadow:0 1px 4px rgba(220,38,38,.12) !important;
+}
+
 </style>
   <!-- Firebase SDK (v10 modular) -->
   <script type="module">
@@ -1759,7 +1929,10 @@ function delayChip(p,e){
 }
 function pp(v){
   if(v===null||v===undefined||v==='') return `<span class="pp pp-na">N/A</span>`;
-  const n=+v, cls=n>=100?'pp-100':n>=70?'pp-hi':n>=30?'pp-mid':'pp-lo';
+  const n = Math.max(0, Math.min(100, Number(v)||0));
+  // Unified visual rule for all percentages:
+  // 100% = green, 1–99% = blue, 0% = red
+  const cls = n >= 100 ? 'pp-100' : n <= 0 ? 'pp-zero' : 'pp-active';
   return `<span class="pp ${cls}">${n}%</span>`;
 }
 function stClass(s){
@@ -1924,8 +2097,8 @@ function _renderCityProgressBar(d, leaves, reportDate){
   function fmtD2(dt){ return dt ? dt.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'2-digit'}) : '—'; }
 
   bar.innerHTML = cities.map((city,ci)=>{
-    const vals  = leaves.map(l=>l.cityData?.[city]).filter(Boolean);
-    const total = vals.length;
+    const vals  = leaves.map(l=>l.cityData?.[city] || {siteProgress:0, delivery:'', plannedFinish:'', expectedDate:''});
+    const total = leaves.length; // Total activities per city = all WBS/activity leaves, regardless of status or filters
     const avg   = total ? Math.round(vals.reduce((s,v)=>s+(+v.siteProgress||0),0)/total) : 0;
     const cDone     = vals.filter(v=>(+v.siteProgress||0)>=100).length;
     const cInProg   = vals.filter(v=>{ const p=+v.siteProgress||0; return p>0&&p<100; }).length;
@@ -1953,7 +2126,7 @@ function _renderCityProgressBar(d, leaves, reportDate){
       </div>
       <!-- Progress bar: starts at 0, animated by JS -->
       <div class="city-prog-bar-wrap">
-        <div class="city-prog-bar-fill" style="width:0%;background:${barGrad}" data-target="${avg}%"></div>
+        <div class="city-prog-bar-fill" style="width:${avg}%;background:${barGrad}" data-target="${avg}%"></div>
       </div>
       <!-- Counts: start at 0, animated by JS -->
       <div class="city-stats-row" style="margin-bottom:12px">
@@ -2098,6 +2271,41 @@ function _pkgSummaryData(node, cities, reportDate){
   return { avgProg, pd: fmtShort(latestPlan), ed: fmtShort(latestExp), diff };
 }
 
+
+function _pkgSummaryHtml(node){
+  const leaves = allLeaves([node]);
+  const vals = [];
+  leaves.forEach(l=>{
+    (data.civilCities||[]).forEach(c=>{
+      const cd = l.cityData?.[c];
+      if(cd) vals.push(cd);
+    });
+  });
+  if(!vals.length) return '';
+  const progressVals = vals.map(v=>+v.siteProgress||0);
+  const avgProg = Math.round(progressVals.reduce((a,b)=>a+b,0)/progressVals.length);
+  let latestPlan=null, latestExp=null;
+  vals.forEach(v=>{
+    if((+v.siteProgress||0)>=100) return;
+    const pd=_toDateObj(v.plannedFinish);
+    const ed=_toDateObj(v.expectedDate);
+    if(pd && (!latestPlan || pd>latestPlan)) latestPlan=pd;
+    if(ed && (!latestExp || ed>latestExp)) latestExp=ed;
+  });
+  const diff = (latestPlan && latestExp) ? Math.round((latestExp-latestPlan)/86400000) : null;
+  const fmt = d => d ? d.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'2-digit'}) : '—';
+  const chip = diff===null ? `<span class="pkg-chip pkg-chip-ok">No Forecast</span>`
+    : diff>0 ? `<span class="pkg-chip pkg-chip-late">+${diff}d delay</span>`
+    : diff<0 ? `<span class="pkg-chip pkg-chip-ok">${Math.abs(diff)}d early</span>`
+    : `<span class="pkg-chip pkg-chip-ok">On Time</span>`;
+  return `<span class="pkg-summary">
+    <span class="pkg-summary-item pkg-prog-inline">Progress <span class="psi-val">${avgProg}%</span><span class="pkg-prog-bar-mini"><span class="pkg-prog-bar-mini-fill" style="width:${avgProg}%" data-target="${avgProg}%"></span></span></span>
+    <span class="pkg-summary-item">Planned Finish <span class="psi-val">${fmt(latestPlan)}</span></span>
+    <span class="pkg-summary-item">Expected Finish <span class="psi-val ${diff>0?'val-late':''}">${fmt(latestExp)}</span></span>
+    ${chip}
+  </span>`;
+}
+
 /* ════ CIVIL TABLE ════ */
 function renderCivilTable(){
   if((!data.civilPkgs||data.civilPkgs.length===0)&&DEF_FROZEN.civilPkgs.length>0){
@@ -2161,10 +2369,16 @@ function renderCivilTable(){
       tr.className = 'pkg-row';
       tr.dataset.id = node.id;
       const indent = depth > 0 ? `padding-left:${depth*16+16}px` : '';
-      tr.innerHTML = `<td colspan="3" style="${indent}">
-        <span class="cat-toggle${isExp?' open':''}" id="tog-${node.id}">▶</span>
-        <span class="pkg-label">${esc(node.label)}</span>
-        <span class="pkg-count">${matchCount} item${matchCount===1?'':'s'}</span>
+      const pkgSummary = _pkgSummaryHtml(node);
+      tr.innerHTML = `<td colspan="3" class="pkg-cell-flex" style="${indent}">
+        <div class="pkg-row-inner">
+          <span class="pkg-main-left">
+            <span class="cat-toggle${isExp?' open':''}" id="tog-${node.id}">▶</span>
+            <span class="pkg-label">${esc(node.label)}</span>
+            <span class="pkg-count">${matchCount} item${matchCount===1?'':'s'}</span>
+          </span>
+          ${pkgSummary}
+        </div>
       </td>`;
       tr.addEventListener('click',()=>{
         const n=findNode(data.civilPkgs,node.id);
@@ -2236,13 +2450,19 @@ function renderCivilTable(){
         const ec = dateCls(st);
         const delDisplay = (del===null||del===''||del==='N/A')
           ? '<span class="pp pp-na">N/A</span>' : pp(del);
+        const delNum = (del===null||del===''||del==='N/A') ? null : +del;
+        const deliveryDateStr = (delNum !== null && delNum < 100 && cd.deliveryDate && cd.deliveryDate !== 'N/A')
+          ? fmtDS(cd.deliveryDate) : '';
         const plannedStr  = cd.plannedFinish  && cd.plannedFinish  !== 'N/A' ? fmtDS(cd.plannedFinish)  : '';
         const expectedStr = cd.expectedDate   && cd.expectedDate   !== 'N/A' ? fmtDS(cd.expectedDate)   : '';
         cardsHtml += `<div class="city-card ${cardCls(st)}">
           <div class="city-card-name">${esc(city)}</div>
-          <div class="city-card-row">
+          <div class="city-card-row delivery-row">
             <span class="city-card-row-label">Delivery</span>
-            ${delDisplay}
+            <span class="delivery-inline">
+              ${delDisplay}
+              ${deliveryDateStr?`<span class="delivery-date-chip">${deliveryDateStr}</span>`:''}
+            </span>
           </div>
           <div class="city-card-row">
             <span class="city-card-row-label">Site %</span>
@@ -2250,11 +2470,11 @@ function renderCivilTable(){
           </div>
           <div class="city-card-dates">
             ${plannedStr?`<div class="city-date-row">
-              <span class="city-date-lbl">Planned</span>
+              <span class="city-date-lbl">Planned Finish</span>
               <span class="city-date-val">${plannedStr}</span>
             </div>`:''}
             ${expectedStr?`<div class="city-date-row">
-              <span class="city-date-lbl">Expected</span>
+              <span class="city-date-lbl">Expected Finish</span>
               <span class="city-date-val ${ec}">${expectedStr}</span>
             </div>`:''}
             ${delChip?`<div style="text-align:right;margin-top:2px">${delChip}</div>`:''}
@@ -2524,7 +2744,7 @@ function addCity(){
   data.civilCities.push(n);
   allLeaves(data.civilPkgs||[]).forEach(l=>{
     if(!l.cityData)l.cityData={};
-    l.cityData[n]={delivery:0,siteProgress:0,plannedFinish:'',expectedDate:'',status:'Not Started'};
+    l.cityData[n]={delivery:0,deliveryDate:'',siteProgress:0,plannedFinish:'',expectedDate:'',status:'Not Started'};
   });
   renderCitiesConfig();renderDashboard();
 }
@@ -2562,8 +2782,9 @@ function buildPkgRow(node,depth){
       const cd=node.cityData?.[city]||{};
       html+=`<div style="background:var(--g50);border:1px solid var(--g200);border-radius:var(--rsm);padding:11px;margin-bottom:8px">
         <div style="font-size:11px;font-weight:800;color:var(--navy);margin-bottom:8px;border-bottom:1px solid var(--g200);padding-bottom:5px">📍 ${esc(city)}</div>
-        <div class="form-g5">
-          <div class="fg"><label>Delivery %</label><input type="number" value="${cd.delivery??0}" min="0" max="100" onchange="updNodeCity('${node.id}','${city}','delivery',this.value)"/></div>
+        <div class="form-g5" style="grid-template-columns:repeat(6,1fr)">
+          <div class="fg"><label>Delivery %</label><input type="number" value="${cd.delivery??0}" min="0" max="100" onchange="updNodeCity('${node.id}','${city}','delivery',this.value);renderCivilForm()"/></div>
+          <div class="fg"><label>Delivery Date</label><input type="date" value="${(+cd.delivery>=100)?'':(cd.deliveryDate||'')}" ${(+cd.delivery>=100)?'disabled':''} onchange="updNodeCity('${node.id}','${city}','deliveryDate',this.value)"/></div>
           <div class="fg"><label>Site Progress %</label><input type="number" value="${cd.siteProgress??0}" min="0" max="100" onchange="updNodeCity('${node.id}','${city}','siteProgress',this.value)"/></div>
           <div class="fg"><label>Planned Finish</label><input type="date" value="${cd.plannedFinish||''}" onchange="updNodeCity('${node.id}','${city}','plannedFinish',this.value)"/></div>
           <div class="fg"><label>Expected Finish</label><input type="date" value="${cd.expectedDate||''}" onchange="updNodeCity('${node.id}','${city}','expectedDate',this.value)"/></div>
@@ -2594,12 +2815,16 @@ function updNodeCity(id,city,k,v){
   if(!n.cityData)n.cityData={};
   if(!n.cityData[city])n.cityData[city]={};
   // String fields: plannedFinish, expectedDate — must NOT be converted to numbers
-  const STRING_FIELDS = ['plannedFinish','expectedDate','status'];
+  const STRING_FIELDS = ['plannedFinish','expectedDate','deliveryDate','status'];
   if(STRING_FIELDS.includes(k)){
     n.cityData[city][k] = v||'';
   } else {
     // Numeric fields: delivery, siteProgress
     n.cityData[city][k] = v==='' ? null : +v;
+  }
+  // If Delivery % is 100%, Delivery Date must stay blank
+  if(k==='delivery' && +v >= 100){
+    n.cityData[city].deliveryDate = '';
   }
   // Recalculate auto status whenever any city field changes
   n.cityData[city].status = calcAutoStatus(
@@ -2614,7 +2839,7 @@ function addChildNode(pid){
   const p=findNode(data.civilPkgs,pid);if(!p)return;
   if(!p.children)p.children=[];
   p.expanded=true;
-  const cd={};(data.civilCities||[]).forEach(c=>{cd[c]={delivery:0,siteProgress:0,plannedFinish:'',expectedDate:'',status:'Not Started'}});
+  const cd={};(data.civilCities||[]).forEach(c=>{cd[c]={delivery:0,deliveryDate:'',siteProgress:0,plannedFinish:'',expectedDate:'',status:'Not Started'}});
   p.children.push({id:uid(),label:'New Activity',cityData:cd,remarks:''});
   renderCivilForm();renderDashboard();
 }
@@ -3217,9 +3442,21 @@ function animateProgressBars(scope){
   const root = scope || document;
   // Find bars with data-target or style.width already set
   root.querySelectorAll('.stat-prog-fill,.city-prog-bar-fill,.mp-mini-alf,.mp-mini-sub,.mp-mini-ind').forEach(bar=>{
-    const target = bar.style.width || bar.dataset.target || '0%';
+    const target = bar.dataset.target || bar.style.width || '0%';
+    bar.style.transition = 'none';
     bar.style.width = '0%';
-    setTimeout(()=>{ bar.style.width = target; }, 80);
+    void bar.offsetWidth; // force reflow so transition is visible
+    setTimeout(()=>{
+      bar.style.transition = '';
+      bar.style.width = target;
+    }, 80);
+  });
+
+  // Package mini progress bars are small; keep them loaded immediately so they never appear empty.
+  root.querySelectorAll('.pkg-prog-bar-mini-fill').forEach(bar=>{
+    const target = bar.dataset.target || bar.style.width || '0%';
+    bar.style.transition = 'width .8s cubic-bezier(.22,1,.36,1)';
+    bar.style.width = target;
   });
 }
 
@@ -3259,7 +3496,20 @@ function animateTableRows(tbody){
   const pkgRows = Array.from(tbody.querySelectorAll('tr.pkg-row'));
   pkgRows.forEach(row=>{ row.classList.remove('anim-go'); row.classList.add('anim-ready'); });
   setTimeout(()=>{
-    pkgRows.forEach((row,i)=>{ setTimeout(()=>row.classList.add('anim-go'), i*50); });
+    pkgRows.forEach((row,i)=>{
+      setTimeout(()=>{
+        row.classList.add('anim-go');
+        row.querySelectorAll('.pkg-summary-item,.pkg-chip,.pkg-prog-inline').forEach((el,j)=>{
+          el.classList.remove('anim-go'); el.classList.add('anim-ready');
+          setTimeout(()=>el.classList.add('anim-go'), 50+j*35);
+        });
+        row.querySelectorAll('.pkg-prog-bar-mini-fill').forEach(bar=>{
+          const target=bar.dataset.target||bar.style.width||'0%';
+          bar.style.transition='width .8s cubic-bezier(.22,1,.36,1)';
+          bar.style.width=target;
+        });
+      }, i*50);
+    });
   }, 0);
 
   // Activity rows + city cards inside each row
@@ -3291,19 +3541,56 @@ function animateTableRows(tbody){
 
 /* ── 9. City summary cards (city-prog-card) ── */
 function animateCitySummaryCards(){
-  staggerIn(document.querySelectorAll('.city-prog-card'), 0, 80);
-  // Also animate numbers inside city cards
-  setTimeout(()=>{
-    document.querySelectorAll('.city-prog-pct').forEach(el=>{
-      const val = parseInt(el.textContent)||0;
-      animateTextNumber(el, val, 800, '%');
-    });
-    document.querySelectorAll('.city-stat-val').forEach(el=>{
-      const val = parseInt(el.textContent)||0;
-      animateTextNumber(el, val, 700);
-    });
-    animateProgressBars();
-  }, 200);
+  const cards = Array.from(document.querySelectorAll('.city-prog-card'));
+  if(!cards.length) return;
+
+  // Do not read textContent here because the numbers initially start at 0.
+  // Always use data-target so Total Activities does not remain 0 after load.
+  cards.forEach((card, i)=>{
+    const delay = i * 80;
+    card.classList.remove('anim-go');
+    card.classList.add('anim-ready');
+
+    const fill = card.querySelector('.city-prog-bar-fill');
+    if(fill){
+      fill.style.transition = 'none';
+      fill.style.width = '0%';
+    }
+
+    setTimeout(()=>{
+      card.classList.add('anim-go');
+
+      card.querySelectorAll('.city-name-anim,.city-val-anim,.city-date-row-anim')
+        .forEach((el, j)=>setTimeout(()=>el.classList.add('show'), 60 + j*35));
+
+      const pctEl = card.querySelector('.city-prog-pct');
+      if(pctEl){
+        const target = parseInt(pctEl.dataset.target || pctEl.textContent) || 0;
+        animateTextNumber(pctEl, target, 800, '%');
+      }
+
+      card.querySelectorAll('.city-stat-val').forEach((el, j)=>{
+        const target = parseInt(el.dataset.target || el.textContent) || 0;
+        setTimeout(()=>animateTextNumber(el, target, 650), 120 + j*60);
+      });
+
+      // Progress bar: force visible animation from 0 to data-target.
+      if(fill){
+        const target = fill.dataset.target || fill.style.width || '0%';
+        setTimeout(()=>{
+          fill.style.transition = 'none';
+          fill.style.width = '0%';
+          void fill.offsetWidth;
+          fill.style.transition = 'width 1.2s cubic-bezier(.22,1,.36,1)';
+          fill.style.width = target;
+        }, 180);
+      }
+
+      card.querySelectorAll('.city-chip').forEach((chip, j)=>{
+        setTimeout(()=>chip.classList.add('city-chip-anim'), 320 + j*50);
+      });
+    }, delay);
+  });
 }
 
 /* ── 10. Manpower cards ── */
