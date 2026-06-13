@@ -1,0 +1,2300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Daily Civil Site Report — PE-286 | Alfanar Projects</title>
+<style>
+/* ═══════════════════════════════════════════════════════
+   ALFANAR PROJECTS — EXECUTIVE DASHBOARD DESIGN SYSTEM
+   Primary Blue: #0060B5 · Light Blue: #2CA8E0 · Cyan: #45D3D3
+═══════════════════════════════════════════════════════ */
+:root{
+  /* Alfanar Brand */
+  --ab:#0060B5; --ab-dk:#004A8F; --ab-lt:#2CA8E0; --ab-xlt:#E8F4FD;
+  --cy:#45D3D3; --cy-lt:#A8EAEA; --cy-bg:rgba(69,211,211,.08);
+  /* Semantic */
+  --success:#16A34A; --success-bg:rgba(22,163,74,.1); --success-bd:rgba(22,163,74,.25);
+  --warn:#F59E0B;    --warn-bg:rgba(245,158,11,.1);    --warn-bd:rgba(245,158,11,.25);
+  --crit:#DC2626;    --crit-bg:rgba(220,38,38,.1);     --crit-bd:rgba(220,38,38,.25);
+  --orange:#E87722;  --orange-bg:rgba(232,119,34,.08);
+  /* Neutrals */
+  --white:#FFFFFF; --surface:#F0F6FF; --surface2:#E4EEF9;
+  --border:#D0E2F5; --border-mid:#BDD4EF; --border-strong:#8FBADF;
+  --text-primary:#0D2240; --text-secondary:#2B4D70; --text-muted:#5B7A99;
+  --text-faint:#8FAABF;
+  /* Shadows */
+  --sh-xs:0 1px 4px rgba(0,96,181,.06);
+  --sh-sm:0 2px 12px rgba(0,96,181,.1),0 1px 3px rgba(0,96,181,.06);
+  --sh:0 6px 28px rgba(0,96,181,.14),0 2px 8px rgba(0,96,181,.07);
+  --sh-lg:0 16px 56px rgba(0,96,181,.18),0 4px 16px rgba(0,96,181,.1);
+  --sh-glow:0 0 30px rgba(44,168,224,.2);
+  /* Glass */
+  --glass-bg:rgba(255,255,255,.72);
+  --glass-border:rgba(255,255,255,.85);
+  --glass-shadow:0 8px 32px rgba(0,96,181,.12),0 1px 0 rgba(255,255,255,.8) inset;
+  --r:14px; --rsm:9px; --rxs:5px;
+  --tr:.2s cubic-bezier(.4,0,.2,1);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+
+/* ── BACKGROUND — layered executive light ── */
+body{
+  font-family:'Segoe UI',system-ui,-apple-system,sans-serif;
+  color:var(--text-primary);font-size:14px;line-height:1.5;min-height:100vh;
+  background:
+    radial-gradient(ellipse 100% 60% at 0% 0%,   rgba(69,211,211,.12) 0%,transparent 55%),
+    radial-gradient(ellipse 80%  50% at 100% 20%, rgba(44,168,224,.1)  0%,transparent 50%),
+    radial-gradient(ellipse 60%  40% at 50%  100%,rgba(0,96,181,.06)   0%,transparent 60%),
+    linear-gradient(160deg,#EEF6FF 0%,#F4F9FF 40%,#EAF3FB 70%,#F0F7FF 100%);
+}
+/* Subtle grid pattern overlay */
+body::before{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background-image:
+    linear-gradient(rgba(0,96,181,.025) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(0,96,181,.025) 1px,transparent 1px);
+  background-size:40px 40px;
+}
+
+/* ══ ANIMATIONS ══ */
+@keyframes fadeUp      {from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes slideIn     {from{opacity:0;transform:translateX(-10px)}to{opacity:1;transform:translateX(0)}}
+@keyframes gradientShift{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+@keyframes scanRight   {0%{transform:translateX(-100%)}100%{transform:translateX(300%)}}
+@keyframes glowPulse   {0%,100%{opacity:.5}50%{opacity:1}}
+@keyframes pulse-dot   {0%,100%{box-shadow:0 0 0 0 var(--crit-bg)}50%{box-shadow:0 0 0 5px rgba(220,38,38,0)}}
+@keyframes countUp     {from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+@keyframes borderAnim  {0%,100%{opacity:.6}50%{opacity:1}}
+/* New micro-animations */
+@keyframes rowFadeIn   {from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pillSlideIn {from{opacity:0;transform:scale(.88)}to{opacity:1;transform:scale(1)}}
+@keyframes delayedBorder{0%,100%{opacity:.35;background:linear-gradient(90deg,var(--crit),#f87171)}50%{opacity:1;background:linear-gradient(90deg,#ff5252,#fca5a5)}}
+@keyframes completedShine{
+  0%,65%,100%{transform:translateX(-160px);opacity:0}
+  35%        {opacity:1}
+  60%        {transform:translateX(calc(100% + 200px));opacity:0}
+}
+@keyframes secShimmer  {0%,80%,100%{transform:translateX(-150%);opacity:0}40%{opacity:1}70%{transform:translateX(220%);opacity:0}}
+
+/* ══ TAB BAR ══ */
+.tab-bar{
+  background:linear-gradient(90deg,var(--ab-dk) 0%,var(--ab) 60%,var(--ab-lt) 100%);
+  display:flex;padding:0 28px;position:sticky;top:0;z-index:400;
+  box-shadow:0 4px 20px rgba(0,96,181,.35),0 1px 0 rgba(255,255,255,.1);
+}
+.tab-btn{
+  padding:15px 24px;color:rgba(255,255,255,.55);background:none;border:none;cursor:pointer;
+  font-size:13px;font-weight:700;letter-spacing:.3px;
+  border-bottom:3px solid transparent;transition:all var(--tr);
+  white-space:nowrap;display:flex;align-items:center;gap:7px;
+}
+.tab-btn:hover{color:rgba(255,255,255,.9);background:rgba(255,255,255,.06)}
+.tab-btn.active{color:#fff;border-bottom-color:var(--cy);text-shadow:0 0 16px rgba(69,211,211,.4)}
+.tab-panel{display:none}
+.tab-panel.active{display:block;animation:fadeUp .28s ease;position:relative;z-index:1}
+
+/* ══ REPORT HEADER ══ */
+.rpt-header{
+  background:linear-gradient(135deg,var(--ab-dk) 0%,var(--ab) 55%,var(--ab-lt) 100%);
+  color:#fff;padding:28px 36px 24px;
+  display:flex;align-items:flex-start;justify-content:space-between;gap:20px;flex-wrap:wrap;
+  position:relative;overflow:hidden;
+}
+/* Animated gradient top border */
+.rpt-header::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:3px;
+  background:linear-gradient(90deg,var(--cy),var(--ab-lt),var(--cy),var(--ab-lt));
+  background-size:300% 100%;
+  animation:gradientShift 4s ease infinite,borderAnim 3s ease-in-out infinite;
+}
+/* Geometric accent circles */
+.rpt-header::after{
+  content:'';position:absolute;right:-80px;top:-80px;width:320px;height:320px;border-radius:50%;
+  background:radial-gradient(circle,rgba(69,211,211,.15) 0%,rgba(255,255,255,.04) 50%,transparent 70%);
+  pointer-events:none;animation:glowPulse 5s ease-in-out infinite;
+}
+/* Second decorative circle */
+.rpt-header-orb{
+  position:absolute;left:-40px;bottom:-40px;width:200px;height:200px;border-radius:50%;
+  background:radial-gradient(circle,rgba(255,255,255,.04) 0%,transparent 70%);
+  pointer-events:none;
+}
+.rpt-brand{display:flex;align-items:center;gap:16px;z-index:1}
+.rpt-logo{
+  width:52px;height:52px;flex-shrink:0;border-radius:13px;
+  background:linear-gradient(145deg,rgba(255,255,255,.25),rgba(255,255,255,.1));
+  border:2px solid rgba(255,255,255,.3);
+  display:flex;align-items:center;justify-content:center;
+  font-size:24px;font-weight:900;color:#fff;
+  box-shadow:0 4px 20px rgba(0,0,0,.2),inset 0 1px 0 rgba(255,255,255,.2);
+  backdrop-filter:blur(4px);
+}
+.rpt-eyebrow{font-size:9px;color:rgba(255,255,255,.5);letter-spacing:1.8px;text-transform:uppercase;margin-bottom:5px}
+.rpt-proj{font-size:22px;font-weight:800;letter-spacing:.1px;line-height:1.2;color:#fff}
+.rpt-contract{font-size:11px;color:rgba(255,255,255,.55);margin-top:4px;letter-spacing:.3px}
+.rpt-meta{display:flex;gap:8px;flex-wrap:wrap;align-items:center;z-index:1}
+.meta-pill{
+  text-align:center;padding:10px 18px;
+  background:rgba(255,255,255,.12);
+  border:1px solid rgba(255,255,255,.2);
+  border-radius:10px;transition:all var(--tr);cursor:default;
+  backdrop-filter:blur(8px);
+}
+.meta-pill:hover{
+  background:rgba(255,255,255,.2);border-color:rgba(255,255,255,.35);
+  transform:translateY(-1px);box-shadow:0 4px 16px rgba(0,0,0,.15);
+}
+.meta-pill .lbl{font-size:9px;color:rgba(255,255,255,.55);text-transform:uppercase;letter-spacing:1.2px;margin-bottom:3px}
+.meta-pill .val{font-size:14px;font-weight:800;color:#fff;line-height:1}
+
+/* ══ PAGE ══ */
+.page{padding:24px 30px;max-width:1840px;margin:0 auto}
+
+/* ══ SECTION CHROME — glass card ══ */
+.section{
+  background:var(--glass-bg);
+  border-radius:var(--r);
+  border:1px solid var(--glass-border);
+  box-shadow:var(--glass-shadow);
+  margin-bottom:22px;overflow:hidden;
+  transition:all var(--tr);
+  backdrop-filter:blur(8px);
+  position:relative;
+}
+.section:hover{
+  box-shadow:var(--sh),0 0 0 1px rgba(44,168,224,.15);
+  transform:translateY(-1px);
+}
+.sec-hd{
+  background:linear-gradient(90deg,rgba(0,96,181,.07),rgba(44,168,224,.04));
+  border-bottom:1px solid var(--border);
+  padding:13px 22px;font-size:11px;font-weight:800;
+  letter-spacing:1px;text-transform:uppercase;
+  color:var(--text-secondary);
+  display:flex;align-items:center;gap:9px;
+  position:relative;overflow:hidden;
+}
+/* Shimmer sweep on section headers — visible but not distracting */
+.sec-hd::after{
+  content:'';position:absolute;top:0;bottom:0;width:80px;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.28),transparent);
+  animation:secShimmer 8s ease-in-out infinite;
+  pointer-events:none;
+}
+.sec-hd .ic{font-size:15px;opacity:.8}
+.sec-hd .sec-count{
+  margin-left:auto;
+  background:linear-gradient(135deg,var(--ab),var(--ab-lt));
+  color:#fff;border-radius:99px;
+  padding:2px 12px;font-size:10px;font-weight:700;letter-spacing:.4px;
+  box-shadow:0 2px 8px rgba(0,96,181,.3);
+}
+.sec-body{padding:20px;color:var(--text-primary)}
+
+/* ══ STAT BAR — premium KPI strip ══ */
+.stat-bar{
+  display:grid;grid-template-columns:repeat(6,1fr);
+  gap:14px;margin-bottom:24px;
+}
+.stat-card{
+  background:var(--glass-bg);
+  border:1px solid var(--glass-border);
+  border-radius:var(--r);
+  padding:20px 22px;
+  box-shadow:var(--glass-shadow);
+  transition:transform .22s cubic-bezier(.4,0,.2,1),box-shadow .22s cubic-bezier(.4,0,.2,1);
+  position:relative;overflow:hidden;
+  backdrop-filter:blur(8px);
+  cursor:default;
+  will-change:opacity,transform;
+}
+/* Shimmer sweep on load */
+.stat-card::after{
+  content:'';position:absolute;top:0;left:0;right:0;bottom:0;
+  background:linear-gradient(135deg,rgba(255,255,255,.55) 0%,transparent 55%);
+  pointer-events:none;border-radius:var(--r);
+}
+.stat-card:hover{
+  transform:translateY(-5px);
+  box-shadow:var(--sh), 0 0 0 1px rgba(44,168,224,.2), 0 8px 32px rgba(0,96,181,.18);
+}
+.stat-card.sc-blue::before  {background:linear-gradient(90deg,var(--ab),var(--ab-lt))}
+.stat-card.sc-cyan::before  {background:linear-gradient(90deg,var(--cy),var(--cy-lt))}
+.stat-card.sc-green::before {background:linear-gradient(90deg,var(--success),#4ade80)}
+.stat-card.sc-warn::before  {background:linear-gradient(90deg,var(--warn),#fcd34d)}
+.stat-card.sc-crit::before  {background:linear-gradient(90deg,var(--crit),#f87171)}
+.stat-card.sc-orange::before{background:linear-gradient(90deg,var(--orange),#fbbf24)}
+/* top color bar */
+.stat-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:3px;
+  border-radius:var(--r) var(--r) 0 0;
+}
+/* stagger handled by JS animateStatCards() */
+.stat-lbl{font-size:9.5px;font-weight:800;letter-spacing:1.1px;text-transform:uppercase;
+  color:var(--text-muted);margin-bottom:8px}
+.stat-val{font-size:32px;font-weight:900;color:var(--text-primary);line-height:1;
+  letter-spacing:-1px;will-change:transform,opacity}
+.stat-card.sc-crit  .stat-val{color:var(--crit)}
+.stat-card.sc-warn  .stat-val{color:var(--warn)}
+.stat-card.sc-green .stat-val{color:var(--success)}
+.stat-card.sc-cyan  .stat-val{color:#0891B2}
+.stat-card.sc-blue  .stat-val{color:var(--ab)}
+.stat-sub{font-size:10px;color:var(--text-faint);margin-top:5px}
+.stat-prog-bar{height:3px;background:var(--border);border-radius:2px;margin-top:12px;overflow:hidden}
+.stat-prog-fill{height:100%;border-radius:2px;
+  transition:width 1.1s cubic-bezier(.22,1,.36,1);
+  will-change:width}
+.stat-card.sc-green .stat-prog-fill{background:linear-gradient(90deg,var(--success),#4ade80)}
+.stat-card.sc-blue  .stat-prog-fill{background:linear-gradient(90deg,var(--ab),var(--ab-lt))}
+
+/* ══ FILTER BAR ══ */
+.filter-bar{
+  display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+  background:var(--glass-bg);backdrop-filter:blur(8px);
+  border:1px solid var(--border);border-radius:var(--r);
+  box-shadow:var(--sh-xs);padding:12px 18px;margin-bottom:18px;
+}
+.filter-bar label{font-size:9px;font-weight:800;letter-spacing:.9px;text-transform:uppercase;color:var(--text-muted)}
+.filter-bar select,.filter-bar input[type=text]{
+  padding:7px 13px;border:1.5px solid var(--border);border-radius:var(--rsm);
+  font-size:12px;font-family:inherit;color:var(--text-primary);background:#fff;
+  transition:all var(--tr);min-width:130px;
+}
+.filter-bar select:focus,.filter-bar input[type=text]:focus{
+  outline:none;border-color:var(--ab-lt);
+  box-shadow:0 0 0 3px rgba(44,168,224,.15);
+}
+.filter-divider{width:1px;height:24px;background:var(--border);flex-shrink:0}
+.filter-chip{
+  display:inline-flex;align-items:center;gap:5px;
+  background:var(--crit-bg);color:var(--crit);
+  border:1.5px solid var(--crit-bd);border-radius:99px;
+  padding:5px 14px;font-size:11px;font-weight:700;cursor:pointer;transition:all var(--tr);
+}
+.filter-chip:hover{background:var(--crit);color:#fff;box-shadow:0 2px 12px rgba(220,38,38,.3)}
+.filter-chip.off{background:var(--surface);color:var(--text-muted);border-color:var(--border)}
+.flt-count{margin-left:auto;font-size:11px;color:var(--text-faint);font-style:italic}
+
+/* ══ CIVIL TABLE ══ */
+.civil-wrap{overflow-x:auto;border-radius:0 0 var(--r) var(--r)}
+table.civil-tbl{width:100%;border-collapse:collapse;font-size:12.5px}
+
+/* Header */
+.civil-tbl thead tr th{
+  background:linear-gradient(90deg,var(--ab-dk),var(--ab));
+  color:rgba(255,255,255,.7);font-size:10px;font-weight:700;letter-spacing:.6px;
+  padding:12px 18px;text-align:left;border-bottom:1px solid rgba(255,255,255,.1);
+  white-space:nowrap;
+}
+.civil-tbl thead tr th.act-hd{min-width:220px;width:230px}
+.civil-tbl thead tr th.cities-hd{border-left:1px solid rgba(255,255,255,.1)}
+.civil-tbl thead tr th.remarks-hd{
+  border-left:1px solid rgba(255,255,255,.12);
+  min-width:200px;width:210px}
+
+/* Package/group header rows */
+.civil-tbl tr.pkg-row{cursor:pointer;user-select:none}
+.civil-tbl tr.pkg-row td{
+  background:linear-gradient(90deg,#EDF4FF,#F0F6FF);
+  color:var(--ab-dk);
+  padding:12px 18px;
+  border-top:6px solid transparent;
+  border-bottom:1px solid var(--border);
+  border-image:none;
+  transition:background var(--tr);position:relative;
+}
+.civil-tbl tr.pkg-row:first-child td{border-top:none}
+.civil-tbl tr.pkg-row td::before{
+  content:'';position:absolute;bottom:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,var(--ab-lt),transparent);
+}
+.civil-tbl tr.pkg-row td:first-child{
+  border-left:4px solid var(--ab);
+}
+.civil-tbl tr.pkg-row:hover td{
+  background:linear-gradient(90deg,#E2EEFF,#EAF2FF);
+  box-shadow:inset 3px 0 0 var(--ab), inset 0 0 20px rgba(0,96,181,.06);
+}
+.cat-toggle{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:21px;height:21px;
+  background:rgba(0,96,181,.12);border:1.5px solid rgba(0,96,181,.2);
+  border-radius:5px;font-size:9px;margin-right:10px;
+  transition:transform .25s cubic-bezier(.4,0,.2,1),
+             background .2s ease,border-color .2s ease;
+  flex-shrink:0;color:var(--ab);
+}
+.cat-toggle.open{
+  transform:rotate(90deg);
+  background:rgba(0,96,181,.18);border-color:rgba(0,96,181,.4);
+}
+.pkg-label{font-size:13px;font-weight:800;letter-spacing:.2px;color:var(--ab-dk)}
+.pkg-count{font-size:10px;font-weight:600;color:var(--text-muted);margin-left:10px}
+
+/* Activity rows — cleaner separation */
+.civil-tbl tr.act-row td{
+  padding:0;
+  border-bottom:1.5px solid #E8F1FB;
+  vertical-align:top;background:#fff;
+  transition:background .18s ease,box-shadow .18s ease;
+}
+.civil-tbl tr.act-row:nth-child(even) td{background:#FAFCFF}
+.civil-tbl tr.act-row:hover td{
+  background:#EEF5FF!important;
+  box-shadow:inset 0 -1px 0 rgba(0,96,181,.1);
+}
+/* JS handles row entrance — will-change helps GPU compositing */
+.civil-tbl tr.act-row{ will-change:opacity,transform }
+
+/* Activity name cell */
+.act-name-cell{
+  padding:15px 14px 15px 14px;
+  display:flex;align-items:flex-start;gap:8px;
+  min-width:210px;width:225px;
+}
+.act-status-dot{
+  width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:5px;transition:all var(--tr);
+}
+.act-status-dot.dot-completed  {background:var(--success);box-shadow:0 0 6px rgba(22,163,74,.4)}
+.act-status-dot.dot-on-track   {background:#22c55e;box-shadow:0 0 5px rgba(34,197,94,.35)}
+.act-status-dot.dot-at-risk    {background:var(--warn);box-shadow:0 0 6px rgba(245,158,11,.4)}
+.act-status-dot.dot-delayed    {background:var(--crit);box-shadow:0 0 8px rgba(220,38,38,.45);
+  animation:pulse-dot 2s ease-in-out infinite}
+.act-status-dot.dot-not-started{background:var(--border-strong)}
+@keyframes pulse-dot{0%,100%{box-shadow:0 0 0 0 rgba(220,38,38,.3)}50%{box-shadow:0 0 0 5px rgba(220,38,38,0)}}
+.act-seq{font-size:10px;color:var(--text-faint);font-weight:700;flex-shrink:0;line-height:1.7}
+.act-label-wrap{flex:1}
+.act-label{font-size:12.5px;font-weight:700;color:var(--text-primary);line-height:1.4}
+.act-label.depth-2{font-size:12px;font-weight:600;padding-left:10px;color:var(--text-secondary)}
+.act-label.depth-3{font-size:11.5px;font-weight:500;padding-left:20px;color:var(--text-muted)}
+.act-label.depth-4{font-size:11px;font-weight:400;padding-left:30px;color:var(--text-faint)}
+
+/* City cards container */
+.city-cards-cell{padding:12px 14px 12px 10px;border-left:1px solid #EBF3FB}
+.city-cards-row{display:flex;gap:12px;align-items:stretch}
+
+/* ── CITY CARD — the visual heart ── */
+.city-card{
+  flex:1;min-width:160px;border-radius:var(--rsm);
+  padding:13px 14px;
+  display:flex;flex-direction:column;gap:7px;
+  transition:transform .2s cubic-bezier(.4,0,.2,1),
+             box-shadow .2s cubic-bezier(.4,0,.2,1),
+             border-color .2s ease,background .2s ease;
+  position:relative;overflow:hidden;
+  background:linear-gradient(145deg,#F5FAFF,#EEF6FF);
+  border:1px solid var(--border);
+  box-shadow:0 2px 8px rgba(0,96,181,.07),0 1px 2px rgba(0,96,181,.04);
+}
+/* Gradient top accent per status */
+.city-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:3px;
+  border-radius:var(--rsm) var(--rsm) 0 0;
+  background:linear-gradient(90deg,var(--border),var(--border));
+  transition:background var(--tr);
+}
+.city-card.cc-completed::before{background:linear-gradient(90deg,var(--success),#4ade80)}
+.city-card.cc-on-track::before {background:linear-gradient(90deg,#22c55e,#86efac)}
+.city-card.cc-at-risk::before  {background:linear-gradient(90deg,var(--warn),#fcd34d)}
+.city-card.cc-delayed::before  {background:linear-gradient(90deg,var(--crit),#f87171)}
+.city-card.cc-not-started::before{background:linear-gradient(90deg,var(--border-strong),var(--border))}
+
+.city-card.cc-completed{border-color:rgba(22,163,74,.25)}
+.city-card.cc-on-track {border-color:rgba(34,197,94,.2)}
+.city-card.cc-at-risk  {border-color:rgba(245,158,11,.3)}
+.city-card.cc-delayed  {border-color:rgba(220,38,38,.25)}
+
+.city-card:hover{
+  transform:translateY(-2px);
+  box-shadow:0 8px 24px rgba(0,96,181,.14),0 2px 6px rgba(0,96,181,.08);
+}
+.city-card.cc-completed:hover{border-color:rgba(22,163,74,.4);background:linear-gradient(145deg,#F0FDF4,#ECFDF5)}
+.city-card.cc-at-risk:hover  {border-color:rgba(245,158,11,.45);background:linear-gradient(145deg,#FFFDF0,#FFFBEB)}
+.city-card.cc-delayed:hover  {border-color:rgba(220,38,38,.35);background:linear-gradient(145deg,#FFF9F9,#FFF5F5)}
+
+/* Delayed top-border pulse — clearly visible, only the 3px accent bar */
+.city-card.cc-delayed::before{
+  animation:delayedBorder 2s ease-in-out infinite;
+}
+
+/* Completed shine sweep — visible white glint every 5s */
+.city-card.cc-completed::after{
+  content:'';position:absolute;top:0;bottom:0;left:-80px;width:70px;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.5),transparent);
+  animation:completedShine 5s ease-in-out infinite;
+  pointer-events:none;
+}
+
+.city-card-name{
+  font-size:9px;font-weight:800;letter-spacing:.9px;text-transform:uppercase;
+  color:var(--ab);margin-bottom:1px;
+}
+.city-card.cc-completed .city-card-name{color:var(--success)}
+.city-card.cc-at-risk   .city-card-name{color:var(--warn)}
+.city-card.cc-delayed   .city-card-name{color:var(--crit)}
+
+.city-card-row{display:flex;align-items:center;justify-content:space-between;gap:6px}
+.city-card-row-label{font-size:9px;color:var(--text-faint);font-weight:600;white-space:nowrap}
+.city-card-dates{
+  display:flex;flex-direction:column;gap:3px;margin-top:2px;
+  padding-top:7px;border-top:1px solid var(--border);
+}
+.city-date-row{display:flex;align-items:center;justify-content:space-between;gap:4px}
+.city-date-lbl{font-size:9px;color:var(--text-faint);white-space:nowrap}
+.city-date-val{font-size:10px;font-weight:700;color:var(--text-secondary);white-space:nowrap}
+.city-date-val.delayed  {color:var(--crit)}
+.city-date-val.at-risk  {color:var(--warn)}
+.city-date-val.completed{color:var(--success)}
+
+/* Pct pills — with entrance animation */
+.pp{display:inline-flex;align-items:center;justify-content:center;
+  padding:2px 9px;border-radius:5px;font-size:11px;font-weight:800;min-width:40px;text-align:center;
+  transition:all .18s ease;
+  animation:pillSlideIn .25s cubic-bezier(.22,1,.36,1) both;
+}
+.pp-100{background:rgba(22,163,74,.12);color:#15803d;border:1px solid rgba(22,163,74,.2)}
+.pp-hi {background:rgba(0,96,181,.1); color:var(--ab-dk);border:1px solid rgba(0,96,181,.15)}
+.pp-mid{background:rgba(245,158,11,.1);color:#92400e;border:1px solid rgba(245,158,11,.2)}
+.pp-lo {background:rgba(220,38,38,.1); color:#b91c1c;border:1px solid rgba(220,38,38,.15)}
+.pp-na {background:var(--surface);color:var(--text-faint);font-size:10px}
+
+/* Delay chips */
+.dc{display:inline-flex;align-items:center;gap:2px;padding:2px 8px;
+  border-radius:99px;font-size:9.5px;font-weight:800;white-space:nowrap}
+.dc-ok{background:rgba(22,163,74,.1); color:#15803d;border:1px solid rgba(22,163,74,.2)}
+.dc-ah{background:rgba(0,96,181,.1);  color:var(--ab-dk);border:1px solid rgba(0,96,181,.15)}
+.dc-lt{background:rgba(220,38,38,.1); color:#b91c1c;border:1px solid rgba(220,38,38,.18)}
+
+/* Remarks cell */
+.civil-tbl td.rmk-cell{
+  padding:10px 12px;
+  vertical-align:top;
+  border-left:1px solid var(--border);
+  background:#FAFCFF;
+  min-width:190px;width:205px;max-width:220px;
+}
+.rmk-cell .rmk-text{
+  color:#7c4a00;
+  font-size:10.5px;
+  line-height:1.6;
+  word-break:break-word;
+}
+/* Completed activity row — muted, clean */
+.civil-tbl tr.act-row-done td{background:#F8FFF8!important;opacity:.82}
+.civil-tbl tr.act-row-done:hover td{background:#F0FDF4!important;opacity:1}
+.act-label-done{color:var(--text-muted)!important;text-decoration:none}
+.act-done-badge{
+  display:inline-flex;align-items:center;gap:4px;
+  margin-top:3px;
+  background:rgba(22,163,74,.1);color:var(--success);
+  border:1px solid rgba(22,163,74,.2);border-radius:99px;
+  padding:1px 8px;font-size:9.5px;font-weight:800;letter-spacing:.3px;
+}
+
+/* Completed city card — clean, minimal */
+.city-card-done{
+  background:linear-gradient(145deg,#F0FDF4,#F7FFF8)!important;
+  border-color:rgba(22,163,74,.2)!important;
+  opacity:.88;
+}
+.city-card-done:hover{opacity:1}
+.city-done-footer{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-top:4px;padding-top:6px;border-top:1px solid rgba(22,163,74,.15);
+}
+.city-done-badge{
+  display:inline-flex;align-items:center;gap:3px;
+  background:rgba(22,163,74,.12);color:var(--success);
+  border:1px solid rgba(22,163,74,.22);border-radius:99px;
+  padding:2px 8px;font-size:9px;font-weight:800;letter-spacing:.3px;
+}
+.city-done-date{font-size:9.5px;color:var(--success);font-weight:700;opacity:.7}
+
+.civil-empty{text-align:center;padding:48px;color:var(--text-faint);font-style:italic;font-size:13px}
+
+/* ══ MANPOWER — executive redesign ══ */
+.mp-wrap{padding:20px}
+.mp-total-banner{
+  background:linear-gradient(135deg,var(--ab-dk) 0%,var(--ab) 50%,var(--ab-lt) 100%);
+  border-radius:var(--r);padding:20px 28px;margin-bottom:18px;
+  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;
+  position:relative;overflow:hidden;
+  box-shadow:0 6px 24px rgba(0,96,181,.3);
+}
+.mp-total-banner::before{
+  content:'';position:absolute;right:-60px;top:-60px;width:220px;height:220px;border-radius:50%;
+  background:radial-gradient(circle,rgba(255,255,255,.1) 0%,transparent 70%);pointer-events:none;
+}
+.mp-banner-left .mp-banner-lbl{font-size:10px;font-weight:800;letter-spacing:1.2px;
+  text-transform:uppercase;color:rgba(255,255,255,.55);margin-bottom:4px}
+.mp-banner-left .mp-banner-val{font-size:42px;font-weight:900;color:#fff;letter-spacing:-2px;line-height:1}
+.mp-banner-right{display:flex;gap:28px;flex-wrap:wrap}
+.mp-banner-item{text-align:center}
+.mp-banner-item .val{font-size:22px;font-weight:800;color:#fff}
+.mp-banner-item .lbl{font-size:9px;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.8px;margin-top:2px}
+.mp-banner-divider{width:1px;background:rgba(255,255,255,.15);align-self:stretch}
+.mp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px}
+.mp-card{
+  background:var(--glass-bg);backdrop-filter:blur(8px);
+  border:1px solid var(--glass-border);border-radius:var(--r);
+  padding:20px 22px;
+  box-shadow:var(--glass-shadow);
+  transition:all var(--tr);position:relative;overflow:hidden;
+}
+.mp-card::after{
+  content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:var(--r) var(--r) 0 0;
+  background:linear-gradient(90deg,var(--ab),var(--cy));
+}
+.mp-card:hover{
+  transform:translateY(-3px);
+  box-shadow:var(--sh),0 0 24px rgba(0,96,181,.12);
+  border-color:rgba(44,168,224,.3);
+}
+.mp-city{font-size:9px;font-weight:800;letter-spacing:1.1px;text-transform:uppercase;
+  color:var(--ab);margin-bottom:12px;display:flex;align-items:center;gap:5px}
+.mp-total-num{font-size:38px;font-weight:900;color:var(--ab-dk);letter-spacing:-1.5px;line-height:1}
+.mp-total-lbl{font-size:10px;color:var(--text-faint);margin-bottom:14px;margin-top:2px}
+.mp-breakdown{display:flex;gap:0;margin-top:14px;padding-top:14px;border-top:1px solid var(--border)}
+.mp-breakdown-item{flex:1;text-align:center;padding:0 4px;border-right:1px solid var(--border)}
+.mp-breakdown-item:last-child{border-right:none}
+.mp-breakdown-item .val{font-size:18px;font-weight:900;color:var(--text-primary)}
+.mp-breakdown-item .lbl{font-size:9px;color:var(--text-faint);text-transform:uppercase;letter-spacing:.5px;margin-top:3px}
+.mp-mini-bar{display:flex;height:4px;border-radius:2px;overflow:hidden;margin-top:12px;gap:1px}
+.mp-mini-alf{background:var(--ab);border-radius:2px 0 0 2px;transition:width .7s ease}
+.mp-mini-sub{background:var(--cy);transition:width .7s ease}
+.mp-mini-ind{background:var(--border-strong);border-radius:0 2px 2px 0;transition:width .7s ease}
+
+/* ══ PHOTO GALLERY ══ */
+.photo-filter-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:14px 20px 0}
+.photo-filter-bar label{font-size:9px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;color:var(--text-muted)}
+.photo-filter-bar select,.photo-filter-bar input[type=text]{
+  padding:7px 12px;border:1.5px solid var(--border);border-radius:var(--rsm);
+  font-size:12px;font-family:inherit;color:var(--text-primary);background:#fff;
+  transition:all var(--tr);min-width:140px;
+}
+.photo-filter-bar select:focus,.photo-filter-bar input[type=text]:focus{
+  outline:none;border-color:var(--ab-lt);box-shadow:0 0 0 3px rgba(44,168,224,.12);}
+.photo-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:18px;padding:20px}
+.photo-card{
+  background:#fff;border-radius:var(--r);border:1px solid var(--border);
+  box-shadow:var(--sh-sm);overflow:hidden;
+  transition:all var(--tr);display:flex;flex-direction:column;
+}
+.photo-card:hover{box-shadow:var(--sh),0 0 20px rgba(0,96,181,.1);transform:translateY(-3px);border-color:rgba(44,168,224,.3)}
+.photo-card-img{width:100%;height:190px;object-fit:cover;display:block;cursor:pointer;transition:all .3s}
+.photo-card-img:hover{transform:scale(1.02);filter:brightness(1.05)}
+.photo-card-placeholder{width:100%;height:190px;background:linear-gradient(135deg,#EEF6FF,#E4EEFA);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;color:var(--text-faint)}
+.photo-card-body{padding:13px 15px;flex:1;display:flex;flex-direction:column;gap:5px}
+.photo-city-tag{display:inline-flex;align-items:center;gap:4px;
+  background:linear-gradient(135deg,var(--ab),var(--ab-lt));color:#fff;
+  border-radius:5px;padding:3px 10px;font-size:9.5px;font-weight:800;letter-spacing:.5px;text-transform:uppercase}
+.photo-date-tag{font-size:10px;color:var(--text-faint);font-weight:600;margin-left:auto}
+.photo-card-title{font-size:13px;font-weight:800;color:var(--text-primary);line-height:1.3;margin-top:2px}
+.photo-card-note{font-size:11.5px;color:var(--text-secondary);line-height:1.5;flex:1;
+  display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.photo-card-actions{display:flex;gap:6px;margin-top:8px;padding-top:9px;border-top:1px solid var(--border)}
+.photo-btn{flex:1;padding:6px 0;border:none;border-radius:var(--rxs);font-size:11px;font-weight:700;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;gap:4px;transition:all var(--tr)}
+.photo-btn-view{background:rgba(0,96,181,.08);color:var(--ab-dk)}.photo-btn-view:hover{background:var(--ab);color:#fff}
+.photo-btn-del{background:var(--crit-bg);color:var(--crit)}.photo-btn-del:hover{background:var(--crit);color:#fff}
+.gallery-empty{grid-column:1/-1;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;padding:52px;gap:12px;color:var(--text-faint)}
+.gallery-empty .ei{font-size:52px;opacity:.15}
+
+/* ══ LIGHTBOX ══ */
+#lightbox{display:none;position:fixed;inset:0;z-index:1000;
+  background:rgba(0,20,50,.92);backdrop-filter:blur(12px);
+  align-items:center;justify-content:center;flex-direction:column;gap:16px;}
+#lightbox.open{display:flex;animation:fadeUp .2s}
+#lb-img{max-width:90vw;max-height:80vh;border-radius:var(--rsm);
+  box-shadow:0 24px 80px rgba(0,0,0,.5);object-fit:contain}
+#lb-cap{color:#fff;text-align:center;max-width:600px}
+#lb-cap .lt{font-size:16px;font-weight:800;margin-bottom:4px}
+#lb-cap .lm{font-size:12px;color:rgba(255,255,255,.5)}
+#lb-cap .ln{font-size:12px;color:rgba(255,255,255,.7);margin-top:5px;line-height:1.5}
+.lb-x{position:fixed;top:18px;right:22px;background:rgba(255,255,255,.12);border:none;color:#fff;
+  font-size:20px;width:42px;height:42px;border-radius:50%;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;transition:background .2s}
+.lb-x:hover{background:rgba(255,255,255,.25)}
+.lb-nav{position:fixed;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.1);border:none;
+  color:#fff;font-size:22px;width:46px;height:56px;border-radius:8px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;transition:background .2s}
+.lb-nav:hover{background:rgba(255,255,255,.2)}
+#lb-prev{left:14px}#lb-next{right:14px}
+
+/* ══ ACTION BAR ══ */
+.action-bar{
+  background:rgba(255,255,255,.8);backdrop-filter:blur(8px);
+  border-top:1px solid var(--border);padding:12px 28px;
+  display:flex;gap:10px;align-items:center;flex-wrap:wrap;
+}
+.btn{padding:9px 20px;border-radius:var(--rsm);border:none;cursor:pointer;font-size:12px;
+  font-weight:700;display:inline-flex;align-items:center;gap:6px;transition:all var(--tr);letter-spacing:.2px}
+.btn:active{transform:scale(.96)}
+.btn-primary{background:linear-gradient(135deg,var(--ab),var(--ab-lt));color:#fff;
+  box-shadow:0 3px 12px rgba(0,96,181,.35)}
+.btn-primary:hover{box-shadow:0 6px 20px rgba(0,96,181,.45);transform:translateY(-1px)}
+.btn-gold{background:linear-gradient(135deg,#D97706,#F59E0B);color:#fff;
+  box-shadow:0 2px 8px rgba(217,119,6,.3)}
+.btn-gold:hover{box-shadow:0 4px 14px rgba(217,119,6,.4);transform:translateY(-1px)}
+.btn-danger{background:var(--crit);color:#fff}
+.btn-danger:hover{background:#b91c1c;transform:translateY(-1px)}
+.btn-outline{background:#fff;color:var(--ab-dk);border:1.5px solid var(--border)}
+.btn-outline:hover{border-color:var(--ab-lt);color:var(--ab);background:var(--ab-xlt);transform:translateY(-1px)}
+.btn-sm{padding:6px 13px;font-size:11px}
+
+/* ══ DATA ENTRY FORMS ══ */
+.form-g4{display:grid;grid-template-columns:repeat(4,1fr);gap:13px}
+.form-g3{display:grid;grid-template-columns:repeat(3,1fr);gap:13px}
+.form-g2{display:grid;grid-template-columns:repeat(2,1fr);gap:13px}
+.form-g5{display:grid;grid-template-columns:repeat(5,1fr);gap:13px}
+.fg{display:flex;flex-direction:column;gap:4px}
+.fg label{font-size:10px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;color:var(--text-muted)}
+.fg input,.fg select,.fg textarea{
+  padding:9px 12px;border:1.5px solid var(--border);border-radius:var(--rsm);
+  font-size:12px;font-family:inherit;color:var(--text-primary);background:#fff;
+  transition:all var(--tr);width:100%;
+}
+.fg input:focus,.fg select:focus,.fg textarea:focus{
+  outline:none;border-color:var(--ab-lt);
+  box-shadow:0 0 0 3px rgba(44,168,224,.12);
+}
+.fg input[readonly]{background:var(--surface);color:var(--text-secondary);font-weight:700;cursor:default}
+.fg textarea{resize:vertical;min-height:60px}
+.form-ttl{font-size:10px;font-weight:900;letter-spacing:1px;text-transform:uppercase;
+  color:var(--ab-dk);border-left:3px solid var(--ab);padding-left:10px;margin-bottom:10px}
+.entry-row{background:#fff;border:1.5px solid var(--border);border-radius:var(--r);
+  margin-bottom:10px;overflow:hidden;box-shadow:var(--sh-xs);transition:all var(--tr)}
+.entry-row:hover{border-color:rgba(44,168,224,.35);box-shadow:var(--sh-sm)}
+.entry-row-hd{display:flex;align-items:center;gap:10px;padding:11px 16px;cursor:pointer;
+  background:var(--surface);transition:all var(--tr);user-select:none}
+.entry-row-hd:hover{background:var(--surface2)}
+.entry-row.open .entry-row-hd{
+  background:linear-gradient(90deg,var(--ab-dk),var(--ab));color:#fff}
+.entry-row.open .entry-row-hd .row-title{color:#fff}
+.entry-row.open .entry-row-hd .row-meta{color:rgba(255,255,255,.55)}
+.entry-row.open .entry-row-hd .tog{color:#fff;transform:rotate(180deg)}
+.row-title{font-size:12px;font-weight:800;color:var(--text-primary);flex:1}
+.row-meta{font-size:11px;color:var(--text-muted)}
+.tog{font-size:12px;color:var(--text-faint);transition:transform .25s;flex-shrink:0}
+.entry-body{display:none;padding:16px;border-top:1px solid var(--border);animation:fadeUp .2s ease}
+.entry-row.open .entry-body{display:block}
+.del-btn{background:none;border:none;color:var(--crit);font-size:14px;cursor:pointer;
+  padding:3px 6px;border-radius:var(--rxs);transition:background var(--tr);flex-shrink:0}
+.del-btn:hover{background:var(--crit-bg)}
+.add-row-btn{display:inline-flex;align-items:center;gap:6px;background:none;
+  border:1.5px dashed var(--ab-lt);color:var(--ab);font-size:11px;font-weight:700;
+  padding:8px 16px;border-radius:var(--rsm);cursor:pointer;transition:all var(--tr);margin-top:4px}
+.add-row-btn:hover{background:var(--ab-xlt);border-style:solid}
+.lvl-0{border-left:4px solid var(--ab)}
+.lvl-1{border-left:4px solid var(--cy)}
+.lvl-2{border-left:4px solid var(--success)}
+.lvl-3{border-left:4px solid var(--border-strong)}
+.upload-zone{border:2px dashed var(--border-mid);border-radius:var(--rsm);padding:18px;text-align:center;
+  cursor:pointer;background:var(--surface);transition:all var(--tr);position:relative}
+.upload-zone:hover{border-color:var(--ab-lt);background:var(--ab-xlt)}
+.upload-zone.has-img{border-style:solid;border-color:var(--success);padding:0;overflow:hidden}
+.upload-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.upload-zone .uz-lbl{pointer-events:none;display:flex;flex-direction:column;
+  align-items:center;gap:5px;color:var(--text-faint);font-size:12px}
+.upload-zone .uz-ic{font-size:26px;opacity:.35}
+.upload-thumb{width:100%;height:110px;object-fit:cover;display:block;border-radius:var(--rsm)}
+
+/* ══ TOAST ══ */
+#toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(50px);
+  background:linear-gradient(135deg,var(--ab-dk),var(--ab));
+  color:#fff;padding:12px 24px;border-radius:99px;font-size:12px;font-weight:700;
+  opacity:0;transition:all .3s;pointer-events:none;z-index:9999;
+  box-shadow:0 8px 30px rgba(0,96,181,.4)}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ════════════════════════════════════════════
+   JS-TRIGGERED ANIMATION CLASSES
+   .anim-ready = hidden start state (set by JS before setTimeout)
+   .anim-go    = visible end state  (set by JS after setTimeout(0))
+   The browser paints .anim-ready, then transitions to .anim-go.
+════════════════════════════════════════════ */
+.anim-ready{
+  opacity:0 !important;
+  transform:translateY(12px) !important;
+  transition:none !important;
+  will-change:opacity,transform;
+}
+.anim-go{
+  opacity:1 !important;
+  transform:translateY(0) !important;
+  transition:opacity .36s ease, transform .36s cubic-bezier(.22,1,.36,1) !important;
+}
+.city-card.anim-ready{
+  opacity:0 !important;
+  transform:translateY(10px) scale(.95) !important;
+  transition:none !important;
+}
+.city-card.anim-go{
+  opacity:1 !important;
+  transform:translateY(0) scale(1) !important;
+  transition:opacity .32s ease, transform .32s cubic-bezier(.22,1,.36,1),
+    box-shadow .22s ease, border-color .22s ease, background .22s ease !important;
+}
+
+/* ── KPI card hover ── */
+.stat-card{ transition:transform .22s cubic-bezier(.22,1,.36,1), box-shadow .22s ease !important; }
+.stat-card:hover{
+  transform:translateY(-6px) !important;
+  box-shadow:0 14px 36px rgba(0,96,181,.22),0 0 0 1.5px rgba(44,168,224,.28) !important;
+}
+
+/* ── City card hover ── */
+.city-card:hover{
+  transform:translateY(-6px) scale(1.016) !important;
+  box-shadow:0 12px 28px rgba(0,96,181,.18),0 2px 8px rgba(0,96,181,.08) !important;
+}
+.city-card.anim-go:hover{
+  transform:translateY(-6px) scale(1.016) !important;
+}
+
+/* ── Delayed card top-border pulse ── */
+@keyframes delayedPulse{
+  0%,100%{ background:linear-gradient(90deg,#dc2626,#ef4444); opacity:.55; }
+  50%    { background:linear-gradient(90deg,#ff2020,#ff6060); opacity:1;   }
+}
+.city-card.cc-delayed::before{
+  animation:delayedPulse 1.8s ease-in-out infinite !important;
+}
+
+/* ── Completed card shine sweep ── */
+@keyframes completedSweep{
+  0%,55%,100%{ transform:translateX(-200%); opacity:0; }
+  20%        { opacity:1; }
+  50%        { transform:translateX(300%);  opacity:0; }
+}
+.city-card.cc-completed::after{
+  content:'';position:absolute;top:0;bottom:0;left:0;width:50%;
+  background:linear-gradient(90deg,transparent 0%,rgba(255,255,255,.55) 50%,transparent 100%);
+  animation:completedSweep 4.5s ease-in-out infinite;
+  pointer-events:none;
+}
+
+/* ── Section header shimmer ── */
+@keyframes sectionSweep{
+  0%,60%,100%{ transform:translateX(-200%); opacity:0; }
+  25%        { opacity:1; }
+  55%        { transform:translateX(250%);  opacity:0; }
+}
+.sec-hd::after{
+  content:'';position:absolute;top:0;bottom:0;left:0;width:50%;
+  background:linear-gradient(90deg,transparent 0%,rgba(255,255,255,.30) 50%,transparent 100%);
+  animation:sectionSweep 6s ease-in-out infinite;
+  pointer-events:none;
+}
+
+/* ── Package header hover glow ── */
+.civil-tbl tr.pkg-row:hover td{
+  background:linear-gradient(90deg,#dce8ff,#e8f2ff) !important;
+  box-shadow:inset 4px 0 0 var(--ab), 0 2px 14px rgba(0,96,181,.09) !important;
+}
+
+/* ── Print: disable all JS animations ── */
+@media print{
+  .anim-ready{ opacity:1 !important; transform:none !important; }
+  .anim-go   { opacity:1 !important; transform:none !important; }
+  .city-card.cc-delayed::before,
+  .city-card.cc-completed::after,
+  .sec-hd::after{ animation:none !important; }
+}
+
+/* ══ PRINT ══ */
+@media print{
+  @page{size:A4 landscape;margin:10mm 8mm}
+  .tab-bar,.action-bar,#data-entry-tab,.filter-bar,.no-print{display:none!important}
+  .tab-panel{display:block!important}
+  body{background:#fff!important;font-size:10.5px;color:#000}
+  body::before{display:none}
+  .section{box-shadow:none!important;border:1px solid #c8dff5;margin-bottom:10px;page-break-inside:avoid;background:#fff!important}
+  .rpt-header{print-color-adjust:exact;-webkit-print-color-adjust:exact}
+  .stat-bar{display:none!important}
+  .page{padding:0}
+  .civil-tbl td,.civil-tbl th{padding:4px 7px;font-size:9.5px}
+  .photo-grid{grid-template-columns:repeat(2,1fr);gap:10px;padding:8px}
+  .photo-card{break-inside:avoid;border:1px solid #ccc;background:#fff!important}
+  .photo-card-img{height:150px}
+  .photo-card-actions,.photo-filter-bar{display:none!important}
+  .mp-card{print-color-adjust:exact;-webkit-print-color-adjust:exact;background:#fff!important}
+  .city-card{print-color-adjust:exact;-webkit-print-color-adjust:exact}
+  #lightbox,.act-status-dot{display:none!important}
+  .civil-tbl tr.act-row{animation:none!important}
+  .stat-card{animation:none!important}
+  .pp{animation:none!important}
+  .city-card.cc-delayed::before,.city-card.cc-completed::after,.sec-hd::after{animation:none!important}
+}
+@media(max-width:1200px){.form-g4{grid-template-columns:repeat(2,1fr)}.form-g5{grid-template-columns:repeat(3,1fr)}.stat-bar{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:900px){.rpt-header{flex-direction:column}.rpt-meta{gap:6px}.stat-bar{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:600px){.page{padding:12px}.stat-bar{grid-template-columns:1fr 1fr}.form-g2{grid-template-columns:1fr}}
+
+/* ════ REPORT HISTORY / SNAPSHOT BAR ════ */
+.snapshot-bar{
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+  background:linear-gradient(90deg,var(--ab-xlt),#EEF6FF);
+  border:1px solid rgba(0,96,181,.14);
+  border-radius:var(--r);padding:11px 18px;
+}
+.snapshot-bar label{
+  font-size:9px;font-weight:800;letter-spacing:.9px;
+  text-transform:uppercase;color:var(--ab-dk);
+}
+.snapshot-select{
+  padding:7px 13px;border:1.5px solid var(--border);border-radius:var(--rsm);
+  font-size:12px;font-family:inherit;color:var(--text-primary);
+  background:#fff;transition:all var(--tr);min-width:165px;cursor:pointer;
+}
+.snapshot-select:focus{
+  outline:none;border-color:var(--ab-lt);
+  box-shadow:0 0 0 3px rgba(44,168,224,.12);
+}
+.snapshot-count{font-size:10px;color:var(--text-faint);font-style:italic}
+.btn-snap-load{
+  background:linear-gradient(135deg,var(--ab),var(--ab-lt));color:#fff;
+  padding:7px 14px;border:none;border-radius:var(--rsm);
+  font-size:11px;font-weight:700;cursor:pointer;
+  transition:all var(--tr);display:inline-flex;align-items:center;gap:5px;
+}
+.btn-snap-load:hover{
+  box-shadow:0 4px 12px rgba(0,96,181,.35);transform:translateY(-1px);
+}
+.btn-snap-del{
+  background:rgba(220,38,38,.07);color:var(--crit);
+  border:1px solid rgba(220,38,38,.18);
+  padding:7px 13px;border-radius:var(--rsm);
+  font-size:11px;font-weight:700;cursor:pointer;transition:all var(--tr);
+}
+.btn-snap-del:hover{background:var(--crit);color:#fff}
+</style>
+</head>
+<body>
+
+<div class="tab-bar">
+  <button class="tab-btn active" id="tb-dash" onclick="switchTab('dashboard',this)">📊 Dashboard</button>
+  <button class="tab-btn" id="tb-entry" onclick="switchTab('data-entry',this)">✏️ Data Entry</button>
+</div>
+
+<!-- ═══ DASHBOARD ═══ -->
+<div id="dashboard-tab" class="tab-panel active">
+  <div class="rpt-header">
+    <div class="rpt-header-orb"></div>
+    <div class="rpt-brand">
+      <div class="rpt-logo">▲</div>
+      <div>
+        <div class="rpt-eyebrow">Alfanar Projects · Daily Civil Site Report</div>
+        <div class="rpt-proj" id="d-projName">—</div>
+        <div class="rpt-contract" id="d-contractNo">Contract: —</div>
+      </div>
+    </div>
+    <div class="rpt-meta">
+      <div class="meta-pill"><div class="lbl">Date</div><div class="val" id="d-date">—</div></div>
+      <div class="meta-pill"><div class="lbl">Report No.</div><div class="val" id="d-reportNo">—</div></div>
+      <div class="meta-pill"><div class="lbl">Day No.</div><div class="val" id="d-dayNo">—</div></div>
+      <div class="meta-pill"><div class="lbl">Weather</div><div class="val" id="d-weather">—</div></div>
+      <div class="meta-pill"><div class="lbl">Temp</div><div class="val" id="d-temp">—</div></div>
+    </div>
+  </div>
+
+  <div class="page">
+
+    <!-- KPI CARDS -->
+    <div class="stat-bar">
+      <div class="stat-card sc-blue">
+        <div class="stat-lbl">Total Activities</div>
+        <div class="stat-val" id="sb-total">0</div>
+        <div class="stat-sub">across all packages</div>
+      </div>
+      <div class="stat-card sc-green">
+        <div class="stat-lbl">Completed</div>
+        <div class="stat-val" id="sb-done">0</div>
+        <div class="stat-sub">activities done</div>
+        <div class="stat-prog-bar"><div class="stat-prog-fill" id="sb-done-bar" style="width:0%"></div></div>
+      </div>
+      <div class="stat-card sc-cyan">
+        <div class="stat-lbl">Avg Site Progress</div>
+        <div class="stat-val" id="sb-avg">0%</div>
+        <div class="stat-sub">all cities average</div>
+        <div class="stat-prog-bar"><div class="stat-prog-fill" id="sb-avg-bar" style="width:0%;background:linear-gradient(90deg,var(--ab),var(--cy))"></div></div>
+      </div>
+      <div class="stat-card sc-crit">
+        <div class="stat-lbl">Delayed</div>
+        <div class="stat-val" id="sb-delayed">0</div>
+        <div class="stat-sub">need immediate action</div>
+      </div>
+      <div class="stat-card sc-warn">
+        <div class="stat-lbl">At Risk</div>
+        <div class="stat-val" id="sb-risk">0</div>
+        <div class="stat-sub">monitor closely</div>
+      </div>
+      <div class="stat-card sc-orange">
+        <div class="stat-lbl">Total Manpower</div>
+        <div class="stat-val" id="sb-mp">0</div>
+        <div class="stat-sub">all sites combined</div>
+      </div>
+    </div>
+
+    <!-- FILTER BAR -->
+    <div class="filter-bar no-print">
+      <label>🔍</label>
+      <input type="text" id="srch-civil" placeholder="Search activities…" oninput="renderCivilTable()" style="min-width:180px"/>
+      <div class="filter-divider"></div>
+      <label>Status</label>
+      <select id="flt-status" onchange="renderCivilTable()">
+        <option value="">All Statuses</option>
+        <option>On Track</option><option>At Risk</option>
+        <option>Delayed</option><option>Completed</option><option>Not Started</option>
+      </select>
+      <div class="filter-divider"></div>
+      <button class="filter-chip off" id="flt-delayed-btn" onclick="toggleDelayedFilter()">🔴 Delayed Only</button>
+      <span class="flt-count" id="flt-count"></span>
+    </div>
+
+    <!-- CIVIL WORKS TABLE -->
+    <div class="section">
+      <div class="sec-hd">
+        <span class="ic">🏗</span> Civil Works Status — Major Activities
+        <span class="sec-count" id="civil-count">0 items</span>
+      </div>
+      <div style="padding:0">
+        <div class="civil-wrap">
+          <table class="civil-tbl" id="civil-tbl">
+            <thead id="civil-thead"></thead>
+            <tbody id="civil-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- MANPOWER -->
+    <div class="section">
+      <div class="sec-hd"><span class="ic">👷</span> Manpower by Site <span class="sec-count" id="mp-count">0 sites</span></div>
+      <div id="mp-grid-wrap"></div>
+    </div>
+
+    <!-- PHOTO GALLERY -->
+    <div class="section">
+      <div class="sec-hd"><span class="ic">📸</span> Site Photo Gallery <span class="sec-count" id="photo-count">0</span></div>
+      <div class="photo-filter-bar no-print">
+        <label>🏙 City</label>
+        <select id="gal-city" onchange="renderGallery()"><option value="">All</option></select>
+        <label>🔍</label>
+        <input type="text" id="gal-srch" placeholder="Search photos…" oninput="renderGallery()" style="min-width:180px"/>
+      </div>
+      <div class="photo-grid" id="photo-grid"></div>
+    </div>
+
+  </div>
+
+  <div class="action-bar no-print" style="flex-direction:column;align-items:stretch;gap:10px;padding:14px 28px">
+    <!-- Row 1: main actions -->
+    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+      <button class="btn btn-primary" onclick="saveSnapshot()">💾 Save</button>
+      <button class="btn btn-gold"    onclick="window.print()">🖨️ Print / PDF</button>
+      <button class="btn btn-outline" onclick="exportJSON()">📤 Export JSON</button>
+      <button class="btn btn-outline" onclick="document.getElementById('imp-file').click()">📥 Import JSON</button>
+      <input type="file" id="imp-file" accept=".json" style="display:none" onchange="importJSON(event)"/>
+      <div style="flex:1"></div>
+      <button class="btn btn-danger" onclick="resetData()">↺ Reset</button>
+    </div>
+    <!-- Row 2: Report History -->
+    <div class="snapshot-bar">
+      <label>📅 Report History</label>
+      <select class="snapshot-select" id="snap-select" onchange="onSnapSelectChange()">
+        <option value="">— Load Saved Date —</option>
+      </select>
+      <button class="btn-snap-load" onclick="loadSnapshot()">⬆ Load</button>
+      <button class="btn-snap-del"  onclick="deleteSnapshot()">🗑 Delete</button>
+      <span class="snapshot-count" id="snap-count"></span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ DATA ENTRY ═══ -->
+<div id="data-entry-tab" class="tab-panel">
+<div class="page">
+
+  <div class="section">
+    <div class="sec-hd"><span class="ic">📋</span> Project Information</div>
+    <div class="sec-body">
+      <div class="form-g4">
+        <div class="fg"><label>Project Name</label><input type="text" id="f-projName" placeholder="PE-286 Western Region SDCC"/></div>
+        <div class="fg"><label>Contract No.</label><input type="text" id="f-contractNo" placeholder="CONTRACT-PE286-2024"/></div>
+        <div class="fg"><label>Report Date</label><input type="date" id="f-date"/></div>
+        <div class="fg"><label>Report No.</label><input type="text" id="f-reportNo" placeholder="RPT-001"/></div>
+        <div class="fg"><label>Day No.</label><input type="number" id="f-dayNo" min="1" placeholder="1"/></div>
+        <div class="fg"><label>Weather</label>
+          <select id="f-weather">
+            <option>Sunny</option><option>Partly Cloudy</option><option>Cloudy</option>
+            <option>Rainy</option><option>Stormy</option><option>Dusty/Hazy</option><option>Foggy</option>
+          </select>
+        </div>
+        <div class="fg"><label>Max Temperature (°C)</label><input type="number" id="f-temp" placeholder="38"/></div>
+        <div class="fg"><label>Rain (mm)</label><input type="number" id="f-rain" placeholder="0" step="0.1"/></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="sec-hd"><span class="ic">📍</span> City Columns</div>
+    <div class="sec-body">
+      <div style="font-size:11px;color:var(--text-muted);margin-bottom:10px">These appear as grouped columns in the Civil Works table.</div>
+      <div id="cities-config" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center"></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="sec-hd"><span class="ic">🏗</span> Civil Works — Hierarchy <span class="sec-count" id="civil-form-count">0</span></div>
+    <div class="sec-body">
+      <div id="civil-form-rows"></div>
+      <button class="add-row-btn" onclick="addPackage()">+ Add Main Package</button>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="sec-hd"><span class="ic">👷</span> Manpower by Site <span class="sec-count" id="mp-form-count">0</span></div>
+    <div class="sec-body">
+      <div id="mp-form-rows"></div>
+      <button class="add-row-btn" onclick="addMpRow()">+ Add Site</button>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="sec-hd"><span class="ic">📸</span> Site Photo Log <span class="sec-count" id="photo-form-count">0</span></div>
+    <div class="sec-body">
+      <div id="photo-form-rows"></div>
+      <button class="add-row-btn" onclick="addPhotoRow()">+ Add Photo</button>
+    </div>
+  </div>
+
+</div>
+<div class="action-bar">
+  <button class="btn btn-primary" onclick="saveSnapshot()">💾 Save</button>
+  <button class="btn btn-outline" onclick="exportJSON()">📤 Export JSON</button>
+  <button class="btn btn-outline" onclick="document.getElementById('imp-file').click()">📥 Import JSON</button>
+  <button class="btn btn-danger" onclick="resetData()">↺ Reset</button>
+</div>
+</div>
+
+<!-- LIGHTBOX -->
+<div id="lightbox">
+  <button class="lb-x" onclick="closeLb()">✕</button>
+  <button class="lb-nav" id="lb-prev" onclick="lbNav(-1)">‹</button>
+  <button class="lb-nav" id="lb-next" onclick="lbNav(1)">›</button>
+  <img id="lb-img" src="" alt=""/>
+  <div id="lb-cap">
+    <div class="lt" id="lb-t"></div>
+    <div class="lm" id="lb-m"></div>
+    <div class="ln" id="lb-n"></div>
+  </div>
+</div>
+<div id="toast"></div>
+
+<script>
+/* ═══════════════════════════════════════
+   DEFAULT DATA
+═══════════════════════════════════════ */
+const SK = 'dcsr_v6';
+
+const DEF = {
+  projName:'PE-286 Western Region SDCC',
+  contractNo:'CONTRACT-PE286-2024',
+  date:new Date().toISOString().slice(0,10),
+  reportNo:'RPT-001', dayNo:1,
+  weather:'Sunny', temp:38, rain:0,
+  civilCities:['Madinah','Abha','Jizan'],
+  civilPkgs:[
+  {id:'n1',label:'Main Building',expanded:true,children:[
+    {id:'n2',label:'False Ceiling including Painting',cityData:{
+        Madinah:{delivery:100,siteProgress:100,plannedFinish:'Completed',expectedDate:'Completed',status:'Completed'},
+        Abha:{delivery:100,siteProgress:92,plannedFinish:'15-May-26',expectedDate:'15-Jun-26',status:'Delayed'},
+        Jizan:{delivery:100,siteProgress:90,plannedFinish:'15-May-26',expectedDate:'15-Jun-26',status:'Delayed'}
+      },remarks:''},
+    {id:'n3',label:'Wooden Doors',cityData:{
+        Madinah:{delivery:100,siteProgress:100,plannedFinish:'Completed',expectedDate:'Completed',status:'Completed'},
+        Abha:{delivery:100,siteProgress:100,plannedFinish:'Completed',expectedDate:'Completed',status:'Completed'},
+        Jizan:{delivery:100,siteProgress:100,plannedFinish:'Completed',expectedDate:'Completed',status:'Completed'}
+      },remarks:''},
+    {id:'n4',label:'Wood Cladding',cityData:{
+        Madinah:{delivery:100,siteProgress:100,plannedFinish:'Completed',expectedDate:'Completed',status:'Completed'},
+        Abha:{delivery:100,siteProgress:100,plannedFinish:'Completed',expectedDate:'Completed',status:'Completed'},
+        Jizan:{delivery:100,siteProgress:100,plannedFinish:'Completed',expectedDate:'Completed',status:'Completed'}
+      },remarks:''},
+  ],remarks:''},
+  {id:'n5',label:'Alumasa Works',expanded:true,children:[
+    {id:'n6',label:'Main Elevation Louvers',cityData:{
+        Madinah:{delivery:100,siteProgress:20,plannedFinish:'10-May-26',expectedDate:null,status:'On Track'},
+        Abha:{delivery:80,siteProgress:40,plannedFinish:'15-May-26',expectedDate:'30-Jun-26',status:'Delayed'},
+        Jizan:{delivery:100,siteProgress:100,plannedFinish:'Completed',expectedDate:'Completed',status:'Completed'}
+      },remarks:''},
+    {id:'n7',label:'Two Side Elevation Louvers',cityData:{
+        Madinah:{delivery:100,siteProgress:100,plannedFinish:'Completed',expectedDate:'Completed',status:'Completed'},
+        Abha:{delivery:95,siteProgress:50,plannedFinish:'15-May-26',expectedDate:'30-Jun-26',status:'Delayed'},
+        Jizan:{delivery:90,siteProgress:60,plannedFinish:'15-May-26',expectedDate:'30-Jun-26',status:'Delayed'}
+      },remarks:''},
+    {id:'n8',label:'Backside Louvers',cityData:{
+        Madinah:{delivery:100,siteProgress:85,plannedFinish:'10-May-26',expectedDate:'11-Jun-26',status:'Delayed'},
+        Abha:{delivery:95,siteProgress:85,plannedFinish:'15-May-26',expectedDate:'30-Jun-26',status:'Delayed'},
+        Jizan:{delivery:90,siteProgress:70,plannedFinish:'15-May-26',expectedDate:'30-Jun-26',status:'Delayed'}
+      },remarks:''},
+    {id:'n9',label:'Glass Partitions',cityData:{
+        Madinah:{delivery:100,siteProgress:100,plannedFinish:'Completed',expectedDate:'Completed',status:'Completed'},
+        Abha:{delivery:100,siteProgress:0,plannedFinish:'10-May-26',expectedDate:'18-Jun-26',status:'Not Started'},
+        Jizan:{delivery:100,siteProgress:10,plannedFinish:'13-May-26',expectedDate:'18-Jun-26',status:'Delayed'}
+      },remarks:''},
+    {id:'n10',label:'Double Window Glass',cityData:{
+        Madinah:{delivery:86,siteProgress:86,plannedFinish:'10-May-26',expectedDate:'15-Jun-26',status:'Delayed'},
+        Abha:{delivery:86,siteProgress:0,plannedFinish:'15-May-26',expectedDate:'18-Jun-26',status:'Not Started'},
+        Jizan:{delivery:57,siteProgress:0,plannedFinish:'13-May-26',expectedDate:'18-Jun-26',status:'Not Started'}
+      },remarks:''},
+    {id:'n11',label:'Marble Works',cityData:{
+        Madinah:{delivery:100,siteProgress:100,plannedFinish:'Completed',expectedDate:'Completed',status:'Completed'},
+        Abha:{delivery:100,siteProgress:100,plannedFinish:'Completed',expectedDate:'Completed',status:'Completed'},
+        Jizan:{delivery:100,siteProgress:100,plannedFinish:'Completed',expectedDate:'Completed',status:'Completed'}
+      },remarks:''},
+    {id:'n12',label:'Sanitary Fixtures',cityData:{
+        Madinah:{delivery:95,siteProgress:90,plannedFinish:'10-May-26',expectedDate:'30-Jun-26',status:'Delayed'},
+        Abha:{delivery:95,siteProgress:90,plannedFinish:'10-May-26',expectedDate:'30-Jun-26',status:'Delayed'},
+        Jizan:{delivery:95,siteProgress:90,plannedFinish:'10-May-26',expectedDate:'30-Jun-26',status:'Delayed'}
+      },remarks:'*Janitor Sink & Kitchen Sink Model Still not Approved from SE'},
+    {id:'n13',label:'Hollow Metal Doors (Exc. Acc\'s)',cityData:{
+        Madinah:{delivery:100,siteProgress:100,plannedFinish:'Completed',expectedDate:'Completed',status:'Completed'},
+        Abha:{delivery:100,siteProgress:100,plannedFinish:'Completed',expectedDate:'Completed',status:'Completed'},
+        Jizan:{delivery:100,siteProgress:100,plannedFinish:'Completed',expectedDate:'Completed',status:'Completed'}
+      },remarks:''},
+    {id:'n14',label:'Hollow Metal Doors Accessories (Temp.)',cityData:{
+        Madinah:{delivery:80,siteProgress:80,plannedFinish:'13-May-26',expectedDate:null,status:'On Track'},
+        Abha:{delivery:100,siteProgress:100,plannedFinish:'Completed',expectedDate:'Completed',status:'Completed'},
+        Jizan:{delivery:100,siteProgress:100,plannedFinish:'Completed',expectedDate:'Completed',status:'Completed'}
+      },remarks:'MAD : Witing RMU & TR installtion to install HMD with Temp Acc\'s , installation of HMD to be 3 Days after delivery ABHA : Completed Jiza : RMU & TR installed , Frames in progress Permenant Acc\'s to be Delivered on 30-June'},
+  ],remarks:'MADINAH *Main Elevation for Madiah hold due to Construction Permit Pending. * Remaining 2 Double Window Glass in Madinah to be delivered on 14-Jun-26. ABHA *remaining louvers to be delivered on 11-Jun-26 *2 remaining wind glass to be delivered on 11-Jun-26 *Alumasa team not suffi'},
+  {id:'n15',label:'Aluminah Works',expanded:true,children:[
+    {id:'n16',label:'Roof Cladding Canopy',cityData:{
+        Madinah:{delivery:100,siteProgress:95,plannedFinish:'10-May-26',expectedDate:'11-Jun-26',status:'Delayed'},
+        Abha:{delivery:100,siteProgress:50,plannedFinish:'15-May-26',expectedDate:'29-Jun-26',status:'Delayed'},
+        Jizan:{delivery:0,siteProgress:0,plannedFinish:'15-May-26',expectedDate:'15-Jul-26',status:'Not Started'}
+      },remarks:'MAD : Entrance Decoration Hold due to Construction Permit ABH : Aluminah Productivity Rate too slow Steel Structure for entrance to be delivered on 10-Jun-26 Cladding Material available with rood canopy Jiza Roof Cladding to be delivered on 10-Jun-26 Aluminah Productivity Rate to'},
+    {id:'n17',label:'Elevator Cladding',cityData:{
+        Madinah:{delivery:100,siteProgress:100,plannedFinish:'Completed',expectedDate:'Completed',status:'Completed'},
+        Abha:{delivery:100,siteProgress:100,plannedFinish:'Completed',expectedDate:'Completed',status:'Completed'},
+        Jizan:{delivery:100,siteProgress:0,plannedFinish:'15-May-26',expectedDate:'18-Jun-26',status:'Not Started'}
+      },remarks:''},
+    {id:'n18',label:'Entrance Cladding Canopy',cityData:{
+        Madinah:{delivery:0,siteProgress:0,plannedFinish:'10-May-26',expectedDate:null,status:'Not Started'},
+        Abha:{delivery:0,siteProgress:0,plannedFinish:'15-May-26',expectedDate:'18-Jun-26',status:'Not Started'},
+        Jizan:{delivery:0,siteProgress:0,plannedFinish:'15-May-26',expectedDate:'25-Jun-26',status:'Not Started'}
+      },remarks:''},
+    {id:'n19',label:'Furniture',cityData:{
+        Madinah:{delivery:0,siteProgress:0,plannedFinish:'31-May-26',expectedDate:'30-Jun-26',status:'Not Started'},
+        Abha:{delivery:0,siteProgress:0,plannedFinish:'31-May-26',expectedDate:'30-Jun-26',status:'Not Started'},
+        Jizan:{delivery:0,siteProgress:0,plannedFinish:'31-May-26',expectedDate:'30-Jun-26',status:'Not Started'}
+      },remarks:'Revised PO Done Delivery ready as per site Conditions'},
+    {id:'n20',label:'Console Desk',cityData:{
+        Madinah:{delivery:0,siteProgress:0,plannedFinish:'31-May-26',expectedDate:'10-Jul-26',status:'Not Started'},
+        Abha:{delivery:0,siteProgress:0,plannedFinish:'31-May-26',expectedDate:'10-Jul-26',status:'Not Started'},
+        Jizan:{delivery:0,siteProgress:0,plannedFinish:'31-May-26',expectedDate:'10-Jul-26',status:'Not Started'}
+      },remarks:'Revised PO Done Manfacturing in process Delivery to be by 30-Jun-26'},
+  ],remarks:'Supplier (Alumina) not Mobilized at Jizan Abha started today'},
+  {id:'n21',label:'Outdoor Works',expanded:true,children:[
+    {id:'n22',label:'Manholes & Duct Banks',cityData:{
+        Madinah:{delivery:100,siteProgress:100,plannedFinish:'Completed',expectedDate:'Completed',status:'Completed'},
+        Abha:{delivery:100,siteProgress:100,plannedFinish:'Completed',expectedDate:'Completed',status:'Completed'},
+        Jizan:{delivery:100,siteProgress:95,plannedFinish:'10-May-26',expectedDate:'11-Jun-26',status:'Delayed'}
+      },remarks:''},
+    {id:'n23',label:'Fire Hydrant Works',cityData:{
+        Madinah:{delivery:100,siteProgress:95,plannedFinish:'12-May-26',expectedDate:'11-Jun-26',status:'Delayed'},
+        Abha:{delivery:100,siteProgress:100,plannedFinish:'Completed',expectedDate:'Completed',status:'Completed'},
+        Jizan:{delivery:100,siteProgress:75,plannedFinish:'20-May-26',expectedDate:'15-Jun-26',status:'Delayed'}
+      },remarks:''},
+    {id:'n24',label:'Basecoarse Layer Works',cityData:{
+        Madinah:{delivery:100,siteProgress:70,plannedFinish:'12-May-26',expectedDate:'15-Jun-26',status:'Delayed'},
+        Abha:{delivery:100,siteProgress:90,plannedFinish:'14-May-26',expectedDate:'09-Jun-26',status:'Delayed'},
+        Jizan:{delivery:100,siteProgress:25,plannedFinish:'22-May-26',expectedDate:'20-Jun-26',status:'Delayed'}
+      },remarks:''},
+    {id:'n25',label:'Asphalt Layer Works',cityData:{
+        Madinah:{delivery:100,siteProgress:20,plannedFinish:'14-May-26',expectedDate:'18-Jun-26',status:'Delayed'},
+        Abha:{delivery:100,siteProgress:60,plannedFinish:'15-May-26',expectedDate:'11-Jun-26',status:'Delayed'},
+        Jizan:{delivery:100,siteProgress:0,plannedFinish:'29-May-26',expectedDate:'25-Jun-26',status:'Not Started'}
+      },remarks:''},
+    {id:'n26',label:'Walkway (Interlock & Curbstone)',cityData:{
+        Madinah:{delivery:100,siteProgress:50,plannedFinish:'09-May-26',expectedDate:'15-Jun-26',status:'Delayed'},
+        Abha:{delivery:100,siteProgress:60,plannedFinish:'15-May-26',expectedDate:'15-Jun-26',status:'Delayed'},
+        Jizan:{delivery:50,siteProgress:0,plannedFinish:'05-Jun-26',expectedDate:'25-Jun-26',status:'Not Started'}
+      },remarks:'Jizan : Interlock still not delivered from Supplier (Payment Issue)'},
+    {id:'n27',label:'Boundary Wall',cityData:{
+        Madinah:{delivery:100,siteProgress:100,plannedFinish:'Completed',expectedDate:'Completed',status:'Completed'},
+        Abha:{delivery:100,siteProgress:100,plannedFinish:'Completed',expectedDate:'Completed',status:'Completed'},
+        Jizan:{delivery:100,siteProgress:100,plannedFinish:'Completed',expectedDate:'Completed',status:'Completed'}
+      },remarks:''},
+    {id:'n28',label:'Landscaping',cityData:{
+        Madinah:{delivery:20,siteProgress:20,plannedFinish:'13-Jun-26',expectedDate:'30-Jun-26',status:'Delayed'},
+        Abha:{delivery:0,siteProgress:0,plannedFinish:'13-Jun-26',expectedDate:'30-Jun-26',status:'Not Started'},
+        Jizan:{delivery:0,siteProgress:0,plannedFinish:'13-Jun-26',expectedDate:'30-Jun-26',status:'Not Started'}
+      },remarks:'MAD *Piping to be delivered by 11-Jun-26 *Plantation to be delivered on 24-Jun-26 *Irrigation Pump to be delivered on 24-Jun-26 ABH *Piping to be Delivered by 18-Jun-26 *Plantation to be delivered on 24-Jun-26 *Irrigation Pump to be delivered on 24-Jun-26 JIZ *Piping to be delive'},
+    {id:'n29',label:'Car Parking Shed',cityData:{
+        Madinah:{delivery:0,siteProgress:0,plannedFinish:'07-Jul-26',expectedDate:'07-Jul-26',status:'Not Started'},
+        Abha:{delivery:0,siteProgress:0,plannedFinish:'07-Jul-26',expectedDate:'07-Jul-26',status:'Not Started'},
+        Jizan:{delivery:0,siteProgress:0,plannedFinish:'07-Jul-26',expectedDate:'07-Jul-26',status:'Not Started'}
+      },remarks:'PO Done Manfacturing in process Delivery to be on 30-Jun-26'},
+  ],remarks:''},
+  {id:'n30',label:'Other Buildings',expanded:true,children:[
+    {id:'n31',label:'Fire Pump',cityData:{
+        Madinah:{delivery:'N/A',siteProgress:98,plannedFinish:'07-May-26',expectedDate:'07-Jul-26',status:'Delayed'},
+        Abha:{delivery:'N/A',siteProgress:98,plannedFinish:'07-May-26',expectedDate:'07-Jul-26',status:'Delayed'},
+        Jizan:{delivery:'N/A',siteProgress:60,plannedFinish:'10-Jun-26',expectedDate:'07-Jul-26',status:'Delayed'}
+      },remarks:'MAD Remaining HMD Waiting Permenant Acc\'s to be delivered by 30-Jun-26 (7 days installation) Monorail Remaining to be delivered ….. (3 DAYS AFTER DELIVERY) ABHA Remaining HMD Waiting Permenant Acc\'s Monorail Remaining to be delivered ….. (3 DAYS AFTER DELIVERY) Jizan Block Work e'},
+    {id:'n32',label:'Security Building',cityData:{
+        Madinah:{delivery:'N/A',siteProgress:70,plannedFinish:'18-May-26',expectedDate:'12-Jul-26',status:'Delayed'},
+        Abha:{delivery:'N/A',siteProgress:90,plannedFinish:'07-May-26',expectedDate:'07-Jul-26',status:'Delayed'},
+        Jizan:{delivery:'N/A',siteProgress:65,plannedFinish:'25-May-26',expectedDate:'07-Jul-26',status:'Delayed'}
+      },remarks:'MAD External Painting to be completed on 18-Jun-26 Internal Plastering to be completed by 25-Jun-26 Internal Painting to be completed on 5-Jul-26 Porcelain to be delivered on …..... And installed on ….. (7 days) Raised Floor & False Ceiling to be completed by 12-Jul-26 Bullet pro'},
+    {id:'n33',label:'Guard House',cityData:{
+        Madinah:{delivery:'N/A',siteProgress:80,plannedFinish:'10-May-26',expectedDate:'07-Jul-26',status:'Delayed'},
+        Abha:{delivery:'N/A',siteProgress:85,plannedFinish:'10-May-26',expectedDate:'07-Jul-26',status:'Delayed'},
+        Jizan:{delivery:'N/A',siteProgress:55,plannedFinish:'10-May-26',expectedDate:'07-Jul-26',status:'Delayed'}
+      },remarks:'MAD External Painting to be completed on 18-Jun-26 Internal Plastering to be completed by 18-Jun-26 Internal Painting to be completed on 21-Jun-26 Porcelain to be delivered on …..... And installed on ….. (7 days) Bullet proof door & Window glass to be delivered on 30-Jun-26 depen'},
+    {id:'n34',label:'Utility Building',cityData:{
+        Madinah:{delivery:'N/A',siteProgress:98,plannedFinish:'10-May-26',expectedDate:'07-Jul-26',status:'Delayed'},
+        Abha:{delivery:'N/A',siteProgress:98,plannedFinish:'10-May-26',expectedDate:'01-Jul-26',status:'Delayed'},
+        Jizan:{delivery:'N/A',siteProgress:98,plannedFinish:'10-May-26',expectedDate:'07-Jul-26',status:'Delayed'}
+      },remarks:'Remaining HMD Waiting Permenant Acc\'s'},
+    {id:'n35',label:'Septic Tank',cityData:{
+        Madinah:{delivery:'N/A',siteProgress:'N/A',plannedFinish:'N/A',expectedDate:'N/A',status:'Not Started'},
+        Abha:{delivery:'N/A',siteProgress:'N/A',plannedFinish:'N/A',expectedDate:'N/A',status:'Not Started'},
+        Jizan:{delivery:'N/A',siteProgress:0,plannedFinish:null,expectedDate:null,status:'Not Started'}
+      },remarks:'Constrution to be 1.5 Months from Offical Approval for Septic Tank Location'},
+  ],remarks:''},
+],
+    mpRows:[
+    {id:'m1',city:'Madinah',alfanar:12,subcon:35,indirect:8},
+    {id:'m2',city:'Abha',   alfanar:8, subcon:20,indirect:5},
+    {id:'m3',city:'Jizan',  alfanar:6, subcon:15,indirect:4},
+  ],
+  photoRows:[],
+};
+
+let data = JSON.parse(JSON.stringify(DEF));
+const DEF_FROZEN = JSON.parse(JSON.stringify(DEF));
+let delayedOnly = false;
+let lbIdx=0, lbPhotos=[];
+
+/* ════ UTILS ════ */
+const uid  = () => 'id_'+Math.random().toString(36).slice(2,9);
+const esc  = s => (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+/* ════ SMART DATE PARSER ════
+   Handles: Excel serial ints, ISO datetime strings, DD-MMM-YY text,
+   "Completed"/"Done", "N/A", nulls, and anything else gracefully.
+   Never outputs "Invalid Date". ════ */
+
+const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const EXCEL_DATE_EPOCH = new Date(Date.UTC(1899,11,30)); // 30-Dec-1899
+
+function _excelSerialToDate(n){
+  // Excel incorrectly treats 1900 as a leap year — offset by 1 for serials > 59
+  const days = n > 59 ? n - 1 : n;
+  return new Date(EXCEL_DATE_EPOCH.getTime() + days * 86400000);
+}
+
+function _dateToDisplay(d){
+  if(!d || isNaN(d.getTime())) return null;
+  const day  = String(d.getUTCDate()).padStart(2,'0');
+  const mon  = MONTHS[d.getUTCMonth()];
+  const yr   = String(d.getUTCFullYear()).slice(2);
+  return `${day}-${mon}-${yr}`;
+}
+
+function _parseDateToObj(v){
+  if(v === null || v === undefined) return null;
+  // Already a JS Date object
+  if(v instanceof Date) return isNaN(v.getTime()) ? null : v;
+  const s = String(v).trim();
+  if(!s || s === 'null' || s === 'undefined') return null;
+  // Special text values — caller handles these before calling _parseDateToObj
+  const sl = s.toLowerCase();
+  if(['completed','complete','done'].includes(sl)) return 'COMPLETED';
+  if(['n/a','na','n.a.','#'].includes(sl))         return 'NA';
+  // Excel serial number (integer or float like 46152 or 46152.5)
+  if(/^\d{4,6}(\.\d+)?$/.test(s)){
+    const n = parseFloat(s);
+    if(n > 25569 && n < 73050){ // 1970-01-01 to ~2099 range
+      return _excelSerialToDate(n);
+    }
+  }
+  // ISO datetime: 2026-05-15T00:00:00 or 2026-05-15
+  if(/^\d{4}-\d{2}-\d{2}/.test(s)){
+    const d = new Date(s.includes('T') ? s : s + 'T00:00:00Z');
+    return isNaN(d.getTime()) ? null : d;
+  }
+  // DD-MMM-YY or DD-MMM-YYYY: 15-May-26 or 15-May-2026
+  const m1 = s.match(/^(\d{1,2})[\/\-\s]([A-Za-z]{3,9})[\/\-\s](\d{2,4})$/);
+  if(m1){
+    const day = parseInt(m1[1],10);
+    const monStr = m1[2].slice(0,3);
+    const monIdx = MONTHS.findIndex(m=>m.toLowerCase()===monStr.toLowerCase());
+    const yr = parseInt(m1[3],10);
+    const fullYr = yr < 100 ? (yr >= 50 ? 1900+yr : 2000+yr) : yr;
+    if(monIdx>=0 && day>=1 && day<=31 && fullYr>=1900 && fullYr<=2100){
+      return new Date(Date.UTC(fullYr, monIdx, day));
+    }
+  }
+  // DD/MM/YY or DD/MM/YYYY
+  const m2 = s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})$/);
+  if(m2){
+    const day=parseInt(m2[1],10), mon=parseInt(m2[2],10)-1, yr=parseInt(m2[3],10);
+    const fullYr = yr < 100 ? (yr>=50?1900+yr:2000+yr) : yr;
+    const d = new Date(Date.UTC(fullYr, mon, day));
+    if(!isNaN(d.getTime())) return d;
+  }
+  return null; // unparseable
+}
+
+// Main display formatter — returns display string, never "Invalid Date"
+function smartDate(v){
+  if(v === null || v === undefined || v === '') return '—';
+  const sl = String(v).trim().toLowerCase();
+  if(['completed','complete','done'].includes(sl)) return 'Completed';
+  if(['n/a','na','n.a.'].includes(sl)) return 'N/A';
+  if(v === '—') return '—';
+  const parsed = _parseDateToObj(v);
+  if(parsed === 'COMPLETED') return 'Completed';
+  if(parsed === 'NA')        return 'N/A';
+  if(parsed instanceof Date){
+    const out = _dateToDisplay(parsed);
+    return out || String(v).slice(0,15);
+  }
+  // Could not parse — return sanitised original rather than "Invalid Date"
+  const raw = String(v).trim();
+  if(raw && raw !== 'null' && raw !== 'undefined'){
+    console.warn('[smartDate] unparseable value:', raw);
+    return raw.slice(0,20);
+  }
+  return '—';
+}
+
+// Legacy aliases — keeps all existing call sites working unchanged
+const fmtD  = v => { const s=smartDate(v); return s==='####'?'—':s; };
+const fmtDS = v => smartDate(v);
+
+// Date object parser for calcDelay — returns a JS Date or null
+function _toDateObj(v){
+  if(!v || String(v).trim()==='') return null;
+  const sl = String(v).trim().toLowerCase();
+  if(['completed','complete','done','n/a','na'].includes(sl)) return null;
+  const p = _parseDateToObj(v);
+  if(p instanceof Date) return p;
+  return null;
+}
+
+function calcDelay(p,e){
+  const pd = _toDateObj(p), ed = _toDateObj(e);
+  if(!pd || !ed) return null;
+  return Math.round((ed.getTime()-pd.getTime())/86400000);
+}
+function delayChip(p,e){
+  const d=calcDelay(p,e);
+  if(d===null) return '';
+  if(d>0)  return `<span class="dc dc-lt">+${d}d</span>`;
+  if(d<0)  return `<span class="dc dc-ah">${Math.abs(d)}d</span>`;
+  return `<span class="dc dc-ok">On Time</span>`;
+}
+function pp(v){
+  if(v===null||v===undefined||v==='') return `<span class="pp pp-na">N/A</span>`;
+  const n=+v, cls=n>=100?'pp-100':n>=70?'pp-hi':n>=30?'pp-mid':'pp-lo';
+  return `<span class="pp ${cls}">${n}%</span>`;
+}
+function stClass(s){
+  return s==='Completed'?'st-completed':s==='On Track'?'st-on-track':
+         s==='At Risk'?'st-at-risk':s==='Delayed'?'st-delayed':'st-not-started';
+}
+function worstStatus(statuses){
+  if(statuses.includes('Delayed'))    return 'Delayed';
+  if(statuses.includes('At Risk'))    return 'At Risk';
+  if(statuses.includes('Not Started'))return 'Not Started';
+  if(statuses.every(s=>s==='Completed')) return 'Completed';
+  return 'On Track';
+}
+
+/* ════ TREE HELPERS ════ */
+function allLeaves(pkgs){
+  const out=[];
+  function walk(nodes){ nodes.forEach(n=>{ if(n.children&&n.children.length>0) walk(n.children); else out.push(n); }); }
+  walk(pkgs||[]); return out;
+}
+function findNode(pkgs,id){
+  for(const n of (pkgs||[])){
+    if(n.id===id) return n;
+    if(n.children){const f=findNode(n.children,id);if(f)return f}
+  }
+  return null;
+}
+function removeNode(pkgs,id){
+  for(let i=0;i<pkgs.length;i++){
+    if(pkgs[i].id===id){pkgs.splice(i,1);return true}
+    if(pkgs[i].children&&removeNode(pkgs[i].children,id))return true;
+  }
+  return false;
+}
+
+/* ════ TABS ════ */
+function switchTab(tab,btn){
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById(tab+'-tab').classList.add('active');
+  if(btn) btn.classList.add('active');
+}
+
+/* ════ RENDER DASHBOARD ════ */
+function renderDashboard(){
+  const d = data;
+  // Header
+  document.getElementById('d-projName').textContent   = d.projName||'—';
+  document.getElementById('d-contractNo').textContent = 'Contract: '+(d.contractNo||'—');
+  document.getElementById('d-date').textContent       = fmtD(d.date);
+  document.getElementById('d-reportNo').textContent   = d.reportNo||'—';
+  document.getElementById('d-dayNo').textContent      = d.dayNo?'Day '+d.dayNo:'—';
+  document.getElementById('d-weather').textContent    = d.weather||'—';
+  document.getElementById('d-temp').textContent       = d.temp!=null?d.temp+'°C':'—';
+
+  // Safety
+  if((!data.civilPkgs||data.civilPkgs.length===0)&&DEF_FROZEN.civilPkgs.length>0){
+    data.civilPkgs   = JSON.parse(JSON.stringify(DEF_FROZEN.civilPkgs));
+    data.civilCities = JSON.parse(JSON.stringify(DEF_FROZEN.civilCities));
+  }
+
+  // Stat bar
+  const cities  = d.civilCities||[];
+  const leaves  = allLeaves(d.civilPkgs||[]);
+  const allVals = leaves.flatMap(l=>cities.map(c=>l.cityData?.[c]).filter(Boolean));
+  const total   = allVals.length;
+  const done    = allVals.filter(v=>v.status==='Completed').length;
+  const delayed = allVals.filter(v=>v.status==='Delayed').length;
+  const atRisk  = allVals.filter(v=>v.status==='At Risk').length;
+  const progArr = allVals.map(v=>+v.siteProgress||0);
+  const avg     = progArr.length ? Math.round(progArr.reduce((s,v)=>s+v,0)/progArr.length) : 0;
+  let totMP=0; (d.mpRows||[]).forEach(r=>{totMP+=(+r.alfanar||0)+(+r.subcon||0)+(+r.indirect||0)});
+
+  document.getElementById('sb-done-bar').style.width  = '0%';
+  document.getElementById('sb-avg-bar').style.width   = '0%';
+
+  // ── Animated count-up for KPI numbers ──
+  animateCountUp('sb-total',   total,   900);
+  animateCountUp('sb-done',    done,    900);
+  animateCountUp('sb-avg',     avg,     900, '%');
+  animateCountUp('sb-delayed', delayed, 700);
+  animateCountUp('sb-risk',    atRisk,  700);
+  animateCountUp('sb-mp',      totMP,   800);
+
+  // Animate progress bars with a slight delay after count-up starts
+  setTimeout(()=>{
+    document.getElementById('sb-done-bar').style.width = (total?Math.round(done/total*100):0)+'%';
+    document.getElementById('sb-avg-bar').style.width  = avg+'%';
+  }, 120);
+
+  // Re-trigger KPI card entrance stagger after next paint
+  setTimeout(() => animateStatCards(), 0);
+
+  renderCivilTable();
+  renderMpSection();
+  renderGallery();
+  updateCounts();
+}
+
+/* ════ CIVIL TABLE ════ */
+function renderCivilTable(){
+  if((!data.civilPkgs||data.civilPkgs.length===0)&&DEF_FROZEN.civilPkgs.length>0){
+    data.civilPkgs   = JSON.parse(JSON.stringify(DEF_FROZEN.civilPkgs));
+    data.civilCities = JSON.parse(JSON.stringify(DEF_FROZEN.civilCities));
+  }
+  const cities = data.civilCities||[];
+  const pkgs   = data.civilPkgs||[];
+  const search = (document.getElementById('srch-civil').value||'').toLowerCase();
+  const fStatus= document.getElementById('flt-status').value;
+
+  // Rebuild header
+  const thead = document.getElementById('civil-thead');
+  thead.innerHTML = `<tr class="hd-cities">
+    <th class="act-hd wide"># &nbsp; Activity / Work Package</th>
+    <th class="cities-hd">City Progress — ${cities.map(c=>`<span style="color:rgba(255,255,255,.9);font-weight:900">${esc(c)}</span>`).join(' &nbsp;·&nbsp; ')}</th>
+    <th class="remarks-hd">Remarks / Constraint / Action</th>
+  </tr>`;
+
+  const tbody = document.getElementById('civil-tbody');
+  tbody.innerHTML = '';
+  let shown = 0;
+
+  const dotCls = s => s==='Completed'?'dot-completed':s==='On Track'?'dot-on-track':s==='At Risk'?'dot-at-risk':s==='Delayed'?'dot-delayed':'dot-not-started';
+  const cardCls= s => s==='Completed'?'cc-completed':s==='On Track'?'cc-on-track':s==='At Risk'?'cc-at-risk':s==='Delayed'?'cc-delayed':'cc-not-started';
+  const dateCls= s => s==='Delayed'?'delayed':s==='At Risk'?'at-risk':s==='Completed'?'completed':'';
+
+  // ── COLLAPSE FIX — three strict rules:
+  // 1. leafMatches() is ONLY about search/filter data — never looks at expanded state
+  // 2. nodeHasMatchingLeaf() returns true immediately when no filter is active
+  //    (packages always show when unfiltered)
+  // 3. renderNode() ALWAYS appends pkg header rows — never skips them —
+  //    then separately decides whether to render children based on expanded state
+  function leafMatches(leaf){
+    if(!search && !fStatus && !delayedOnly) return true; // no filter = always match
+    if(search && !([leaf.label,leaf.remarks||''].join(' ').toLowerCase().includes(search))) return false;
+    if(fStatus||delayedOnly){
+      const sts=cities.map(c=>leaf.cityData?.[c]?.status).filter(Boolean);
+      if(fStatus&&!sts.includes(fStatus)) return false;
+      if(delayedOnly&&!sts.includes('Delayed')) return false;
+    }
+    return true;
+  }
+  function nodeHasMatchingLeaf(node){
+    if(!search && !fStatus && !delayedOnly) return true; // no filter = always show
+    if(!node.children||node.children.length===0) return leafMatches(node);
+    return node.children.some(c=>nodeHasMatchingLeaf(c));
+  }
+
+  function renderNode(node, depth){
+    if(!nodeHasMatchingLeaf(node)) return;  // No matching data → skip
+    const isLeaf = !node.children||node.children.length===0;
+    const isExp  = node.expanded!==false;
+
+    if(!isLeaf){
+      // Always render the pkg header row — collapse does NOT make it disappear
+      const matchCount = allLeaves([node]).filter(l=>leafMatches(l)).length;
+      const tr = document.createElement('tr');
+      tr.className = 'pkg-row';
+      tr.dataset.id = node.id;
+      const indent = depth > 0 ? `padding-left:${depth*16+16}px` : '';
+      tr.innerHTML = `<td colspan="3" style="${indent}">
+        <span class="cat-toggle${isExp?' open':''}" id="tog-${node.id}">▶</span>
+        <span class="pkg-label">${esc(node.label)}</span>
+        <span class="pkg-count">${matchCount} item${matchCount===1?'':'s'}</span>
+      </td>`;
+      tr.addEventListener('click',()=>{
+        const n=findNode(data.civilPkgs,node.id);
+        if(n){n.expanded=!n.expanded;renderCivilTable()}
+      });
+      tbody.appendChild(tr);
+      // Only render children when expanded — but header row always shows
+      if(isExp) node.children.forEach(child=>renderNode(child,depth+1));
+      return;
+    }
+
+    if(!leafMatches(node)) return;
+    shown++;
+    const sts   = cities.map(c=>node.cityData?.[c]?.status).filter(Boolean);
+    const worst = worstStatus(sts);
+    const allDone = sts.length>0 && sts.every(s=>s==='Completed');
+    const tr = document.createElement('tr');
+    tr.className = `act-row${allDone?' act-row-done':''}`;
+
+    // Name cell
+    const nameTd = document.createElement('td');
+    nameTd.innerHTML = `<div class="act-name-cell">
+      <span class="act-status-dot ${dotCls(worst)}"></span>
+      <span class="act-seq">${shown}</span>
+      <div class="act-label-wrap">
+        <div class="act-label depth-${depth}${allDone?' act-label-done':''}">${esc(node.label)}</div>
+        ${allDone?`<div class="act-done-badge">✔ Completed</div>`:''}
+      </div>
+    </div>`;
+    tr.appendChild(nameTd);
+
+    // City cards cell
+    const cardsTd = document.createElement('td');
+    cardsTd.className = 'city-cards-cell';
+    let cardsHtml = `<div class="city-cards-row">`;
+    cities.forEach(city=>{
+      const cd  = node.cityData?.[city]||{};
+      const st  = cd.status||'Not Started';
+      const sp  = cd.siteProgress!=null ? cd.siteProgress : '';
+      const del = cd.delivery!=null ? cd.delivery : '';
+      // ── FIX COMPLETED LOGIC: isCompleted if status=Completed OR sp=100 OR planned='Completed'
+      const isCompleted = st==='Completed'||(typeof sp==='number'&&sp>=100)||
+                          cd.plannedFinish==='Completed'||cd.expectedDate==='Completed';
+
+      if(isCompleted){
+        // Clean completed card — no dates, no delay chip
+        const finDate = (cd.expectedDate&&cd.expectedDate!=='Completed'&&cd.expectedDate!=='N/A'&&cd.expectedDate)
+                      || (cd.plannedFinish&&cd.plannedFinish!=='Completed'&&cd.plannedFinish!=='N/A'&&cd.plannedFinish)
+                      || null;
+        cardsHtml += `<div class="city-card cc-completed city-card-done">
+          <div class="city-card-name">${esc(city)}</div>
+          <div class="city-card-row">
+            <span class="city-card-row-label">Site %</span>
+            ${pp(sp||100)}
+          </div>
+          <div class="city-done-footer">
+            <span class="city-done-badge">✔ Completed</span>
+            ${finDate?`<span class="city-done-date">${fmtDS(finDate)}</span>`:''}
+          </div>
+        </div>`;
+      } else {
+        const dc2 = calcDelay(cd.plannedFinish,cd.expectedDate);
+        const delChip = dc2===null?'':dc2>0?`<span class="dc dc-lt">+${dc2}d late</span>`:dc2<0?`<span class="dc dc-ah">${Math.abs(dc2)}d early</span>`:`<span class="dc dc-ok">On Time</span>`;
+        const ec = dateCls(st);
+        // Show N/A delivery as clean
+        const delDisplay = del==='N/A'?'<span class="pp pp-na">N/A</span>':pp(del);
+        cardsHtml += `<div class="city-card ${cardCls(st)}">
+          <div class="city-card-name">${esc(city)}</div>
+          <div class="city-card-row">
+            <span class="city-card-row-label">Delivery</span>
+            ${delDisplay}
+          </div>
+          <div class="city-card-row">
+            <span class="city-card-row-label">Site %</span>
+            ${pp(sp)}
+          </div>
+          <div class="city-card-dates">
+            ${cd.plannedFinish&&cd.plannedFinish!=='N/A'?`<div class="city-date-row">
+              <span class="city-date-lbl">Planned</span>
+              <span class="city-date-val">${fmtDS(cd.plannedFinish)}</span>
+            </div>`:''}
+            ${cd.expectedDate&&cd.expectedDate!=='N/A'?`<div class="city-date-row">
+              <span class="city-date-lbl">Expected</span>
+              <span class="city-date-val ${ec}">${fmtDS(cd.expectedDate)}</span>
+            </div>`:''}
+            ${delChip?`<div style="text-align:right;margin-top:2px">${delChip}</div>`:''}
+          </div>
+        </div>`;
+      }
+    });
+    cardsHtml += `</div>`;
+    cardsTd.innerHTML = cardsHtml;
+    tr.appendChild(cardsTd);
+
+    // Remarks cell — hide for fully completed
+    const rmkTd = document.createElement('td');
+    rmkTd.className = 'rmk-cell';
+    if(node.remarks && !allDone){
+      rmkTd.innerHTML = `<span class="rmk-text">${esc(node.remarks)}</span>`;
+    }
+    tr.appendChild(rmkTd);
+    tbody.appendChild(tr);
+  }
+
+  pkgs.forEach(pkg => renderNode(pkg,0));
+
+  // ── Defer animation to NEXT paint cycle so browser has committed the DOM ──
+  setTimeout(() => animateTableRows(tbody), 0);
+
+  // ── Empty state logic:
+  // IMPORTANT: only append an empty-state row — never overwrite tbody.innerHTML here,
+  // because package header rows may already have been appended above.
+  // "shown===0" just means no LEAF activities are visible (all collapsed or filtered).
+  const hasFilter = search||fStatus||delayedOnly;
+  const totalLeaves = allLeaves(pkgs).length;
+  const hasPkgRows = tbody.querySelectorAll('tr.pkg-row').length > 0;
+
+  if(shown===0 && !hasPkgRows){
+    // Only show empty state if there are truly no rows at all (no packages either)
+    if(hasFilter){
+      const row = document.createElement('tr');
+      row.innerHTML = `<td colspan="3" class="civil-empty">No activities match filter.
+        <button onclick="document.getElementById('flt-status').value='';delayedOnly=false;document.getElementById('flt-delayed-btn').classList.add('off');document.getElementById('srch-civil').value='';renderCivilTable()"
+          style="margin-left:8px;padding:3px 10px;border:1.5px solid var(--ab-lt);border-radius:5px;background:transparent;color:var(--ab);cursor:pointer;font-size:11px;font-weight:700">Clear Filters</button>
+      </td>`;
+      tbody.appendChild(row);
+    }
+    // If no filter and no rows at all — something went wrong with data, show nothing
+  }
+  // If shown===0 but hasPkgRows===true: packages are collapsed — package headers are visible,
+  // user can see and click them. No message needed.
+
+  document.getElementById('civil-count').textContent = totalLeaves+' activities';
+  document.getElementById('flt-count').textContent   = hasFilter?`Showing ${shown} of ${totalLeaves}`:'';
+}
+
+function toggleDelayedFilter(){
+  delayedOnly=!delayedOnly;
+  document.getElementById('flt-delayed-btn').classList.toggle('off',!delayedOnly);
+  renderCivilTable();
+}
+
+/* ════ MANPOWER SECTION ════ */
+function renderMpSection(){
+  const rows=data.mpRows||[];
+  let totA=0,totS=0,totI=0;
+  rows.forEach(r=>{totA+=+r.alfanar||0;totS+=+r.subcon||0;totI+=+r.indirect||0});
+  const totAll=totA+totS+totI;
+
+  let html=`<div class="mp-wrap">
+  <div class="mp-total-banner">
+    <div class="mp-banner-left">
+      <div class="mp-banner-lbl">Total Manpower — All Sites</div>
+      <div class="mp-banner-val">${totAll}</div>
+    </div>
+    <div class="mp-banner-right">
+      <div class="mp-banner-item"><div class="val">${totA}</div><div class="lbl">Alfanar Direct</div></div>
+      <div class="mp-banner-divider"></div>
+      <div class="mp-banner-item"><div class="val">${totS}</div><div class="lbl">Subcontractor</div></div>
+      <div class="mp-banner-divider"></div>
+      <div class="mp-banner-item"><div class="val">${totI}</div><div class="lbl">Indirect</div></div>
+      <div class="mp-banner-divider"></div>
+      <div class="mp-banner-item"><div class="val">${rows.length}</div><div class="lbl">Active Sites</div></div>
+    </div>
+  </div>
+  <div class="mp-grid">`;
+  rows.forEach(r=>{
+    const a=+r.alfanar||0,s=+r.subcon||0,i=+r.indirect||0,tot=a+s+i;
+    const mx=Math.max(tot,1);
+    const pA=Math.round(a/mx*100),pS=Math.round(s/mx*100),pI=Math.max(0,100-pA-pS);
+    html+=`<div class="mp-card">
+      <div class="mp-city">📍 ${esc(r.city)}</div>
+      <div class="mp-total-num">${tot}</div>
+      <div class="mp-total-lbl">Total Manpower</div>
+      <div class="mp-mini-bar">
+        <div class="mp-mini-alf" style="width:${pA}%" title="Alfanar ${a}"></div>
+        <div class="mp-mini-sub" style="width:${pS}%" title="Subcon ${s}"></div>
+        <div class="mp-mini-ind" style="width:${pI}%" title="Indirect ${i}"></div>
+      </div>
+      <div class="mp-breakdown">
+        <div class="mp-breakdown-item"><div class="val">${a}</div><div class="lbl">Alfanar</div></div>
+        <div class="mp-breakdown-item"><div class="val">${s}</div><div class="lbl">Subcon</div></div>
+        <div class="mp-breakdown-item"><div class="val">${i}</div><div class="lbl">Indirect</div></div>
+      </div>
+    </div>`;
+  });
+  if(!rows.length) html+=`<div style="grid-column:1/-1;text-align:center;padding:32px;color:var(--text-faint);font-style:italic">No manpower data entered.</div>`;
+  html+=`</div></div>`;
+  document.getElementById('mp-grid-wrap').innerHTML = html;
+  document.getElementById('mp-count').textContent = rows.length+' sites';
+}
+
+/* ════ GALLERY — FULLY ISOLATED from Civil table ════ */
+// These variables are ONLY used by the gallery — never by civil table
+let _galRendering = false;
+
+function renderGallery(){
+  // Re-entrant guard: dropdown rebuild must not retrigger this function
+  if(_galRendering) return;
+  _galRendering = true;
+  try {
+    const galCityEl = document.getElementById('gal-city');
+    const galSrchEl = document.getElementById('gal-srch');
+    // Capture values BEFORE any DOM changes
+    const galCity = galCityEl ? galCityEl.value : '';
+    const galSrch = galSrchEl ? (galSrchEl.value||'').toLowerCase() : '';
+
+    // Filter photos only — never touches civilPkgs, flt-status, srch-civil
+    const photos = (data.photoRows||[]).filter(p=>{
+      if(galCity && p.city!==galCity) return false;
+      if(galSrch && !([p.city,p.title,p.note].join(' ').toLowerCase().includes(galSrch))) return false;
+      return true;
+    });
+    lbPhotos = photos;
+
+    // Rebuild city dropdown without triggering onchange
+    if(galCityEl){
+      const uCities=[...new Set((data.photoRows||[]).map(p=>p.city).filter(Boolean))].sort();
+      const newHtml='<option value="">All</option>'+uCities.map(c=>`<option${c===galCity?' selected':''}>${c}</option>`).join('');
+      if(galCityEl.innerHTML!==newHtml){ galCityEl.innerHTML=newHtml; galCityEl.value=galCity; }
+    }
+
+    const countEl = document.getElementById('photo-count');
+    if(countEl) countEl.textContent = (data.photoRows||[]).length;
+
+    const grid = document.getElementById('photo-grid');
+    if(!grid) return;
+    grid.innerHTML = '';
+
+    if(!photos.length){
+      grid.innerHTML=`<div class="gallery-empty"><span class="ei">📷</span><p style="font-size:13px;font-style:italic">${(data.photoRows||[]).length?'No photos match filter.':'No photos yet — upload from Data Entry.'}</p></div>`;
+      return;
+    }
+    photos.forEach((p,i)=>{
+      const card=document.createElement('div'); card.className='photo-card';
+      const img=p.base64
+        ?`<img class="photo-card-img" src="${p.base64}" alt="${esc(p.title)}" onclick="openLb(${i})" loading="lazy"/>`
+        :`<div class="photo-card-placeholder"><span style="font-size:36px;opacity:.2">📷</span><span style="font-size:12px">No image</span></div>`;
+      card.innerHTML=`${img}
+        <div class="photo-card-body">
+          <div style="display:flex;align-items:center;gap:6px">
+            <span class="photo-city-tag">📍 ${esc(p.city||'—')}</span>
+            <span class="photo-date-tag">${fmtD(p.date)}</span>
+          </div>
+          <div class="photo-card-title">${esc(p.title||'Untitled')}</div>
+          <div class="photo-card-note">${esc(p.note||'')}</div>
+          <div class="photo-card-actions">
+            ${p.base64?`<button class="photo-btn photo-btn-view" onclick="openLb(${i})">🔍 Full Screen</button>`:'<button class="photo-btn photo-btn-view" style="opacity:.4;cursor:default">No Image</button>'}
+            <button class="photo-btn photo-btn-del" onclick="delPhoto('${p.id}')">🗑 Delete</button>
+          </div>
+        </div>`;
+      grid.appendChild(card);
+    });
+  } finally {
+    _galRendering = false;
+  }
+}
+
+function openLb(i){lbIdx=i;showLb();document.getElementById('lightbox').classList.add('open');document.body.style.overflow='hidden'}
+function closeLb(){document.getElementById('lightbox').classList.remove('open');document.body.style.overflow=''}
+function lbNav(d){lbIdx=(lbIdx+d+lbPhotos.length)%lbPhotos.length;showLb()}
+function showLb(){
+  const p=lbPhotos[lbIdx];if(!p)return;
+  document.getElementById('lb-img').src=p.base64||'';
+  document.getElementById('lb-t').textContent=p.title||'Untitled';
+  document.getElementById('lb-m').textContent=(p.city?'📍 '+p.city:'')+(p.date?' · '+fmtD(p.date):'')+(lbPhotos.length>1?' · '+(lbIdx+1)+'/'+lbPhotos.length:'');
+  document.getElementById('lb-n').textContent=p.note||'';
+  document.getElementById('lb-prev').style.display=lbPhotos.length>1?'flex':'none';
+  document.getElementById('lb-next').style.display=lbPhotos.length>1?'flex':'none';
+}
+document.addEventListener('keydown',e=>{
+  if(!document.getElementById('lightbox').classList.contains('open'))return;
+  if(e.key==='Escape')closeLb();
+  if(e.key==='ArrowRight')lbNav(1);
+  if(e.key==='ArrowLeft')lbNav(-1);
+});
+document.getElementById('lightbox').addEventListener('click',e=>{
+  if(e.target===document.getElementById('lightbox'))closeLb()
+});
+
+/* ════ COUNTS ════ */
+function updateCounts(){
+  document.getElementById('civil-form-count').textContent = allLeaves(data.civilPkgs||[]).length+' items';
+  document.getElementById('mp-form-count').textContent    = (data.mpRows||[]).length;
+  document.getElementById('photo-form-count').textContent = (data.photoRows||[]).length;
+}
+
+/* ════ FORM ════ */
+function renderForm(){
+  const sf={
+    'f-projName':data.projName,'f-contractNo':data.contractNo,'f-date':data.date,
+    'f-reportNo':data.reportNo,'f-dayNo':data.dayNo,'f-weather':data.weather,
+    'f-temp':data.temp,'f-rain':data.rain,
+  };
+  Object.entries(sf).forEach(([id,v])=>{const el=document.getElementById(id);if(el&&v!=null)el.value=v});
+  renderCitiesConfig();
+  renderCivilForm();
+  renderMpForm();
+  renderPhotoForm();
+}
+
+function renderCitiesConfig(){
+  const c=document.getElementById('cities-config');
+  const cities=data.civilCities||[];
+  c.innerHTML=cities.map((city,i)=>`
+    <div style="display:flex;gap:6px;align-items:center">
+      <input type="text" value="${esc(city)}" onchange="updCity(${i},this.value)"
+        style="padding:7px 11px;border:1.5px solid var(--g200);border-radius:var(--rsm);font-size:12px;font-weight:700;width:115px"/>
+      <button onclick="delCity(${i})" style="background:#fef2f2;color:#dc2626;border:none;border-radius:var(--rxs);padding:5px 9px;cursor:pointer;font-weight:700">✕</button>
+    </div>`).join('')+
+    `<button onclick="addCity()" class="add-row-btn" style="margin-top:0;padding:7px 14px">+ City</button>`;
+}
+function updCity(i,v){if(data.civilCities)data.civilCities[i]=v;renderDashboard();renderCitiesConfig()}
+function delCity(i){
+  if((data.civilCities||[]).length<=1){showToast('Keep at least 1 city');return}
+  if(!confirm('Remove this city column?'))return;
+  data.civilCities.splice(i,1);renderCitiesConfig();renderDashboard();
+}
+function addCity(){
+  const n=prompt('New city name:');if(!n)return;
+  data.civilCities.push(n);
+  allLeaves(data.civilPkgs||[]).forEach(l=>{
+    if(!l.cityData)l.cityData={};
+    l.cityData[n]={delivery:0,siteProgress:0,plannedFinish:'',expectedDate:'',status:'Not Started'};
+  });
+  renderCitiesConfig();renderDashboard();
+}
+
+function renderCivilForm(){
+  const c=document.getElementById('civil-form-rows');c.innerHTML='';
+  (data.civilPkgs||[]).forEach((pkg,pi)=>c.appendChild(buildPkgRow(pkg,0)));
+  updateCounts();
+}
+function buildPkgRow(node,depth){
+  const cities=data.civilCities||[];
+  const isLeaf=!node.children||node.children.length===0;
+  const lc=`lvl-${Math.min(depth,3)}`;
+  const row=document.createElement('div');
+  row.className=`entry-row open ${lc}`;row.style.marginLeft=depth*18+'px';
+  row.id='nr-'+node.id;
+  const tl=depth===0?'Package':depth===1?'Sub-Package':depth===2?'Activity':'Sub-Activity';
+  const hd=makeRowHd(`${tl}: ${esc(node.label||'—')}`,``,()=>{
+    if(!confirm('Delete this item and all children?'))return;
+    removeNode(data.civilPkgs,node.id);renderCivilForm();renderDashboard();
+  },row);
+  row.appendChild(hd);
+  const body=document.createElement('div');body.className='entry-body';
+  let html=`<div class="form-g3" style="margin-bottom:12px">
+    <div class="fg" style="grid-column:span 2"><label>Label</label>
+      <input type="text" value="${esc(node.label)}" onchange="updNode('${node.id}','label',this.value)" placeholder="Activity name"/>
+    </div>
+    <div style="display:flex;flex-direction:column;justify-content:flex-end">
+      ${depth<3?`<button class="add-row-btn" style="margin-top:0;padding:5px 12px;font-size:10px" onclick="addChildNode('${node.id}')">+ Add Child</button>`:''}
+    </div>
+  </div>`;
+  if(isLeaf){
+    html+=`<div style="font-size:10px;font-weight:800;letter-spacing:.6px;color:var(--g500);text-transform:uppercase;margin-bottom:8px">Per-City Data</div>`;
+    cities.forEach(city=>{
+      const cd=node.cityData?.[city]||{};
+      html+=`<div style="background:var(--g50);border:1px solid var(--g200);border-radius:var(--rsm);padding:11px;margin-bottom:8px">
+        <div style="font-size:11px;font-weight:800;color:var(--navy);margin-bottom:8px;border-bottom:1px solid var(--g200);padding-bottom:5px">📍 ${esc(city)}</div>
+        <div class="form-g5">
+          <div class="fg"><label>Delivery %</label><input type="number" value="${cd.delivery??0}" min="0" max="100" onchange="updNodeCity('${node.id}','${city}','delivery',this.value)"/></div>
+          <div class="fg"><label>Site Progress %</label><input type="number" value="${cd.siteProgress??0}" min="0" max="100" onchange="updNodeCity('${node.id}','${city}','siteProgress',this.value)"/></div>
+          <div class="fg"><label>Planned Finish</label><input type="date" value="${cd.plannedFinish||''}" onchange="updNodeCity('${node.id}','${city}','plannedFinish',this.value)"/></div>
+          <div class="fg"><label>Expected Finish</label><input type="date" value="${cd.expectedDate||''}" onchange="updNodeCity('${node.id}','${city}','expectedDate',this.value)"/></div>
+          <div class="fg"><label>Status</label><select onchange="updNodeCity('${node.id}','${city}','status',this.value)">
+            ${['On Track','At Risk','Delayed','Completed','Not Started'].map(s=>`<option${s===(cd.status||'Not Started')?' selected':''}>${s}</option>`).join('')}
+          </select></div>
+        </div>
+      </div>`;
+    });
+    html+=`<div class="fg"><label>Remarks / Constraint / Action</label>
+      <textarea onchange="updNode('${node.id}','remarks',this.value)">${esc(node.remarks||'')}</textarea></div>`;
+  }
+  body.innerHTML=html;row.appendChild(body);
+  if(!isLeaf&&node.expanded!==false){
+    const cw=document.createElement('div');cw.style.paddingTop='4px';
+    (node.children||[]).forEach(child=>cw.appendChild(buildPkgRow(child,depth+1)));
+    row.appendChild(cw);
+  }
+  return row;
+}
+function updNode(id,k,v){const n=findNode(data.civilPkgs,id);if(n)n[k]=v;renderDashboard()}
+function updNodeCity(id,city,k,v){
+  const n=findNode(data.civilPkgs,id);if(!n)return;
+  if(!n.cityData)n.cityData={};
+  if(!n.cityData[city])n.cityData[city]={};
+  n.cityData[city][k]=k==='status'?v:(v===''?null:+v);
+  renderDashboard();
+}
+function addChildNode(pid){
+  const p=findNode(data.civilPkgs,pid);if(!p)return;
+  if(!p.children)p.children=[];
+  p.expanded=true;
+  const cd={};(data.civilCities||[]).forEach(c=>{cd[c]={delivery:0,siteProgress:0,plannedFinish:'',expectedDate:'',status:'Not Started'}});
+  p.children.push({id:uid(),label:'New Activity',cityData:cd,remarks:''});
+  renderCivilForm();renderDashboard();
+}
+function addPackage(){
+  if(!data.civilPkgs)data.civilPkgs=[];
+  data.civilPkgs.push({id:uid(),label:'New Package',expanded:true,children:[]});
+  renderCivilForm();renderDashboard();
+}
+
+function renderMpForm(){
+  const c=document.getElementById('mp-form-rows');c.innerHTML='';
+  (data.mpRows||[]).forEach((r,i)=>{
+    const row=document.createElement('div');row.className='entry-row open';row.id='mf-'+r.id;
+    const hd=makeRowHd(`Site ${i+1}: ${esc(r.city||'—')}`,`Total: ${(+r.alfanar||0)+(+r.subcon||0)+(+r.indirect||0)}`,()=>{
+      if(!confirm('Delete?'))return;data.mpRows=data.mpRows.filter(x=>x.id!==r.id);renderMpForm();renderDashboard();
+    },row);
+    row.appendChild(hd);
+    const body=document.createElement('div');body.className='entry-body';
+    body.innerHTML=`<div class="form-g5">
+      <div class="fg"><label>City / Site</label><input type="text" value="${esc(r.city)}" onchange="updMp('${r.id}','city',this.value)"/></div>
+      <div class="fg"><label>Alfanar Direct</label><input type="number" value="${r.alfanar||0}" min="0" onchange="updMp('${r.id}','alfanar',this.value)"/></div>
+      <div class="fg"><label>Subcontractor Direct</label><input type="number" value="${r.subcon||0}" min="0" onchange="updMp('${r.id}','subcon',this.value)"/></div>
+      <div class="fg"><label>Indirect</label><input type="number" value="${r.indirect||0}" min="0" onchange="updMp('${r.id}','indirect',this.value)"/></div>
+      <div class="fg"><label>Total (Auto)</label><input type="text" value="${(+r.alfanar||0)+(+r.subcon||0)+(+r.indirect||0)}" readonly id="mpt-${r.id}"/></div>
+    </div>`;
+    row.appendChild(body);c.appendChild(row);
+  });
+  updateCounts();
+}
+function updMp(id,k,v){
+  const r=data.mpRows.find(x=>x.id===id);if(!r)return;
+  r[k]=k==='city'?v:(+v||0);
+  const tot=(+r.alfanar||0)+(+r.subcon||0)+(+r.indirect||0);
+  const el=document.getElementById('mpt-'+id);if(el)el.value=tot;
+  renderDashboard();
+}
+function addMpRow(){data.mpRows.push({id:uid(),city:'',alfanar:0,subcon:0,indirect:0});renderMpForm();renderDashboard()}
+
+function renderPhotoForm(){
+  const c=document.getElementById('photo-form-rows');c.innerHTML='';
+  (data.photoRows||[]).forEach((p,i)=>{
+    const row=document.createElement('div');row.className='entry-row open';row.id='pf-'+p.id;
+    const hd=makeRowHd(`Photo ${i+1}: ${esc(p.city||'—')} — ${esc(p.title||'Untitled')}`,fmtD(p.date),()=>{
+      if(!confirm('Delete photo?'))return;
+      data.photoRows=data.photoRows.filter(x=>x.id!==p.id);
+      renderPhotoForm();renderGallery();updateCounts();
+    },row);
+    row.appendChild(hd);
+    const body=document.createElement('div');body.className='entry-body';
+    body.innerHTML=`<div class="form-g4" style="margin-bottom:12px">
+      <div class="fg"><label>City / Site</label><input type="text" value="${esc(p.city)}" onchange="updPhoto('${p.id}','city',this.value)"/></div>
+      <div class="fg"><label>Activity / Title</label><input type="text" value="${esc(p.title)}" onchange="updPhoto('${p.id}','title',this.value)"/></div>
+      <div class="fg"><label>Date</label><input type="date" value="${p.date||''}" onchange="updPhoto('${p.id}','date',this.value)"/></div>
+      <div class="fg"><label>Progress Note</label><input type="text" value="${esc(p.note||'')}" onchange="updPhoto('${p.id}','note',this.value)"/></div>
+    </div>
+    <div class="upload-zone ${p.base64?'has-img':''}" id="uz-${p.id}" onclick="trigUp('${p.id}')">
+      <input type="file" accept="image/*" id="fi-${p.id}" style="display:none" onchange="handleUpload('${p.id}',this)"/>
+      ${p.base64?`<img class="upload-thumb" src="${p.base64}" alt="preview"/>`:
+        `<div class="uz-lbl"><span class="uz-ic">📷</span><span>Click to upload</span><span style="font-size:10px;color:var(--g400)">JPG/PNG — max 6MB</span></div>`}
+    </div>
+    ${p.base64?`<button class="btn btn-outline btn-sm" style="margin-top:8px" onclick="clrPhoto('${p.id}')">🗑 Remove Image</button>`:''}`;
+    row.appendChild(body);c.appendChild(row);
+  });
+  updateCounts();
+}
+function trigUp(id){const fi=document.getElementById('fi-'+id);if(fi)fi.click()}
+function handleUpload(id,input){
+  const file=input.files[0];if(!file)return;
+  if(file.size>6*1024*1024){showToast('⚠️ File too large (max 6MB)');input.value='';return}
+  const rd=new FileReader();
+  rd.onload=e=>{
+    const p=data.photoRows.find(x=>x.id===id);if(!p)return;
+    p.base64=e.target.result;renderPhotoForm();renderGallery();showToast('📷 Photo uploaded');
+  };
+  rd.readAsDataURL(file);
+}
+function clrPhoto(id){const p=data.photoRows.find(x=>x.id===id);if(!p)return;p.base64='';renderPhotoForm();renderGallery()}
+function updPhoto(id,k,v){const p=data.photoRows.find(x=>x.id===id);if(!p)return;p[k]=v;renderGallery()}
+function delPhoto(id){
+  if(!confirm('Delete photo?'))return;
+  data.photoRows=data.photoRows.filter(x=>x.id!==id);
+  renderPhotoForm();renderGallery();updateCounts();showToast('🗑 Deleted');
+}
+function addPhotoRow(){
+  data.photoRows.push({id:uid(),city:'',title:'',date:data.date||'',note:'',base64:''});
+  renderPhotoForm();updateCounts();
+}
+
+function makeRowHd(title,meta,onDel,rowEl){
+  const hd=document.createElement('div');hd.className='entry-row-hd';
+  hd.innerHTML=`<span class="row-title">${title}</span><span class="row-meta">${meta||''}</span><span class="tog">▼</span>`;
+  hd.addEventListener('click',e=>{if(e.target.classList.contains('del-btn'))return;rowEl.classList.toggle('open')});
+  const db=document.createElement('button');db.className='del-btn';db.textContent='✕';
+  db.addEventListener('click',e=>{e.stopPropagation();onDel()});
+  hd.appendChild(db);return hd;
+}
+
+/* ════ BIND FIELDS ════ */
+function bindFields(){
+  [['f-projName','projName'],['f-contractNo','contractNo'],['f-date','date'],
+   ['f-reportNo','reportNo'],['f-dayNo','dayNo'],['f-weather','weather'],
+   ['f-temp','temp'],['f-rain','rain'],
+  ].forEach(([id,k])=>{
+    const el=document.getElementById(id);if(!el)return;
+    el.addEventListener('input',()=>{data[k]=el.value;renderDashboard()});
+  });
+}
+
+/* ════ STORAGE ════ */
+/* ════ SNAPSHOT STORAGE — one record per report date ════ */
+const SNAP_KEY = 'dcsr_snapshots';   // { "2026-06-12": {...data}, ... }
+
+// ── helpers ──
+function getAllSnapshots(){
+  try{ return JSON.parse(localStorage.getItem(SNAP_KEY)||'{}') }
+  catch(e){ return {} }
+}
+function setAllSnapshots(obj){
+  try{ localStorage.setItem(SNAP_KEY, JSON.stringify(obj)) }
+  catch(e){ showToast('⚠️ Storage full — try deleting old dates') }
+}
+function fmtSnapLabel(dateStr){
+  // Convert "2026-06-12" → "12-Jun-26"
+  if(!dateStr) return dateStr;
+  try{
+    const d=new Date(dateStr+'T12:00:00');
+    return d.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'2-digit'});
+  }catch(e){ return dateStr }
+}
+
+// ── Save current data as a snapshot keyed by report date ──
+function saveSnapshot(){
+  const dateKey = data.date || new Date().toISOString().slice(0,10);
+  try{
+    // 1. Save working data (same as before — so refresh always loads latest)
+    localStorage.setItem(SK, JSON.stringify(data));
+    // 2. Save dated snapshot
+    const snaps = getAllSnapshots();
+    snaps[dateKey] = JSON.parse(JSON.stringify(data));
+    setAllSnapshots(snaps);
+    refreshSnapUI();
+    showToast(`✅ Saved — ${fmtSnapLabel(dateKey)}`);
+  }catch(e){ showToast('⚠️ Save failed: '+e.message) }
+}
+
+// ── Keep old saveData() as alias (called from importJSON, etc.) ──
+function saveData(){ saveSnapshot() }
+
+// ── Load selected snapshot ──
+function loadSnapshot(){
+  const sel = document.getElementById('snap-select');
+  const dateKey = sel ? sel.value : '';
+  if(!dateKey){ showToast('ℹ️ Select a saved date first'); return }
+  const snaps = getAllSnapshots();
+  const snap = snaps[dateKey];
+  if(!snap){ showToast('⚠️ Snapshot not found'); return }
+  data = JSON.parse(JSON.stringify(snap));
+  if(!data.photoRows)   data.photoRows=[];
+  if(!data.civilCities) data.civilCities=['Madinah','Abha','Jizan'];
+  if(!data.civilPkgs||!data.civilPkgs.length) data.civilPkgs=JSON.parse(JSON.stringify(DEF_FROZEN.civilPkgs));
+  renderForm();
+  renderDashboard();
+  showToast(`📅 Loaded — ${fmtSnapLabel(dateKey)}`);
+}
+
+// ── Update the snapshot dropdown & count badge ──
+function refreshSnapUI(){
+  const sel = document.getElementById('snap-select');
+  const cnt = document.getElementById('snap-count');
+  if(!sel) return;
+  const snaps = getAllSnapshots();
+  const dates = Object.keys(snaps).sort().reverse(); // newest first
+  const prevVal = sel.value;
+  sel.innerHTML = '<option value="">— Load Saved Date —</option>' +
+    dates.map(d=>`<option value="${d}"${d===prevVal?' selected':''}>${fmtSnapLabel(d)}</option>`).join('');
+  if(cnt) cnt.textContent = dates.length ? `${dates.length} saved date${dates.length===1?'':'s'}` : '';
+}
+
+// Highlight the dropdown when a date is selected
+function onSnapSelectChange(){
+  const sel = document.getElementById('snap-select');
+  if(sel) sel.style.borderColor = sel.value ? 'var(--ab-lt)' : '';
+}
+
+// ── Delete selected snapshot ──
+function deleteSnapshot(){
+  const sel = document.getElementById('snap-select');
+  const dateKey = sel ? sel.value : '';
+  if(!dateKey){ showToast('ℹ️ Select a date to delete'); return }
+  if(!confirm(`Delete snapshot for ${fmtSnapLabel(dateKey)}?`)) return;
+  const snaps = getAllSnapshots();
+  delete snaps[dateKey];
+  setAllSnapshots(snaps);
+  refreshSnapUI();
+  showToast(`🗑 Deleted — ${fmtSnapLabel(dateKey)}`);
+}
+
+// ── Load latest working data on startup ──
+function loadData(){
+  try{
+    const r = localStorage.getItem(SK);
+    if(r){
+      const parsed = JSON.parse(r);
+      if(parsed.civilPkgs&&parsed.civilPkgs.length>0){
+        data = parsed;
+      } else {
+        localStorage.removeItem(SK);
+        data = JSON.parse(JSON.stringify(DEF_FROZEN));
+      }
+      if(!data.photoRows)   data.photoRows=[];
+      if(!data.civilCities) data.civilCities=['Madinah','Abha','Jizan'];
+      if(!data.civilPkgs)   data.civilPkgs=JSON.parse(JSON.stringify(DEF_FROZEN.civilPkgs));
+    }
+  }catch(e){ data=JSON.parse(JSON.stringify(DEF_FROZEN)); }
+}
+
+function resetData(){
+  if(!confirm('Reset working data to defaults? (Saved snapshots are kept)')) return;
+  data = JSON.parse(JSON.stringify(DEF_FROZEN));
+  localStorage.removeItem(SK);
+  renderForm(); renderDashboard();
+  showToast('🔄 Reset to defaults');
+}
+function exportJSON(){
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');a.href=url;
+  a.download=`DCSR_${data.reportNo||'report'}_${data.date||'export'}.json`;
+  a.click();URL.revokeObjectURL(url);showToast('📤 Exported');
+}
+function importJSON(evt){
+  const file=evt.target.files[0];if(!file)return;
+  const rd=new FileReader();
+  rd.onload=e=>{
+    try{
+      data=JSON.parse(e.target.result);
+      if(!data.photoRows)   data.photoRows=[];
+      if(!data.civilPkgs)   data.civilPkgs=[];
+      if(!data.civilCities) data.civilCities=['Madinah','Abha','Jizan'];
+      renderForm();renderDashboard();showToast('📥 Imported');
+    }catch(e){showToast('⚠️ Invalid JSON')}
+  };
+  rd.readAsText(file);evt.target.value='';
+}
+
+let _tt;
+function showToast(msg){
+  const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');
+  clearTimeout(_tt);_tt=setTimeout(()=>t.classList.remove('show'),2800);
+}
+
+/* ════ ANIMATION ENGINE ════
+   Class-based approach: elements start hidden via .anim-ready,
+   then get .anim-go to trigger the transition.
+   setTimeout(0) defers until after the browser paints the initial DOM.
+════ */
+
+/* ── Count-up: ticks from 0 → end using rAF, ease-out cubic ── */
+function animateCountUp(elId, end, durationMs, suffix){
+  const el = document.getElementById(elId);
+  if(!el) return;
+  const sfx = suffix || '';
+  // If target is 0 just set it
+  if(!end){ el.textContent = '0' + sfx; return; }
+  const t0 = performance.now();
+  function tick(now){
+    const p = Math.min((now - t0) / durationMs, 1);
+    // ease-out expo: fast start, gentle finish
+    const e = p === 1 ? 1 : 1 - Math.pow(2, -10 * p);
+    el.textContent = Math.round(end * e) + sfx;
+    if(p < 1) requestAnimationFrame(tick);
+  }
+  el.textContent = '0' + sfx;
+  requestAnimationFrame(tick);
+}
+
+/* ── KPI card stagger: each card fades up with 70ms offset ── */
+function animateStatCards(){
+  const cards = document.querySelectorAll('.stat-bar .stat-card');
+  cards.forEach(c => { c.classList.remove('anim-go'); c.classList.add('anim-ready'); });
+  cards.forEach((c, i) => {
+    setTimeout(() => {
+      c.classList.add('anim-go');
+    }, i * 70);
+  });
+}
+
+/* ── Table rows + city cards stagger ── */
+function animateTableRows(tbody){
+  if(!tbody) return;
+  const rows = Array.from(tbody.querySelectorAll('tr.act-row'));
+
+  // Mark all hidden first
+  rows.forEach(row => {
+    row.classList.add('anim-ready');
+    row.querySelectorAll('.city-card').forEach(c => c.classList.add('anim-ready'));
+  });
+
+  // Then stagger-reveal row by row
+  rows.forEach((row, i) => {
+    const rDelay = Math.min(i * 35, 420);
+    setTimeout(() => {
+      row.classList.add('anim-go');
+    }, rDelay);
+
+    // City cards inside row stagger after their row
+    row.querySelectorAll('.city-card').forEach((card, j) => {
+      setTimeout(() => {
+        card.classList.add('anim-go');
+      }, rDelay + 40 + j * 50);
+    });
+  });
+}
+
+/* ════ END ANIMATION ENGINE ════ */
+
+/* ════ INIT ════ */
+['dcsr_v5','dcsr_v4','dcsr_v3','dcsr_v2','dpr_data_v2'].forEach(k=>{
+  try{
+    const old=localStorage.getItem(k);
+    if(old){const p=JSON.parse(old);if(!(k===SK&&p.civilPkgs&&p.civilPkgs.length>0))localStorage.removeItem(k)}
+  }catch(e){localStorage.removeItem(k)}
+});
+
+loadData();
+renderForm();
+bindFields();
+renderDashboard();
+refreshSnapUI();   // populate the history dropdown on startup
+</script>
+
+</body>
+</html>
