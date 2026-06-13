@@ -331,6 +331,43 @@ table.civil-tbl{width:100%;border-collapse:collapse;font-size:12.5px}
   background:rgba(0,96,181,.18);border-color:rgba(0,96,181,.4);
 }
 .pkg-label{font-size:13px;font-weight:800;letter-spacing:.2px;color:var(--ab-dk)}
+
+/* ── Package header summary strip ── */
+.pkg-summary{
+  display:inline-flex;align-items:center;gap:16px;
+  margin-left:auto;flex-wrap:nowrap;
+}
+.pkg-summary-item{
+  display:flex;align-items:center;gap:5px;
+  font-size:9.5px;font-weight:600;color:var(--text-muted);
+  white-space:nowrap;
+}
+.pkg-summary-item .psi-val{
+  font-weight:800;color:var(--text-secondary);
+}
+.pkg-summary-item .psi-val.val-late{ color:var(--crit); }
+.pkg-chip{
+  display:inline-flex;align-items:center;
+  padding:2px 8px;border-radius:99px;
+  font-size:9px;font-weight:800;
+}
+.pkg-chip-late{ background:rgba(220,38,38,.1);color:var(--crit);border:1px solid rgba(220,38,38,.2) }
+.pkg-chip-ok  { background:rgba(22,163,74,.1); color:var(--success);border:1px solid rgba(22,163,74,.2) }
+.pkg-prog-inline{
+  display:inline-flex;align-items:center;gap:5px;
+}
+.pkg-prog-bar-mini{
+  width:48px;height:4px;background:rgba(0,96,181,.12);border-radius:2px;overflow:hidden;flex-shrink:0;
+}
+.pkg-prog-bar-mini-fill{
+  height:100%;border-radius:2px;
+  background:linear-gradient(90deg,var(--ab),var(--cy));
+  transition:width .8s cubic-bezier(.22,1,.36,1);
+}
+.pkg-row td{
+  /* allow flex layout inside pkg cells */
+}
+
 .pkg-count{font-size:10px;font-weight:600;color:var(--text-muted);margin-left:10px}
 
 /* Activity rows — cleaner separation */
@@ -711,12 +748,15 @@ table.civil-tbl{width:100%;border-collapse:collapse;font-size:12.5px}
   box-shadow:0 8px 30px rgba(0,96,181,.4)}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
-/* ════════════════════════════════════════════
-   JS-TRIGGERED ANIMATION CLASSES
-   .anim-ready = hidden start state (set by JS before setTimeout)
-   .anim-go    = visible end state  (set by JS after setTimeout(0))
-   The browser paints .anim-ready, then transitions to .anim-go.
-════════════════════════════════════════════ */
+/* ════════════════════════════════════════════════════════
+   JS-TRIGGERED ANIMATION CLASSES — Premium Executive Dashboard
+   .anim-ready = "from" state (opacity 0, slight offset)
+   .anim-go    = "to" state  (opacity 1, natural position)
+   JS sets anim-ready synchronously, then anim-go inside setTimeout(0)
+   so the browser sees two distinct painted frames → transition fires.
+════════════════════════════════════════════════════════ */
+
+/* ── Universal base ── */
 .anim-ready{
   opacity:0 !important;
   transform:translateY(12px) !important;
@@ -728,82 +768,139 @@ table.civil-tbl{width:100%;border-collapse:collapse;font-size:12.5px}
   transform:translateY(0) !important;
   transition:opacity .36s ease, transform .36s cubic-bezier(.22,1,.36,1) !important;
 }
+
+/* ── City summary cards (city-prog-card) ── */
+.city-prog-card.anim-ready{
+  opacity:0 !important; transform:translateY(14px) scale(.97) !important; transition:none !important;
+}
+.city-prog-card.anim-go{
+  opacity:1 !important; transform:translateY(0) scale(1) !important;
+  transition:opacity .38s ease, transform .38s cubic-bezier(.22,1,.36,1) !important;
+}
+
+/* ── Civil city cards ── */
 .city-card.anim-ready{
-  opacity:0 !important;
-  transform:translateY(10px) scale(.95) !important;
-  transition:none !important;
+  opacity:0 !important; transform:translateY(10px) scale(.95) !important; transition:none !important;
 }
 .city-card.anim-go{
-  opacity:1 !important;
-  transform:translateY(0) scale(1) !important;
+  opacity:1 !important; transform:translateY(0) scale(1) !important;
   transition:opacity .32s ease, transform .32s cubic-bezier(.22,1,.36,1),
     box-shadow .22s ease, border-color .22s ease, background .22s ease !important;
 }
 
-/* ── KPI card hover ── */
-.stat-card{ transition:transform .22s cubic-bezier(.22,1,.36,1), box-shadow .22s ease !important; }
-.stat-card:hover{
-  transform:translateY(-6px) !important;
-  box-shadow:0 14px 36px rgba(0,96,181,.22),0 0 0 1.5px rgba(44,168,224,.28) !important;
+/* ── Package header rows slide in ── */
+.civil-tbl tr.pkg-row.anim-ready td{
+  opacity:0 !important; transform:translateX(-6px) !important; transition:none !important;
+}
+.civil-tbl tr.pkg-row.anim-go td{
+  opacity:1 !important; transform:translateX(0) !important;
+  transition:opacity .28s ease, transform .28s cubic-bezier(.22,1,.36,1) !important;
 }
 
-/* ── City card hover ── */
-.city-card:hover{
+/* ── Section headers slide from left ── */
+.sec-hd.anim-ready{ opacity:0 !important; transform:translateX(-8px) !important; transition:none !important; }
+.sec-hd.anim-go   { opacity:1 !important; transform:translateX(0) !important;
+  transition:opacity .28s ease, transform .28s cubic-bezier(.22,1,.36,1) !important; }
+
+/* ── Filter bar slide down ── */
+.filter-bar.anim-ready{ opacity:0 !important; transform:translateY(-6px) !important; transition:none !important; }
+.filter-bar.anim-go   { opacity:1 !important; transform:translateY(0) !important;
+  transition:opacity .26s ease, transform .26s cubic-bezier(.22,1,.36,1) !important; }
+
+/* ── Manpower cards ── */
+.mp-card.anim-ready{ opacity:0 !important; transform:translateY(10px) !important; transition:none !important; }
+.mp-card.anim-go   { opacity:1 !important; transform:translateY(0) !important;
+  transition:opacity .34s ease, transform .34s cubic-bezier(.22,1,.36,1) !important; }
+
+/* ── Photo/video gallery cards ── */
+.photo-card.anim-ready{ opacity:0 !important; transform:translateY(8px) scale(.97) !important; transition:none !important; }
+.photo-card.anim-go   { opacity:1 !important; transform:translateY(0) scale(1) !important;
+  transition:opacity .3s ease, transform .3s cubic-bezier(.22,1,.36,1) !important; }
+
+/* ── Status badges + delay chips ── */
+.dc.anim-ready,.act-done-badge.anim-ready,.city-done-badge.anim-ready,.delay-chip-big.anim-ready{
+  opacity:0 !important; transform:scale(.8) !important; transition:none !important; }
+.dc.anim-go,.act-done-badge.anim-go,.city-done-badge.anim-go,.delay-chip-big.anim-go{
+  opacity:1 !important; transform:scale(1) !important;
+  transition:opacity .2s ease, transform .2s cubic-bezier(.22,1,.36,1) !important; }
+
+/* ── KPI stat cards ── */
+.stat-card.anim-ready{ opacity:0 !important; transform:translateY(16px) !important; transition:none !important; }
+.stat-card.anim-go   { opacity:1 !important; transform:translateY(0) !important;
+  transition:opacity .38s ease, transform .38s cubic-bezier(.22,1,.36,1) !important; }
+
+/* ── Header brand / meta ── */
+.rpt-brand.anim-ready{ opacity:0 !important; transform:translateX(-12px) !important; transition:none !important; }
+.rpt-brand.anim-go   { opacity:1 !important; transform:translateX(0) !important;
+  transition:opacity .4s ease, transform .4s cubic-bezier(.22,1,.36,1) !important; }
+.rpt-meta.anim-ready { opacity:0 !important; transform:translateX(12px) !important; transition:none !important; }
+.rpt-meta.anim-go    { opacity:1 !important; transform:translateX(0) !important;
+  transition:opacity .4s ease .1s, transform .4s cubic-bezier(.22,1,.36,1) .1s !important; }
+
+/* ── Hover overrides (must beat anim-go specificity) ── */
+.city-card.anim-go:hover{
   transform:translateY(-6px) scale(1.016) !important;
   box-shadow:0 12px 28px rgba(0,96,181,.18),0 2px 8px rgba(0,96,181,.08) !important;
 }
-.city-card.anim-go:hover{
-  transform:translateY(-6px) scale(1.016) !important;
+.city-prog-card:hover{
+  transform:translateY(-5px) scale(1.01) !important;
+  box-shadow:var(--sh),0 0 32px rgba(0,96,181,.18),0 0 0 1.5px rgba(44,168,224,.22) !important;
 }
+.stat-card:hover{ transform:translateY(-6px) !important;
+  box-shadow:0 14px 36px rgba(0,96,181,.22),0 0 0 1.5px rgba(44,168,224,.28) !important; }
 
 /* ── Delayed card top-border pulse ── */
 @keyframes delayedPulse{
-  0%,100%{ background:linear-gradient(90deg,#dc2626,#ef4444); opacity:.55; }
-  50%    { background:linear-gradient(90deg,#ff2020,#ff6060); opacity:1;   }
+  0%,100%{ background:linear-gradient(90deg,#dc2626,#ef4444);opacity:.55 }
+  50%    { background:linear-gradient(90deg,#ff2020,#ff6060);opacity:1   }
 }
-.city-card.cc-delayed::before{
-  animation:delayedPulse 1.8s ease-in-out infinite !important;
-}
+.city-card.cc-delayed::before{ animation:delayedPulse 1.8s ease-in-out infinite !important; }
 
 /* ── Completed card shine sweep ── */
 @keyframes completedSweep{
-  0%,55%,100%{ transform:translateX(-200%); opacity:0; }
-  20%        { opacity:1; }
-  50%        { transform:translateX(300%);  opacity:0; }
+  0%,60%,100%{ transform:translateX(-200%);opacity:0 }
+  25%        { opacity:1 }
+  55%        { transform:translateX(300%);opacity:0 }
 }
 .city-card.cc-completed::after{
   content:'';position:absolute;top:0;bottom:0;left:0;width:50%;
-  background:linear-gradient(90deg,transparent 0%,rgba(255,255,255,.55) 50%,transparent 100%);
-  animation:completedSweep 4.5s ease-in-out infinite;
-  pointer-events:none;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.55),transparent);
+  animation:completedSweep 4.5s ease-in-out infinite;pointer-events:none;
 }
 
 /* ── Section header shimmer ── */
 @keyframes sectionSweep{
-  0%,60%,100%{ transform:translateX(-200%); opacity:0; }
-  25%        { opacity:1; }
-  55%        { transform:translateX(250%);  opacity:0; }
+  0%,65%,100%{ transform:translateX(-200%);opacity:0 }
+  30%        { opacity:1 }
+  60%        { transform:translateX(250%);opacity:0 }
 }
 .sec-hd::after{
   content:'';position:absolute;top:0;bottom:0;left:0;width:50%;
-  background:linear-gradient(90deg,transparent 0%,rgba(255,255,255,.30) 50%,transparent 100%);
-  animation:sectionSweep 6s ease-in-out infinite;
-  pointer-events:none;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.30),transparent);
+  animation:sectionSweep 7s ease-in-out infinite;pointer-events:none;
 }
 
 /* ── Package header hover glow ── */
 .civil-tbl tr.pkg-row:hover td{
   background:linear-gradient(90deg,#dce8ff,#e8f2ff) !important;
-  box-shadow:inset 4px 0 0 var(--ab), 0 2px 14px rgba(0,96,181,.09) !important;
+  box-shadow:inset 4px 0 0 var(--ab),0 2px 14px rgba(0,96,181,.09) !important;
 }
 
-/* ── Print: disable all JS animations ── */
+/* ── Print: kill all animations ── */
 @media print{
-  .anim-ready{ opacity:1 !important; transform:none !important; }
-  .anim-go   { opacity:1 !important; transform:none !important; }
-  .city-card.cc-delayed::before,
-  .city-card.cc-completed::after,
-  .sec-hd::after{ animation:none !important; }
+  .anim-ready,.anim-go,
+  .city-prog-card.anim-ready,.city-prog-card.anim-go,
+  .city-card.anim-ready,.city-card.anim-go,
+  .sec-hd.anim-ready,.sec-hd.anim-go,
+  .mp-card.anim-ready,.mp-card.anim-go,
+  .photo-card.anim-ready,.photo-card.anim-go,
+  .rpt-brand.anim-ready,.rpt-brand.anim-go,
+  .rpt-meta.anim-ready,.rpt-meta.anim-go,
+  .stat-card.anim-ready,.stat-card.anim-go,
+  .filter-bar.anim-ready,.filter-bar.anim-go{
+    opacity:1 !important; transform:none !important; transition:none !important;
+  }
+  .city-card.cc-delayed::before,.city-card.cc-completed::after,.sec-hd::after{ animation:none !important; }
 }
 
 /* ══ PRINT ══ */
@@ -833,6 +930,200 @@ table.civil-tbl{width:100%;border-collapse:collapse;font-size:12.5px}
 @media(max-width:1200px){.form-g4{grid-template-columns:repeat(2,1fr)}.form-g5{grid-template-columns:repeat(3,1fr)}.stat-bar{grid-template-columns:repeat(3,1fr)}}
 @media(max-width:900px){.rpt-header{flex-direction:column}.rpt-meta{gap:6px}.stat-bar{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:600px){.page{padding:12px}.stat-bar{grid-template-columns:1fr 1fr}.form-g2{grid-template-columns:1fr}}
+
+/* ════ CITY SUMMARY SECTION ════ */
+.city-summary-wrap{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:16px;
+  margin-top:16px;
+  margin-bottom:24px;
+  width:100%;
+}
+@media(max-width:900px){.city-summary-wrap{grid-template-columns:1fr}}
+/* City progress card */
+.city-prog-card{
+  background:var(--glass-bg);
+  border:1px solid var(--glass-border);
+  border-radius:var(--r);
+  padding:18px 20px;
+  box-shadow:var(--glass-shadow);
+  transition:all var(--tr);
+  backdrop-filter:blur(8px);
+  position:relative;overflow:hidden;
+}
+.city-prog-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:3px;
+  background:linear-gradient(90deg,var(--ab),var(--cy));
+  border-radius:var(--r) var(--r) 0 0;
+}
+.city-prog-card:hover{
+  transform:translateY(-5px) scale(1.01);
+  box-shadow:var(--sh),0 0 32px rgba(0,96,181,.18),0 0 0 1.5px rgba(44,168,224,.22);
+}
+.city-prog-header{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:14px;
+}
+.city-prog-name{
+  font-size:11px;font-weight:800;letter-spacing:.9px;
+  text-transform:uppercase;color:var(--ab);
+  display:flex;align-items:center;gap:6px;
+}
+.city-prog-pct{
+  font-size:28px;font-weight:900;letter-spacing:-1px;line-height:1;
+  color:var(--text-primary);
+}
+.city-prog-bar-wrap{
+  height:5px;
+  background:rgba(0,96,181,.12);
+  border-radius:3px;
+  margin:10px 0 16px;
+  /* No overflow:hidden — preserves fill during opacity transition */
+}
+.city-prog-bar-fill{
+  height:5px;
+  border-radius:3px;
+  width:0%;          /* JS always resets to 0 then transitions */
+  transition:width 1.2s cubic-bezier(.22,1,.36,1);
+  will-change:width;
+  box-shadow:0 0 5px rgba(44,168,224,.3);
+}
+.city-stats-row{
+  display:flex;gap:0;
+  border-top:1px solid var(--border);
+  padding-top:12px;
+}
+.city-stat-item{
+  flex:1;text-align:center;
+  border-right:1px solid var(--border);
+  padding:0 6px;
+}
+.city-stat-item:last-child{border-right:none}
+.city-stat-val{
+  font-size:18px;font-weight:900;color:var(--text-primary);line-height:1;
+}
+.city-stat-lbl{
+  font-size:9px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;
+  color:var(--text-faint);margin-top:4px;
+}
+/* City chips — start invisible, JS adds city-chip-anim to show */
+.city-chip{
+  display:inline-flex;align-items:center;padding:3px 10px;
+  border-radius:99px;font-size:10px;font-weight:800;
+  opacity:0;transform:scale(.85);
+  transition:opacity .28s ease,transform .28s cubic-bezier(.22,1,.36,1);
+}
+.city-chip-anim{ opacity:1 !important; transform:scale(1) !important; }
+.city-chip-done{ background:rgba(22,163,74,.12);color:var(--success);border:1px solid rgba(22,163,74,.2) }
+.city-chip-ok  { background:rgba(22,163,74,.12);color:var(--success);border:1px solid rgba(22,163,74,.2) }
+.city-chip-late{ background:rgba(220,38,38,.10);color:var(--crit);  border:1px solid rgba(220,38,38,.2) }
+
+/* ─────────────────────────────────────────────
+   City card status micro-effects
+   ───────────────────────────────────────────── */
+
+/* Completed count — soft green glow */
+@keyframes completedGlow{
+  0%,100%{ text-shadow:0 0 0px rgba(22,163,74,0);   color:var(--success) }
+  50%    { text-shadow:0 0 10px rgba(22,163,74,.55); color:#1aab4a        }
+}
+.city-stat-val.sv-completed{
+  animation:completedGlow 3s ease-in-out infinite;
+}
+
+/* In Progress count — subtle blue pulse */
+@keyframes inProgPulse{
+  0%,100%{ opacity:1;   transform:scale(1)    }
+  50%    { opacity:.78; transform:scale(1.05) }
+}
+.city-stat-val.sv-inprog{
+  animation:inProgPulse 2.4s ease-in-out infinite;
+}
+
+/* Delay chip — soft red throb */
+@keyframes delayChipPulse{
+  0%,100%{ box-shadow:0 0 0px rgba(220,38,38,0);   opacity:1   }
+  50%    { box-shadow:0 0 8px rgba(220,38,38,.35);  opacity:.88 }
+}
+.city-chip-late.city-chip-anim{
+  animation:delayChipPulse 2s ease-in-out infinite;
+}
+
+/* Expected Finish date (red) — very subtle attention */
+@keyframes expectedDateAttention{
+  0%,85%,100%{ opacity:1 }
+  92%         { opacity:.6 }
+}
+.city-expected-late{
+  animation:expectedDateAttention 4s ease-in-out infinite;
+}
+
+/* City name fade-up class — applied by JS */
+.city-name-anim{
+  opacity:0; transform:translateY(5px);
+  transition:opacity .3s ease, transform .3s cubic-bezier(.22,1,.36,1);
+}
+.city-name-anim.show{ opacity:1 !important; transform:translateY(0) !important; }
+
+/* Stat val fade-up — applied by JS */
+.city-val-anim{
+  opacity:0; transform:translateY(6px);
+  transition:opacity .28s ease, transform .28s cubic-bezier(.22,1,.36,1);
+}
+.city-val-anim.show{ opacity:1 !important; transform:translateY(0) !important; }
+
+/* Date row fade-up — applied by JS */
+.city-date-row-anim{
+  opacity:0; transform:translateY(4px);
+  transition:opacity .25s ease, transform .25s cubic-bezier(.22,1,.36,1);
+}
+.city-date-row-anim.show{ opacity:1 !important; transform:translateY(0) !important; }
+
+/* Delay timeline card */
+.delay-card{
+  background:var(--glass-bg);
+  border:1px solid var(--border);
+  border-radius:var(--r);
+  padding:16px 18px;
+  box-shadow:var(--sh-sm);
+  backdrop-filter:blur(8px);
+  transition:all var(--tr);
+  margin-top:14px;
+}
+.delay-card:hover{transform:translateY(-2px);box-shadow:var(--sh)}
+.delay-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
+  gap:12px;
+}
+.delay-city-row{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 14px;
+  background:var(--surface);
+  border-radius:var(--rsm);
+  border:1px solid var(--border);
+  transition:all var(--tr);
+}
+.delay-city-row:hover{background:var(--surface2)}
+.delay-city-name{
+  font-size:10px;font-weight:800;letter-spacing:.7px;
+  text-transform:uppercase;color:var(--ab);
+  width:64px;flex-shrink:0;
+}
+.delay-date-block{flex:1;display:flex;flex-direction:column;gap:2px}
+.delay-date-line{display:flex;align-items:center;gap:6px;font-size:10px}
+.delay-date-label{color:var(--text-faint);font-weight:600;width:52px;flex-shrink:0}
+.delay-date-val{color:var(--text-secondary);font-weight:700}
+.delay-date-val.is-late{color:var(--crit);font-weight:800}
+.delay-chip-big{
+  flex-shrink:0;
+  padding:4px 10px;border-radius:99px;font-size:11px;font-weight:800;
+  white-space:nowrap;
+}
+.delay-chip-big.ok  {background:rgba(22,163,74,.12);color:var(--success);border:1px solid rgba(22,163,74,.2)}
+.delay-chip-big.late{background:rgba(220,38,38,.1); color:var(--crit);  border:1px solid rgba(220,38,38,.2)}
+.delay-chip-big.done{background:rgba(22,163,74,.12);color:var(--success);border:1px solid rgba(22,163,74,.2)}
 
 /* ════ REPORT HISTORY / SNAPSHOT BAR ════ */
 .snapshot-bar{
@@ -991,51 +1282,14 @@ table.civil-tbl{width:100%;border-collapse:collapse;font-size:12.5px}
       </div>
     </div>
     <div class="rpt-meta">
-      <div class="meta-pill"><div class="lbl">Date</div><div class="val" id="d-date">—</div></div>
-      <div class="meta-pill"><div class="lbl">Report No.</div><div class="val" id="d-reportNo">—</div></div>
-      <div class="meta-pill"><div class="lbl">Day No.</div><div class="val" id="d-dayNo">—</div></div>
-      <div class="meta-pill"><div class="lbl">Weather</div><div class="val" id="d-weather">—</div></div>
-      <div class="meta-pill"><div class="lbl">Temp</div><div class="val" id="d-temp">—</div></div>
+      <div class="meta-pill"><div class="lbl">Report Date</div><div class="val" id="d-date">—</div></div>
     </div>
   </div>
 
   <div class="page">
 
-    <!-- KPI CARDS -->
-    <div class="stat-bar">
-      <div class="stat-card sc-blue">
-        <div class="stat-lbl">Total Activities</div>
-        <div class="stat-val" id="sb-total">0</div>
-        <div class="stat-sub">across all packages</div>
-      </div>
-      <div class="stat-card sc-green">
-        <div class="stat-lbl">Completed</div>
-        <div class="stat-val" id="sb-done">0</div>
-        <div class="stat-sub">activities done</div>
-        <div class="stat-prog-bar"><div class="stat-prog-fill" id="sb-done-bar" style="width:0%"></div></div>
-      </div>
-      <div class="stat-card sc-cyan">
-        <div class="stat-lbl">Avg Site Progress</div>
-        <div class="stat-val" id="sb-avg">0%</div>
-        <div class="stat-sub">all cities average</div>
-        <div class="stat-prog-bar"><div class="stat-prog-fill" id="sb-avg-bar" style="width:0%;background:linear-gradient(90deg,var(--ab),var(--cy))"></div></div>
-      </div>
-      <div class="stat-card sc-crit">
-        <div class="stat-lbl">Delayed</div>
-        <div class="stat-val" id="sb-delayed">0</div>
-        <div class="stat-sub">need immediate action</div>
-      </div>
-      <div class="stat-card sc-warn">
-        <div class="stat-lbl">At Risk</div>
-        <div class="stat-val" id="sb-risk">0</div>
-        <div class="stat-sub">monitor closely</div>
-      </div>
-      <div class="stat-card sc-orange">
-        <div class="stat-lbl">Total Manpower</div>
-        <div class="stat-val" id="sb-mp">0</div>
-        <div class="stat-sub">all sites combined</div>
-      </div>
-    </div>
+    <!-- CITY SUMMARY — one merged card per city (progress + counts + forecast) -->
+    <div class="city-summary-wrap" id="city-progress-bar"></div>
 
     <!-- FILTER BAR -->
     <div class="filter-bar no-print">
@@ -1186,7 +1440,8 @@ table.civil-tbl{width:100%;border-collapse:collapse;font-size:12.5px}
   <button class="lb-x" onclick="closeLb()">✕</button>
   <button class="lb-nav" id="lb-prev" onclick="lbNav(-1)">‹</button>
   <button class="lb-nav" id="lb-next" onclick="lbNav(1)">›</button>
-  <img id="lb-img" src="" alt=""/>
+  <!-- Media container: shows img or video depending on type -->
+  <div id="lb-media" style="max-width:90vw;max-height:80vh;display:flex;align-items:center;justify-content:center"></div>
   <div id="lb-cap">
     <div class="lt" id="lb-t"></div>
     <div class="lm" id="lb-m"></div>
@@ -1519,15 +1774,32 @@ function worstStatus(statuses){
   return 'On Track';
 }
 
-/* ── Auto-calculate status from progress + dates ── */
-function calcAutoStatus(sp, plannedFinish, reportDate){
+/* ── Auto-calculate status from progress + dates (correct priority) ──
+   Priority order: Completed > Delayed > In Progress > Not Started
+   Delayed fires when: expectedFinish > plannedFinish  OR  today > plannedFinish
+   Both conditions apply regardless of progress value (as long as < 100%).
+   This means 92% + expected after planned = DELAYED, not In Progress.
+── */
+function calcAutoStatus(sp, plannedFinish, expectedFinish, reportDate){
   const progress = sp != null ? +sp : 0;
+
+  // 1. Completed always wins
   if(progress >= 100) return 'Completed';
-  if(progress > 0)    return 'In Progress';
-  // progress === 0:
-  const today = reportDate ? new Date(reportDate+'T00:00:00') : new Date();
-  const pd    = plannedFinish ? _toDateObj(plannedFinish) : null;
-  if(pd && today > pd) return 'Delayed';
+
+  // 2. Delayed: expected > planned OR today > planned
+  const today = _toDateObj(reportDate || new Date().toISOString().slice(0,10));
+  const pd    = _toDateObj(plannedFinish);
+  const ed    = _toDateObj(expectedFinish);
+
+  if(pd){
+    if(ed && ed > pd)              return 'Delayed'; // expected slipped past planned
+    if(today && today > pd)        return 'Delayed'; // overdue today
+  }
+
+  // 3. In Progress
+  if(progress > 0) return 'In Progress';
+
+  // 4. Not Started
   return 'Not Started';
 }
 
@@ -1538,7 +1810,7 @@ function applyAutoStatus(){
     (data.civilCities||[]).forEach(city=>{
       const cd = leaf.cityData?.[city];
       if(!cd) return;
-      cd.status = calcAutoStatus(cd.siteProgress, cd.plannedFinish, reportDate);
+      cd.status = calcAutoStatus(cd.siteProgress, cd.plannedFinish, cd.expectedDate, reportDate);
     });
   });
 }
@@ -1582,10 +1854,7 @@ function renderDashboard(){
   document.getElementById('d-projName').textContent   = d.projName||'—';
   document.getElementById('d-contractNo').textContent = 'Contract: '+(d.contractNo||'—');
   document.getElementById('d-date').textContent       = fmtD(d.date);
-  document.getElementById('d-reportNo').textContent   = d.reportNo||'—';
-  document.getElementById('d-dayNo').textContent      = d.dayNo?'Day '+d.dayNo:'—';
-  document.getElementById('d-weather').textContent    = d.weather||'—';
-  document.getElementById('d-temp').textContent       = d.temp!=null?d.temp+'°C':'—';
+  // d-reportNo, d-dayNo, d-weather, d-temp removed from header — skip these
 
   // Safety
   if((!data.civilPkgs||data.civilPkgs.length===0)&&DEF_FROZEN.civilPkgs.length>0){
@@ -1600,40 +1869,233 @@ function renderDashboard(){
   const allVals = leaves.flatMap(l=>cities.map(c=>{
     const cd = l.cityData?.[c];
     if(!cd) return null;
-    return { ...cd, status: calcAutoStatus(cd.siteProgress, cd.plannedFinish, reportDate) };
+    return { ...cd, status: calcAutoStatus(cd.siteProgress, cd.plannedFinish, cd.expectedDate, reportDate) };
   }).filter(Boolean));
-  const total   = allVals.length;
-  const done    = allVals.filter(v=>v.status==='Completed').length;
-  const delayed = allVals.filter(v=>v.status==='Delayed').length;
-  const atRisk  = allVals.filter(v=>v.status==='In Progress').length;
-  const progArr = allVals.map(v=>+v.siteProgress||0);
-  const avg     = progArr.length ? Math.round(progArr.reduce((s,v)=>s+v,0)/progArr.length) : 0;
+  const total    = allVals.length;
+  const done     = allVals.filter(v=>v.status==='Completed').length;
+  const delayed  = allVals.filter(v=>v.status==='Delayed').length;
+  const inProg   = allVals.filter(v=>v.status==='In Progress').length;
+  const notStart = allVals.filter(v=>v.status==='Not Started').length;
   let totMP=0; (d.mpRows||[]).forEach(r=>{totMP+=(+r.alfanar||0)+(+r.subcon||0)+(+r.indirect||0)});
 
-  document.getElementById('sb-done-bar').style.width  = '0%';
-  document.getElementById('sb-avg-bar').style.width   = '0%';
+  // Progress bar element may not exist (KPI row removed) — safe no-op if absent
+  const _doneBar = document.getElementById('sb-done-bar');
+  if(_doneBar) _doneBar.style.width = '0%';
 
-  // ── Animated count-up for KPI numbers ──
-  animateCountUp('sb-total',   total,   900);
-  animateCountUp('sb-done',    done,    900);
-  animateCountUp('sb-avg',     avg,     900, '%');
-  animateCountUp('sb-delayed', delayed, 700);
-  animateCountUp('sb-risk',    atRisk,  700);
-  animateCountUp('sb-mp',      totMP,   800);
+  // Removed: animateCountUp calls for sb-total, sb-done, sb-inprog, sb-delayed, sb-notstart
+  // City summary cards now carry all counts
 
-  // Animate progress bars with a slight delay after count-up starts
+  // Completion bar animate (only if element still present)
   setTimeout(()=>{
-    document.getElementById('sb-done-bar').style.width = (total?Math.round(done/total*100):0)+'%';
-    document.getElementById('sb-avg-bar').style.width  = avg+'%';
+    const bar = document.getElementById('sb-done-bar');
+    if(bar) bar.style.width = (total?Math.round(done/total*100):0)+'%';
   }, 120);
 
-  // Re-trigger KPI card entrance stagger after next paint
-  setTimeout(() => animateStatCards(), 0);
+  // ── City civil progress row ──
+  _renderCityProgressBar(d, leaves, reportDate);
 
   renderCivilTable();
   renderMpSection();
   renderGallery();
   updateCounts();
+  // Trigger all dashboard animations after this render cycle completes
+  setTimeout(triggerDashboardAnimations, 0);
+}
+
+
+/* ── City summary: merged progress + counts + forecast per city ── */
+function _renderCityProgressBar(d, leaves, reportDate){
+  const bar = document.getElementById('city-progress-bar');
+  if(!bar) return;
+
+  const cities = d.civilCities||[];
+  if(!cities.length){ bar.innerHTML=''; return; }
+
+  function latestDate(vals, field){
+    let latest = null;
+    vals.forEach(v=>{
+      if((+v.siteProgress||0) >= 100) return;
+      const dt = _toDateObj(v[field]);
+      if(dt && (!latest || dt > latest)) latest = dt;
+    });
+    return latest;
+  }
+  function daysBetween(a,b){ return (a&&b) ? Math.round((b-a)/86400000) : null; }
+  function fmtD2(dt){ return dt ? dt.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'2-digit'}) : '—'; }
+
+  bar.innerHTML = cities.map((city,ci)=>{
+    const vals  = leaves.map(l=>l.cityData?.[city]).filter(Boolean);
+    const total = vals.length;
+    const avg   = total ? Math.round(vals.reduce((s,v)=>s+(+v.siteProgress||0),0)/total) : 0;
+    const cDone     = vals.filter(v=>(+v.siteProgress||0)>=100).length;
+    const cInProg   = vals.filter(v=>{ const p=+v.siteProgress||0; return p>0&&p<100; }).length;
+    const cNotStart = vals.filter(v=>(+v.siteProgress||0)===0).length;
+    const pd   = latestDate(vals,'plannedFinish');
+    const ed   = latestDate(vals,'expectedDate');
+    const diff = daysBetween(pd, ed);
+    const allDone = cDone === total && total > 0;
+    const colour = allDone ? 'var(--success)' : avg>0 ? 'var(--ab)' : 'var(--text-faint)';
+    const barGrad = allDone ? 'linear-gradient(90deg,var(--success),#4ade80)' : 'linear-gradient(90deg,var(--ab),var(--cy))';
+    const isLate = diff!==null && diff>0;
+    const chipHtml = allDone
+      ? `<span class="city-chip city-chip-done">✔ All Done</span>`
+      : diff===null ? `<span style="color:var(--text-faint);font-size:10px">No forecast</span>`
+      : diff===0   ? `<span class="city-chip city-chip-ok">On Time</span>`
+      : isLate     ? `<span class="city-chip city-chip-late">+${diff}d delay</span>`
+      : `<span class="city-chip city-chip-ok">${Math.abs(diff)}d early</span>`;
+
+    // NOTE: progress bar starts at 0% — JS animates to actual value after paint
+    // NOTE: stat numbers start at 0 — JS count-up runs after stagger
+    return `<div class="city-prog-card anim-ready" data-city-idx="${ci}">
+      <div class="city-prog-header">
+        <div class="city-prog-name city-name-anim">📍 ${esc(city)}</div>
+        <div class="city-prog-pct city-val-anim" style="color:${colour}" data-target="${avg}">0%</div>
+      </div>
+      <!-- Progress bar: starts at 0, animated by JS -->
+      <div class="city-prog-bar-wrap">
+        <div class="city-prog-bar-fill" style="width:0%;background:${barGrad}" data-target="${avg}%"></div>
+      </div>
+      <!-- Counts: start at 0, animated by JS -->
+      <div class="city-stats-row" style="margin-bottom:12px">
+        <div class="city-stat-item">
+          <div class="city-stat-val city-val-anim" style="color:var(--text-muted)" data-target="${total}">0</div>
+          <div class="city-stat-lbl">Total</div>
+        </div>
+        <div class="city-stat-item">
+          <div class="city-stat-val city-val-anim sv-completed" style="color:var(--success)" data-target="${cDone}">0</div>
+          <div class="city-stat-lbl">Completed</div>
+        </div>
+        <div class="city-stat-item">
+          <div class="city-stat-val city-val-anim sv-inprog" style="color:var(--ab)" data-target="${cInProg}">0</div>
+          <div class="city-stat-lbl">In Progress</div>
+        </div>
+        <div class="city-stat-item">
+          <div class="city-stat-val city-val-anim" style="color:var(--text-faint)" data-target="${cNotStart}">0</div>
+          <div class="city-stat-lbl">Not Started</div>
+        </div>
+      </div>
+      <!-- Forecast dates -->
+      <div style="border-top:1px solid var(--border);padding-top:10px;display:flex;flex-direction:column;gap:5px">
+        ${allDone ? `<div style="text-align:center;padding:4px 0">${chipHtml}</div>` : `
+        <div style="display:flex;align-items:center;justify-content:space-between;font-size:10px">
+          <span style="color:var(--text-faint);font-weight:600;width:80px">Planned Finish</span>
+          <span style="color:var(--text-secondary);font-weight:700">${fmtD2(pd)}</span>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;font-size:10px">
+          <span style="color:var(--text-faint);font-weight:600;width:80px">Expected Finish</span>
+          <span style="color:${isLate?'var(--crit)':'var(--text-secondary)'};font-weight:${isLate?'800':'700'}">${fmtD2(ed)}</span>
+        </div>
+        <div style="text-align:right;margin-top:4px">${chipHtml}</div>`}
+      </div>
+    </div>`;
+  }).join('');
+
+  /* ═══════════════════════════════════════════════════════════
+     ANIMATION SEQUENCE  (offsetWidth force-reflow approach)
+     ─────────────────────────────────────────────────────────
+     Step 1: All cards are anim-ready (opacity:0) in HTML.
+     Step 2: setTimeout(0) → browser commits opacity:0 paint.
+     Step 3: Cards reveal one-by-one (80ms stagger).
+     Step 4: After card transition ends (~420ms total) run:
+             a. Count-up numbers
+             b. offsetWidth reflow on progress bar → transition
+             c. Fade-up date rows
+             d. Pop-in delay chips
+     The key: bar reflow MUST happen after card is fully visible,
+     otherwise offsetWidth still reads as 0 (clipped by opacity).
+     ═══════════════════════════════════════════════════════════ */
+  const cards = Array.from(bar.querySelectorAll('.city-prog-card'));
+
+  // Reset all to invisible (clear any leftover anim-go from previous render)
+  cards.forEach(card => {
+    card.classList.remove('anim-go');
+    card.querySelectorAll('.city-name-anim,.city-val-anim,.city-date-row-anim')
+      .forEach(el => el.classList.remove('show'));
+    card.querySelectorAll('.city-chip').forEach(c => c.classList.remove('city-chip-anim'));
+    const bf = card.querySelector('.city-prog-bar-fill');
+    if(bf){ bf.style.transition='none'; bf.style.width='0%'; }
+  });
+
+  setTimeout(()=>{
+    cards.forEach((card, i)=>{
+      const cardDelay = i * 80;           // 80ms stagger per card
+
+      // ── Reveal card ──
+      setTimeout(()=> card.classList.add('anim-go'), cardDelay);
+
+      // ── City name: fade-up right after card starts appearing ──
+      setTimeout(()=>{
+        const nameEl = card.querySelector('.city-name-anim');
+        if(nameEl) nameEl.classList.add('show');
+      }, cardDelay + 40);
+
+      // ── Progress % — count-up starts 120ms after card ──
+      setTimeout(()=>{
+        const pctEl = card.querySelector('.city-prog-pct');
+        if(pctEl){
+          pctEl.classList.add('show');
+          animateTextNumber(pctEl, parseInt(pctEl.dataset.target)||0, 900, '%');
+        }
+      }, cardDelay + 120);
+
+      // ── Stat counts — staggered 60ms each, starting 160ms after card ──
+      card.querySelectorAll('.city-stat-val').forEach((el, j)=>{
+        setTimeout(()=>{
+          el.classList.add('show');
+          animateTextNumber(el, parseInt(el.dataset.target)||0, 700);
+        }, cardDelay + 160 + j * 60);
+      });
+
+      // ── Progress bar — fires after card is fully visible (~420ms) ──
+      // We wait for the card opacity transition to complete (380ms)
+      // before reading offsetWidth, so the browser returns a real width.
+      setTimeout(()=>{
+        const barFill = card.querySelector('.city-prog-bar-fill');
+        if(barFill){
+          const targetPct = barFill.dataset.target || '0%';
+          barFill.style.transition = 'none';
+          barFill.style.width = '0%';
+          void barFill.offsetWidth;   // ← FORCE REFLOW: browser paints 0% NOW
+          barFill.style.transition = 'width 1.3s cubic-bezier(.22,1,.36,1)';
+          barFill.style.width = targetPct;   // ← transition fires visibly
+        }
+      }, cardDelay + 420);
+
+      // ── Date rows — slide up after bar starts ──
+      card.querySelectorAll('.city-date-row-anim').forEach((row, k)=>{
+        setTimeout(()=> row.classList.add('show'), cardDelay + 480 + k * 70);
+      });
+
+      // ── Delay chip — pop in last ──
+      card.querySelectorAll('.city-chip').forEach((chip, k)=>{
+        setTimeout(()=> chip.classList.add('city-chip-anim'), cardDelay + 560 + k * 40);
+      });
+    });
+  }, 0);
+} /* end _renderCityProgressBar */
+
+
+/* ── Package summary data helper ── */
+function _pkgSummaryData(node, cities, reportDate){
+  const leaves = allLeaves([node]);
+  const vals   = leaves.flatMap(l => cities.map(c => l.cityData?.[c]).filter(Boolean));
+  if(!vals.length) return null;
+  // Average progress
+  const avgProg = Math.round(vals.reduce((s,v)=>s+(+v.siteProgress||0),0)/vals.length);
+  // Latest planned / expected among non-completed
+  let latestPlan = null, latestExp = null;
+  vals.forEach(v=>{
+    if((+v.siteProgress||0)>=100) return;
+    const pd = _toDateObj(v.plannedFinish);
+    const ed = _toDateObj(v.expectedDate);
+    if(pd && (!latestPlan || pd > latestPlan)) latestPlan = pd;
+    if(ed && (!latestExp  || ed > latestExp))  latestExp  = ed;
+  });
+  const diff = (latestPlan && latestExp)
+    ? Math.round((latestExp - latestPlan)/86400000) : null;
+  const fmtShort = d => d
+    ? d.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'2-digit'}) : '—';
+  return { avgProg, pd: fmtShort(latestPlan), ed: fmtShort(latestExp), diff };
 }
 
 /* ════ CIVIL TABLE ════ */
@@ -1743,7 +2205,7 @@ function renderCivilTable(){
       const sp  = cd.siteProgress!=null ? +cd.siteProgress : 0;
       const del = cd.delivery!=null ? cd.delivery : '';
       // Always use auto-calculated status for rendering
-      const st  = calcAutoStatus(sp, cd.plannedFinish, data.date);
+      const st  = calcAutoStatus(sp, cd.plannedFinish, cd.expectedDate, data.date);
       const isCompleted = st === 'Completed';
 
       // Debug: log field values to console so issues are visible
@@ -1817,7 +2279,10 @@ function renderCivilTable(){
   pkgs.forEach(pkg => renderNode(pkg,0));
 
   // ── Defer animation to NEXT paint cycle so browser has committed the DOM ──
-  setTimeout(() => animateTableRows(tbody), 0);
+  setTimeout(() => {
+    animateTableRows(tbody);
+    animateBadges(tbody);
+  }, 0);
 
   // ── Empty state: ONLY append an empty row — NEVER overwrite tbody.innerHTML ──
   // pkg header rows are already in tbody; overwriting them would make them disappear.
@@ -1947,19 +2412,32 @@ function renderGallery(){
     }
     photos.forEach((p,i)=>{
       const card=document.createElement('div'); card.className='photo-card';
-      const img=p.base64
-        ?`<img class="photo-card-img" src="${p.base64}" alt="${esc(p.title)}" onclick="openLb(${i})" loading="lazy"/>`
-        :`<div class="photo-card-placeholder"><span style="font-size:36px;opacity:.2">📷</span><span style="font-size:12px">No image</span></div>`;
-      card.innerHTML=`${img}
+      const src = p.mediaUrl||p.base64||'';
+      const isVid = p.mediaType==='video'||(p.base64||'').startsWith('data:video');
+      const typeBadge = `<span style="background:${isVid?'rgba(0,96,181,.12)':'rgba(22,163,74,.1)'};
+        color:${isVid?'var(--ab)':'var(--success)'};border:1px solid ${isVid?'rgba(0,96,181,.2)':'rgba(22,163,74,.2)'};
+        border-radius:4px;padding:2px 7px;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.4px">
+        ${isVid?'🎬 Video':'📷 Image'}</span>`;
+      let mediaEl;
+      if(!src){
+        mediaEl=`<div class="photo-card-placeholder"><span style="font-size:36px;opacity:.2">${isVid?'🎬':'📷'}</span><span style="font-size:12px">No media</span></div>`;
+      } else if(isVid){
+        mediaEl=`<video class="photo-card-img" src="${src}" onclick="openLb(${i})" style="cursor:pointer;object-fit:cover"
+          preload="metadata" muted playsinline></video>`;
+      } else {
+        mediaEl=`<img class="photo-card-img" src="${src}" alt="${esc(p.title)}" onclick="openLb(${i})" loading="lazy"/>`;
+      }
+      card.innerHTML=`${mediaEl}
         <div class="photo-card-body">
-          <div style="display:flex;align-items:center;gap:6px">
+          <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
             <span class="photo-city-tag">📍 ${esc(p.city||'—')}</span>
+            ${typeBadge}
             <span class="photo-date-tag">${fmtD(p.date)}</span>
           </div>
           <div class="photo-card-title">${esc(p.title||'Untitled')}</div>
           <div class="photo-card-note">${esc(p.note||'')}</div>
           <div class="photo-card-actions">
-            ${p.base64?`<button class="photo-btn photo-btn-view" onclick="openLb(${i})">🔍 Full Screen</button>`:'<button class="photo-btn photo-btn-view" style="opacity:.4;cursor:default">No Image</button>'}
+            ${src?`<button class="photo-btn photo-btn-view" onclick="openLb(${i})">${isVid?'▶ Play':'🔍 Full Screen'}</button>`:'<button class="photo-btn photo-btn-view" style="opacity:.4;cursor:default">No media</button>'}
             <button class="photo-btn photo-btn-del" onclick="delPhoto('${p.id}')">🗑 Delete</button>
           </div>
         </div>`;
@@ -1975,7 +2453,18 @@ function closeLb(){document.getElementById('lightbox').classList.remove('open');
 function lbNav(d){lbIdx=(lbIdx+d+lbPhotos.length)%lbPhotos.length;showLb()}
 function showLb(){
   const p=lbPhotos[lbIdx];if(!p)return;
-  document.getElementById('lb-img').src=p.base64||'';
+  const mc = document.getElementById('lb-media');
+  if(mc){
+    const src = p.mediaUrl || p.base64 || '';
+    const isVid = p.mediaType==='video' || (p.base64||'').startsWith('data:video');
+    if(isVid){
+      mc.innerHTML=`<video controls autoplay style="max-width:90vw;max-height:78vh;border-radius:8px;
+        box-shadow:0 24px 80px rgba(0,0,0,.7)" src="${src}"></video>`;
+    } else {
+      mc.innerHTML=`<img style="max-width:90vw;max-height:78vh;border-radius:8px;
+        box-shadow:0 24px 80px rgba(0,0,0,.5);object-fit:contain" src="${src}" alt="${esc(p.title||'')}"/>`;
+    }
+  }
   document.getElementById('lb-t').textContent=p.title||'Untitled';
   document.getElementById('lb-m').textContent=(p.city?'📍 '+p.city:'')+(p.date?' · '+fmtD(p.date):'')+(lbPhotos.length>1?' · '+(lbIdx+1)+'/'+lbPhotos.length:'');
   document.getElementById('lb-n').textContent=p.note||'';
@@ -2081,7 +2570,7 @@ function buildPkgRow(node,depth){
           <div class="fg"><label>Status (Auto)</label>
             <div style="padding:8px 11px;border:1.5px solid var(--border);border-radius:var(--rsm);
               background:var(--surface);font-size:12px;font-weight:700;
-              color:${calcAutoStatus(cd.siteProgress,cd.plannedFinish,data.date)==='Completed'?'var(--success)':calcAutoStatus(cd.siteProgress,cd.plannedFinish,data.date)==='Delayed'?'var(--crit)':calcAutoStatus(cd.siteProgress,cd.plannedFinish,data.date)==='In Progress'?'var(--ab)':'var(--text-muted)'}">
+              color:${calcAutoStatus(cd.siteProgress,cd.plannedFinish,cd.expectedDate,data.date)==='Completed'?'var(--success)':calcAutoStatus(cd.siteProgress,cd.plannedFinish,data.date)==='Delayed'?'var(--crit)':calcAutoStatus(cd.siteProgress,cd.plannedFinish,data.date)==='In Progress'?'var(--ab)':'var(--text-muted)'}">
               ${calcAutoStatus(cd.siteProgress,cd.plannedFinish,data.date)}
             </div>
           </div>
@@ -2116,6 +2605,7 @@ function updNodeCity(id,city,k,v){
   n.cityData[city].status = calcAutoStatus(
     n.cityData[city].siteProgress,
     n.cityData[city].plannedFinish,
+    n.cityData[city].expectedDate,
     data.date
   );
   renderDashboard();
@@ -2174,18 +2664,24 @@ function renderPhotoForm(){
     },row);
     row.appendChild(hd);
     const body=document.createElement('div');body.className='entry-body';
+    const hasSrc = !!(p.base64||p.mediaUrl);
+    const isVid  = p.mediaType==='video'||(p.base64||'').startsWith('data:video');
+    const src    = p.mediaUrl||p.base64||'';
     body.innerHTML=`<div class="form-g4" style="margin-bottom:12px">
       <div class="fg"><label>City / Site</label><input type="text" value="${esc(p.city)}" onchange="updPhoto('${p.id}','city',this.value)"/></div>
       <div class="fg"><label>Activity / Title</label><input type="text" value="${esc(p.title)}" onchange="updPhoto('${p.id}','title',this.value)"/></div>
       <div class="fg"><label>Date</label><input type="date" value="${p.date||''}" onchange="updPhoto('${p.id}','date',this.value)"/></div>
       <div class="fg"><label>Progress Note</label><input type="text" value="${esc(p.note||'')}" onchange="updPhoto('${p.id}','note',this.value)"/></div>
     </div>
-    <div class="upload-zone ${p.base64?'has-img':''}" id="uz-${p.id}" onclick="trigUp('${p.id}')">
-      <input type="file" accept="image/*" id="fi-${p.id}" style="display:none" onchange="handleUpload('${p.id}',this)"/>
-      ${p.base64?`<img class="upload-thumb" src="${p.base64}" alt="preview"/>`:
-        `<div class="uz-lbl"><span class="uz-ic">📷</span><span>Click to upload</span><span style="font-size:10px;color:var(--g400)">JPG/PNG — max 6MB</span></div>`}
+    <div class="upload-zone ${hasSrc?'has-img':''}" id="uz-${p.id}" onclick="trigUp('${p.id}')">
+      <input type="file" accept="image/*,video/*" id="fi-${p.id}" style="display:none" onchange="handleUpload('${p.id}',this)"/>
+      ${hasSrc
+        ? (isVid
+          ? `<video class="upload-thumb" src="${src}" controls style="height:110px;width:100%;object-fit:cover"></video>`
+          : `<img class="upload-thumb" src="${src}" alt="preview"/>`)
+        : `<div class="uz-lbl"><span class="uz-ic">📷</span><span>Click to upload photo or video</span><span style="font-size:10px;color:var(--g400)">JPG/PNG/MP4 — max 8MB</span></div>`}
     </div>
-    ${p.base64?`<button class="btn btn-outline btn-sm" style="margin-top:8px" onclick="clrPhoto('${p.id}')">🗑 Remove Image</button>`:''}`;
+    ${hasSrc?`<button class="btn btn-outline btn-sm" style="margin-top:8px" onclick="clrPhoto('${p.id}')">🗑 Remove ${isVid?'Video':'Image'}</button>`:''}`;
     row.appendChild(body);c.appendChild(row);
   });
   updateCounts();
@@ -2193,15 +2689,42 @@ function renderPhotoForm(){
 function trigUp(id){const fi=document.getElementById('fi-'+id);if(fi)fi.click()}
 function handleUpload(id,input){
   const file=input.files[0];if(!file)return;
-  if(file.size>6*1024*1024){showToast('⚠️ File too large (max 6MB)');input.value='';return}
+  const p=data.photoRows.find(x=>x.id===id);if(!p)return;
+  const isVid=file.type.startsWith('video/');
+  p.mediaType = isVid?'video':'image';
+
+  if(file.size>8*1024*1024){
+    // Large file: try Firebase Storage if available, else warn
+    if(window.FB && window.FB.storage){
+      showToast('⬆ Uploading to cloud…');
+      const ref = window.FB.storage.ref('media/'+id+'_'+file.name);
+      ref.put(file).then(snap=>snap.ref.getDownloadURL()).then(url=>{
+        p.mediaUrl=url; p.base64='';
+        renderPhotoForm();renderGallery();showToast('☁ Uploaded to cloud');
+      }).catch(e=>showToast('⚠️ Upload failed: '+e.message));
+    } else {
+      showToast('⚠️ File too large (max 8MB without Firebase Storage). Compressing…');
+      // Fall through to base64 with warning for now
+    }
+    input.value='';
+    // Still read for local preview if small enough
+    if(file.size>8*1024*1024) return;
+  }
+
   const rd=new FileReader();
   rd.onload=e=>{
-    const p=data.photoRows.find(x=>x.id===id);if(!p)return;
-    p.base64=e.target.result;renderPhotoForm();renderGallery();showToast('📷 Photo uploaded');
+    p.base64=e.target.result;
+    p.mediaUrl='';
+    renderPhotoForm();renderGallery();
+    showToast(isVid?'🎬 Video uploaded':'📷 Photo uploaded');
   };
   rd.readAsDataURL(file);
 }
-function clrPhoto(id){const p=data.photoRows.find(x=>x.id===id);if(!p)return;p.base64='';renderPhotoForm();renderGallery()}
+function clrPhoto(id){
+  const p=data.photoRows.find(x=>x.id===id);if(!p)return;
+  p.base64='';p.mediaUrl='';p.mediaType='image';
+  renderPhotoForm();renderGallery();
+}
 function updPhoto(id,k,v){const p=data.photoRows.find(x=>x.id===id);if(!p)return;p[k]=v;renderGallery()}
 function delPhoto(id){
   if(!confirm('Delete photo?'))return;
@@ -2209,7 +2732,7 @@ function delPhoto(id){
   renderPhotoForm();renderGallery();updateCounts();showToast('🗑 Deleted');
 }
 function addPhotoRow(){
-  data.photoRows.push({id:uid(),city:'',title:'',date:data.date||'',note:'',base64:''});
+  data.photoRows.push({id:uid(),city:'',title:'',date:data.date||'',note:'',base64:'',mediaUrl:'',mediaType:'image'});
   renderPhotoForm();updateCounts();
 }
 
@@ -2634,66 +3157,206 @@ function showToast(msg){
   clearTimeout(_tt);_tt=setTimeout(()=>t.classList.remove('show'),2800);
 }
 
-/* ════ ANIMATION ENGINE ════
-   Class-based approach: elements start hidden via .anim-ready,
-   then get .anim-go to trigger the transition.
-   setTimeout(0) defers until after the browser paints the initial DOM.
-════ */
+/* ════════════════════════════════════════════════════════════════
+   ANIMATION ENGINE — Premium Executive Dashboard
+   ────────────────────────────────────────────────────────────────
+   Core principle: setTimeout(0) defers work until AFTER the browser
+   has painted the DOM. Without this, "from" and "to" states collapse
+   into a single frame and no transition is visible.
+════════════════════════════════════════════════════════════════ */
 
-/* ── Count-up: ticks from 0 → end using rAF, ease-out cubic ── */
+/* ── 1. Count-up: rAF ease-out-expo, works on any element ── */
 function animateCountUp(elId, end, durationMs, suffix){
-  const el = document.getElementById(elId);
+  const el = typeof elId==='string' ? document.getElementById(elId) : elId;
   if(!el) return;
-  const sfx = suffix || '';
-  // If target is 0 just set it
-  if(!end){ el.textContent = '0' + sfx; return; }
+  const sfx = suffix||'';
+  if(!end && end!==0){ el.textContent='0'+sfx; return; }
   const t0 = performance.now();
   function tick(now){
-    const p = Math.min((now - t0) / durationMs, 1);
-    // ease-out expo: fast start, gentle finish
-    const e = p === 1 ? 1 : 1 - Math.pow(2, -10 * p);
-    el.textContent = Math.round(end * e) + sfx;
-    if(p < 1) requestAnimationFrame(tick);
+    const p = Math.min((now-t0)/durationMs, 1);
+    const e = p===1 ? 1 : 1-Math.pow(2,-10*p);
+    el.textContent = Math.round(end*e)+sfx;
+    if(p<1) requestAnimationFrame(tick);
   }
-  el.textContent = '0' + sfx;
+  el.textContent = '0'+sfx;
   requestAnimationFrame(tick);
 }
 
-/* ── KPI card stagger: each card fades up with 70ms offset ── */
-function animateStatCards(){
-  const cards = document.querySelectorAll('.stat-bar .stat-card');
-  cards.forEach(c => { c.classList.remove('anim-go'); c.classList.add('anim-ready'); });
-  cards.forEach((c, i) => {
-    setTimeout(() => {
-      c.classList.add('anim-go');
-    }, i * 70);
+/* ── 2. Animate a number inside text — finds first numeric run ── */
+function animateTextNumber(el, end, durationMs, suffix){
+  if(!el) return;
+  const sfx = suffix||'';
+  const t0 = performance.now();
+  function tick(now){
+    const p = Math.min((now-t0)/durationMs,1);
+    const e = p===1?1:1-Math.pow(2,-10*p);
+    el.textContent = Math.round(end*e)+sfx;
+    if(p<1) requestAnimationFrame(tick);
+  }
+  el.textContent='0'+sfx;
+  requestAnimationFrame(tick);
+}
+
+/* ── 3. Stagger helper: apply anim-ready, then anim-go with delay ──
+   Works on any NodeList or array of elements.
+   baseDelayMs: first element delay, stepMs: increment per element. */
+function staggerIn(elements, baseDelayMs, stepMs){
+  const els = Array.from(elements||[]);
+  // Phase 1: set all to "from" state synchronously
+  els.forEach(el=>{ el.classList.remove('anim-go'); el.classList.add('anim-ready'); });
+  // Phase 2: after paint, stagger reveal
+  setTimeout(()=>{
+    els.forEach((el,i)=>{
+      setTimeout(()=>el.classList.add('anim-go'), baseDelayMs + i*stepMs);
+    });
+  }, 0);
+}
+
+/* ── 4. Animate progress bars — width 0→value ── */
+function animateProgressBars(scope){
+  const root = scope || document;
+  // Find bars with data-target or style.width already set
+  root.querySelectorAll('.stat-prog-fill,.city-prog-bar-fill,.mp-mini-alf,.mp-mini-sub,.mp-mini-ind').forEach(bar=>{
+    const target = bar.style.width || bar.dataset.target || '0%';
+    bar.style.width = '0%';
+    setTimeout(()=>{ bar.style.width = target; }, 80);
   });
 }
 
-/* ── Table rows + city cards stagger ── */
+/* ── 5. Header entrance ── */
+function animateHeader(){
+  const brand = document.querySelector('.rpt-brand');
+  const meta  = document.querySelector('.rpt-meta');
+  if(brand){ brand.classList.remove('anim-go'); brand.classList.add('anim-ready'); }
+  if(meta){  meta.classList.remove('anim-go');  meta.classList.add('anim-ready'); }
+  setTimeout(()=>{
+    if(brand) brand.classList.add('anim-go');
+    setTimeout(()=>{ if(meta) meta.classList.add('anim-go'); }, 120);
+  }, 0);
+}
+
+/* ── 6. Section headers shimmer ── */
+function animateSectionHeaders(){
+  document.querySelectorAll('.sec-hd').forEach((hd,i)=>{
+    hd.classList.remove('anim-go'); hd.classList.add('anim-ready');
+    setTimeout(()=>hd.classList.add('anim-go'), 60+i*40);
+  });
+}
+
+/* ── 7. Filter bar slide-in ── */
+function animateFilterBar(){
+  const fb = document.querySelector('.filter-bar');
+  if(!fb) return;
+  fb.classList.remove('anim-go'); fb.classList.add('anim-ready');
+  setTimeout(()=>fb.classList.add('anim-go'), 80);
+}
+
+/* ── 8. Civil table rows + pkg headers + city cards ── */
 function animateTableRows(tbody){
   if(!tbody) return;
+
+  // Pkg header rows — slide in from left, stagger 50ms
+  const pkgRows = Array.from(tbody.querySelectorAll('tr.pkg-row'));
+  pkgRows.forEach(row=>{ row.classList.remove('anim-go'); row.classList.add('anim-ready'); });
+  setTimeout(()=>{
+    pkgRows.forEach((row,i)=>{ setTimeout(()=>row.classList.add('anim-go'), i*50); });
+  }, 0);
+
+  // Activity rows + city cards inside each row
   const rows = Array.from(tbody.querySelectorAll('tr.act-row'));
-
-  // Mark all hidden first
-  rows.forEach(row => {
-    row.classList.add('anim-ready');
-    row.querySelectorAll('.city-card').forEach(c => c.classList.add('anim-ready'));
-  });
-
-  // Then stagger-reveal row by row
-  rows.forEach((row, i) => {
-    const rDelay = Math.min(i * 35, 420);
-    setTimeout(() => {
-      row.classList.add('anim-go');
-    }, rDelay);
-
-    // City cards inside row stagger after their row
-    row.querySelectorAll('.city-card').forEach((card, j) => {
-      setTimeout(() => {
-        card.classList.add('anim-go');
-      }, rDelay + 40 + j * 50);
+  rows.forEach(row=>{
+    row.classList.remove('anim-go'); row.classList.add('anim-ready');
+    row.querySelectorAll('.city-card').forEach(c=>{
+      c.classList.remove('anim-go'); c.classList.add('anim-ready');
     });
+  });
+  setTimeout(()=>{
+    rows.forEach((row,i)=>{
+      const rDelay = Math.min(i*30, 360);
+      setTimeout(()=>{
+        row.classList.add('anim-go');
+        // City cards stagger within row
+        row.querySelectorAll('.city-card').forEach((card,j)=>{
+          setTimeout(()=>card.classList.add('anim-go'), 35+j*45);
+        });
+        // Status badges and chips
+        row.querySelectorAll('.pp,.dc,.act-done-badge').forEach((el,k)=>{
+          el.classList.remove('anim-go'); el.classList.add('anim-ready');
+          setTimeout(()=>el.classList.add('anim-go'), 60+k*15);
+        });
+      }, rDelay);
+    });
+  }, 0);
+}
+
+/* ── 9. City summary cards (city-prog-card) ── */
+function animateCitySummaryCards(){
+  staggerIn(document.querySelectorAll('.city-prog-card'), 0, 80);
+  // Also animate numbers inside city cards
+  setTimeout(()=>{
+    document.querySelectorAll('.city-prog-pct').forEach(el=>{
+      const val = parseInt(el.textContent)||0;
+      animateTextNumber(el, val, 800, '%');
+    });
+    document.querySelectorAll('.city-stat-val').forEach(el=>{
+      const val = parseInt(el.textContent)||0;
+      animateTextNumber(el, val, 700);
+    });
+    animateProgressBars();
+  }, 200);
+}
+
+/* ── 10. Manpower cards ── */
+function animateMpCards(){
+  staggerIn(document.querySelectorAll('.mp-card'), 0, 60);
+  setTimeout(()=>{
+    document.querySelectorAll('.mp-total-num').forEach(el=>{
+      const val = parseInt(el.textContent)||0;
+      animateTextNumber(el, val, 700);
+    });
+    document.querySelectorAll('.mp-breakdown-item .val').forEach(el=>{
+      const val = parseInt(el.textContent)||0;
+      animateTextNumber(el, val, 600);
+    });
+    animateProgressBars();
+  }, 200);
+}
+
+/* ── 11. Photo/video gallery cards ── */
+function animateGalleryCards(){
+  staggerIn(document.querySelectorAll('.photo-card'), 0, 50);
+}
+
+/* ── 12. Status badges + delay chips fade-in ── */
+function animateBadges(scope){
+  const root = scope||document;
+  root.querySelectorAll('.dc,.act-done-badge,.city-done-badge,.delay-chip-big').forEach((el,i)=>{
+    el.classList.remove('anim-go'); el.classList.add('anim-ready');
+    setTimeout(()=>el.classList.add('anim-go'), i*20);
+  });
+}
+
+/* ── 13. KPI stat-bar cards (if present) ── */
+function animateStatCards(){
+  staggerIn(document.querySelectorAll('.stat-bar .stat-card'), 0, 70);
+}
+
+/* ══════════════════════════════════════════════════
+   MASTER TRIGGER — call after any full render
+══════════════════════════════════════════════════ */
+function triggerDashboardAnimations(){
+  // Use requestAnimationFrame to ensure DOM is fully painted first
+  requestAnimationFrame(()=>{
+    animateHeader();
+    animateSectionHeaders();
+    animateFilterBar();
+    animateCitySummaryCards();
+    animateMpCards();
+    animateGalleryCards();
+    animateBadges();
+    animateStatCards();
+    // Progress bars run after a short delay so the DOM width is committed
+    setTimeout(animateProgressBars, 60);
   });
 }
 
