@@ -872,12 +872,134 @@ table.civil-tbl{width:100%;border-collapse:collapse;font-size:12.5px}
 }
 .btn-snap-del:hover{background:var(--crit);color:#fff}
 </style>
+  <!-- Firebase SDK -->
+  <script type="module">
+    // ══════════════════════════════════════════════════════════════════════════
+    //  FIREBASE CONFIG — Replace these values with your own Firebase project.
+    //  Steps:
+    //    1. Go to https://console.firebase.google.com
+    //    2. Create project → Add Web App → copy firebaseConfig below
+    //    3. Enable Firestore (Build → Firestore Database → Create database)
+    //    4. Set Firestore rules (see comment below)
+    //    5. Replace values below and re-deploy to GitHub Pages
+    //
+    //  Firestore security rules (Firestore → Rules tab):
+    //    rules_version = '2';
+    //    service cloud.firestore {
+    //      match /databases/{database}/documents {
+    //        // Anyone can READ — public dashboard view
+    //        match /reports/{docId}   { allow read: true; allow write: if request.auth != null; }
+    //        match /snapshots/{docId} { allow read: true; allow write: if request.auth != null; }
+    //      }
+    //    }
+    // ══════════════════════════════════════════════════════════════════════════
+    import { initializeApp }        from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+    import { getFirestore,
+             doc, getDoc, setDoc,
+             collection, getDocs,
+             deleteDoc }            from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+    import { getAuth,
+             signInWithEmailAndPassword,
+             signOut,
+             onAuthStateChanged }   from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+
+    // ── YOUR FIREBASE CONFIG ─────────────────────────────────────────────────
+    const firebaseConfig = {
+      apiKey:            "YOUR_API_KEY",
+      authDomain:        "YOUR_PROJECT.firebaseapp.com",
+      projectId:         "YOUR_PROJECT_ID",
+      storageBucket:     "YOUR_PROJECT.appspot.com",
+      messagingSenderId: "YOUR_SENDER_ID",
+      appId:             "YOUR_APP_ID"
+    };
+    // ────────────────────────────────────────────────────────────────────────
+
+    const _app  = initializeApp(firebaseConfig);
+    const _db   = getFirestore(_app);
+    const _auth = getAuth(_app);
+
+    // ── Expose Firebase API to the main script via window.FB ────────────────
+    window.FB = {
+      db:    _db,
+      auth:  _auth,
+      doc, getDoc, setDoc, collection, getDocs, deleteDoc,
+      signInWithEmailAndPassword,
+      signOut,
+      onAuthStateChanged,
+      ready: true
+    };
+
+    // Notify main script that Firebase is ready
+    window.dispatchEvent(new Event('fb-ready'));
+  </script>
 </head>
 <body>
+
+
+<!-- ══ LOGIN OVERLAY (for editors only) ══ -->
+<div id="login-overlay" style="display:none;position:fixed;inset:0;z-index:9000;
+  background:rgba(7,22,48,.88);backdrop-filter:blur(10px);
+  align-items:center;justify-content:center;">
+  <div style="background:#fff;border-radius:16px;padding:36px 40px;width:360px;max-width:92vw;
+    box-shadow:0 24px 80px rgba(0,0,0,.45);text-align:center">
+    <div style="width:52px;height:52px;background:linear-gradient(135deg,#0060B5,#2CA8E0);
+      border-radius:13px;display:flex;align-items:center;justify-content:center;
+      font-size:24px;margin:0 auto 16px">▲</div>
+    <div style="font-size:11px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;
+      color:#5B7A99;margin-bottom:4px">Alfanar Projects</div>
+    <div style="font-size:18px;font-weight:800;color:#0D2240;margin-bottom:24px">Editor Sign In</div>
+    <div style="display:flex;flex-direction:column;gap:12px;text-align:left">
+      <div>
+        <label style="font-size:10px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;
+          color:#5B7A99;display:block;margin-bottom:4px">Email</label>
+        <input id="login-email" type="email" placeholder="editor@company.com"
+          style="width:100%;padding:10px 13px;border:1.5px solid #D0E2F5;border-radius:8px;
+            font-size:13px;outline:none;transition:border .2s"
+          onfocus="this.style.borderColor='#2CA8E0'" onblur="this.style.borderColor='#D0E2F5'"/>
+      </div>
+      <div>
+        <label style="font-size:10px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;
+          color:#5B7A99;display:block;margin-bottom:4px">Password</label>
+        <input id="login-pass" type="password" placeholder="••••••••"
+          style="width:100%;padding:10px 13px;border:1.5px solid #D0E2F5;border-radius:8px;
+            font-size:13px;outline:none;transition:border .2s"
+          onfocus="this.style.borderColor='#2CA8E0'" onblur="this.style.borderColor='#D0E2F5'"
+          onkeydown="if(event.key==='Enter')doLogin()"/>
+      </div>
+      <div id="login-err" style="display:none;font-size:11px;color:#dc2626;
+        background:#fef2f2;border:1px solid #fca5a5;border-radius:6px;padding:8px 12px"></div>
+      <button onclick="doLogin()"
+        style="background:linear-gradient(135deg,#0060B5,#2CA8E0);color:#fff;border:none;
+          border-radius:8px;padding:11px;font-size:13px;font-weight:700;cursor:pointer;
+          transition:opacity .2s;margin-top:4px"
+        onmouseover="this.style.opacity='.88'" onmouseout="this.style.opacity='1'">
+        Sign In →
+      </button>
+      <button onclick="hideLogin()"
+        style="background:none;border:none;color:#5B7A99;font-size:12px;cursor:pointer;
+          text-decoration:underline;padding-top:2px">
+        Cancel — View only
+      </button>
+    </div>
+  </div>
+</div>
 
 <div class="tab-bar">
   <button class="tab-btn active" id="tb-dash" onclick="switchTab('dashboard',this)">📊 Dashboard</button>
   <button class="tab-btn" id="tb-entry" onclick="switchTab('data-entry',this)">✏️ Data Entry</button>
+  <!-- Auth controls — right side of tab bar -->
+  <div style="margin-left:auto;display:flex;align-items:center;gap:12px;padding-right:8px">
+    <span id="sync-status" style="font-size:10px;font-weight:600;display:flex;align-items:center;gap:4px;color:rgba(255,255,255,.45)"></span>
+    <span id="auth-user-label" style="font-size:11px;color:rgba(255,255,255,.55)"></span>
+    <button id="auth-btn" onclick="toggleAuth()"
+      style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.22);color:#fff;
+        border-radius:7px;padding:6px 15px;font-size:11px;font-weight:700;cursor:pointer;
+        transition:background .2s,border-color .2s;white-space:nowrap"
+      onmouseover="this.style.background='rgba(255,255,255,.18)'"
+      onmouseout="this.style.background='rgba(255,255,255,.1)'">
+      🔑 Editor Sign In
+    </button>
+  </div>
 </div>
 
 <!-- ═══ DASHBOARD ═══ -->
@@ -2073,117 +2195,279 @@ function bindFields(){
   });
 }
 
-/* ════ STORAGE ════ */
-/* ════ SNAPSHOT STORAGE — one record per report date ════ */
-const SNAP_KEY = 'dcsr_snapshots';   // { "2026-06-12": {...data}, ... }
+/* ════════════════════════════════════════════════════════════════
+   STORAGE — Cloud-first (Firebase Firestore) + LocalStorage cache
+   ─────────────────────────────────────────────────────────────
+   • Firestore/reports/current     → latest shared working data
+   • Firestore/snapshots/{dateKey} → daily snapshots
+   • localStorage (SK, SNAP_KEY)   → offline cache / fallback
+   • Public users: read-only view
+   • Editors: must sign in with Firebase Auth
+════════════════════════════════════════════════════════════════ */
 
-// ── helpers ──
-function getAllSnapshots(){
-  try{ return JSON.parse(localStorage.getItem(SNAP_KEY)||'{}') }
-  catch(e){ return {} }
+const SNAP_KEY   = 'dcsr_snapshots';
+const FB_CURRENT = 'current';
+
+// ── Auth state ──
+let _currentUser = null;
+let _isEditor    = false;
+
+function _waitForFB(cb){
+  if(window.FB && window.FB.ready){ cb(); return; }
+  window.addEventListener('fb-ready', cb, {once:true});
+  setTimeout(()=>{ if(!window.FB||!window.FB.ready) cb(); }, 5000);
 }
-function setAllSnapshots(obj){
-  try{ localStorage.setItem(SNAP_KEY, JSON.stringify(obj)) }
-  catch(e){ showToast('⚠️ Storage full — try deleting old dates') }
+
+function initAuth(){
+  _waitForFB(()=>{
+    if(!window.FB) return;
+    window.FB.onAuthStateChanged(window.FB.auth, user=>{
+      _currentUser = user;
+      _isEditor    = !!user;
+      updateAuthUI();
+      if(_isEditor) loadFromCloud();
+    });
+    // Also load from cloud immediately for public viewers
+    loadFromCloud();
+  });
 }
-function fmtSnapLabel(dateStr){
-  // Convert "2026-06-12" → "12-Jun-26"
-  if(!dateStr) return dateStr;
+
+function updateAuthUI(){
+  const btn   = document.getElementById('auth-btn');
+  const label = document.getElementById('auth-user-label');
+  const tab   = document.getElementById('tb-entry');
+  if(btn){
+    btn.textContent = _isEditor ? '🔓 Sign Out' : '🔑 Editor Sign In';
+    btn.style.background = _isEditor ? 'rgba(22,163,74,.25)' : 'rgba(255,255,255,.1)';
+  }
+  if(label) label.textContent = _isEditor ? (_currentUser?.email||'Editor') : '';
+  if(tab){
+    tab.style.display = _isEditor ? '' : 'none';
+    if(!_isEditor && document.getElementById('data-entry-tab')?.classList.contains('active')){
+      switchTab('dashboard', document.getElementById('tb-dash'));
+    }
+  }
+}
+
+function toggleAuth(){
+  if(_isEditor) doSignOut(); else showLogin();
+}
+function showLogin(){
+  const ov = document.getElementById('login-overlay');
+  if(ov) ov.style.display = 'flex';
+}
+function hideLogin(){
+  const ov = document.getElementById('login-overlay');
+  if(ov) ov.style.display = 'none';
+  const e = document.getElementById('login-err');
+  if(e) e.style.display = 'none';
+}
+
+async function doLogin(){
+  const email = (document.getElementById('login-email')?.value||'').trim();
+  const pass  =  document.getElementById('login-pass')?.value||'';
+  const errEl =  document.getElementById('login-err');
+  if(errEl) errEl.style.display = 'none';
+  if(!email||!pass){ if(errEl){errEl.textContent='Enter email and password.';errEl.style.display='block';} return; }
+  if(!window.FB){
+    if(errEl){errEl.textContent='Firebase not configured. See setup instructions in the HTML.';errEl.style.display='block';}
+    return;
+  }
   try{
-    const d=new Date(dateStr+'T12:00:00');
-    return d.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'2-digit'});
-  }catch(e){ return dateStr }
+    await window.FB.signInWithEmailAndPassword(window.FB.auth, email, pass);
+    hideLogin(); showToast('✅ Signed in as editor');
+  } catch(e){
+    const msg = (e.code==='auth/invalid-credential'||e.code==='auth/wrong-password')
+      ? 'Incorrect email or password.' : e.message;
+    if(errEl){ errEl.textContent=msg; errEl.style.display='block'; }
+  }
 }
 
-// ── Save current data as a snapshot keyed by report date ──
-function saveSnapshot(){
-  const dateKey = data.date || new Date().toISOString().slice(0,10);
+async function doSignOut(){
+  if(!confirm('Sign out?')) return;
+  try{ await window.FB.signOut(window.FB.auth); showToast('👋 Signed out'); }
+  catch(e){ showToast('⚠️ '+e.message); }
+}
+
+function setSyncStatus(msg, color){
+  const el = document.getElementById('sync-status');
+  if(!el) return;
+  el.textContent = msg;
+  el.style.color = color||'rgba(255,255,255,.45)';
+}
+
+// ── Strip base64 before cloud save (Firestore 1MB doc limit) ──
+function _sanitise(d){
+  const c = JSON.parse(JSON.stringify(d));
+  if(c.photoRows) c.photoRows = c.photoRows.map(p=>({...p,base64:''}));
+  return c;
+}
+// ── Re-attach local base64 photos after loading from cloud ──
+function _mergePhotos(cloudData){
+  const loc = JSON.parse(localStorage.getItem(SK)||'null');
+  if(loc?.photoRows && cloudData.photoRows){
+    cloudData.photoRows = cloudData.photoRows.map(cp=>{
+      const lp = (loc.photoRows||[]).find(x=>x.id===cp.id);
+      return lp ? {...cp,base64:lp.base64||''} : cp;
+    });
+  }
+  return cloudData;
+}
+function _guard(d){
+  if(!d.photoRows)   d.photoRows=[];
+  if(!d.civilCities) d.civilCities=['Madinah','Abha','Jizan'];
+  if(!d.civilPkgs||!d.civilPkgs.length) d.civilPkgs=JSON.parse(JSON.stringify(DEF_FROZEN.civilPkgs));
+  return d;
+}
+
+// ── Load from Firestore (public + editors) ──
+async function loadFromCloud(){
+  if(!window.FB||!window.FB.ready){ loadLocal(); renderForm(); renderDashboard(); return; }
+  setSyncStatus('⟳ Loading…','rgba(44,168,224,.7)');
   try{
-    // 1. Save working data (same as before — so refresh always loads latest)
-    localStorage.setItem(SK, JSON.stringify(data));
-    // 2. Save dated snapshot
-    const snaps = getAllSnapshots();
-    snaps[dateKey] = JSON.parse(JSON.stringify(data));
-    setAllSnapshots(snaps);
-    refreshSnapUI();
-    showToast(`✅ Saved — ${fmtSnapLabel(dateKey)}`);
-  }catch(e){ showToast('⚠️ Save failed: '+e.message) }
+    const snap = await window.FB.getDoc(window.FB.doc(window.FB.db,'reports',FB_CURRENT));
+    if(snap.exists()){
+      data = _guard(_mergePhotos(snap.data()));
+      try{ localStorage.setItem(SK,JSON.stringify(data)); }catch(e){}
+      setSyncStatus('☁ Live data','rgba(22,163,74,.7)');
+      setTimeout(()=>setSyncStatus('',null),3000);
+    } else {
+      loadLocal();
+    }
+    renderForm(); renderDashboard();
+    await refreshSnapUI();
+  } catch(e){
+    console.warn('Cloud load failed, using local:',e.message);
+    setSyncStatus('⚠ Offline','rgba(245,158,11,.7)');
+    loadLocal(); renderForm(); renderDashboard();
+  }
 }
 
-// ── Keep old saveData() as alias (called from importJSON, etc.) ──
-function saveData(){ saveSnapshot() }
+// ── Save ──
+async function saveSnapshot(){
+  if(!_isEditor){ showToast('🔒 Editor sign-in required'); showLogin(); return; }
+  const dateKey = (data.date||new Date().toISOString().slice(0,10)).trim();
 
-// ── Load selected snapshot ──
-function loadSnapshot(){
-  const sel = document.getElementById('snap-select');
-  const dateKey = sel ? sel.value : '';
-  if(!dateKey){ showToast('ℹ️ Select a saved date first'); return }
-  const snaps = getAllSnapshots();
-  const snap = snaps[dateKey];
-  if(!snap){ showToast('⚠️ Snapshot not found'); return }
-  data = JSON.parse(JSON.stringify(snap));
-  if(!data.photoRows)   data.photoRows=[];
-  if(!data.civilCities) data.civilCities=['Madinah','Abha','Jizan'];
-  if(!data.civilPkgs||!data.civilPkgs.length) data.civilPkgs=JSON.parse(JSON.stringify(DEF_FROZEN.civilPkgs));
-  renderForm();
-  renderDashboard();
-  showToast(`📅 Loaded — ${fmtSnapLabel(dateKey)}`);
+  // Local cache always (fast, includes photos)
+  try{ localStorage.setItem(SK,JSON.stringify(data)); }catch(e){}
+  try{
+    const ls = getAllLocalSnapshots();
+    ls[dateKey] = JSON.parse(JSON.stringify(data));
+    setLocalSnapshots(ls);
+  }catch(e){}
+
+  if(!window.FB||!window.FB.ready){
+    await refreshSnapUI();
+    showToast(`✅ Saved locally — ${fmtSnapLabel(dateKey)}`);
+    return;
+  }
+  setSyncStatus('⟳ Saving…','rgba(44,168,224,.7)');
+  try{
+    const clean = _sanitise(data);
+    await window.FB.setDoc(window.FB.doc(window.FB.db,'reports',FB_CURRENT),clean);
+    await window.FB.setDoc(window.FB.doc(window.FB.db,'snapshots',dateKey),clean);
+    setSyncStatus('✓ Saved','rgba(22,163,74,.8)');
+    setTimeout(()=>setSyncStatus('',null),3000);
+    await refreshSnapUI();
+    showToast(`✅ Saved to cloud — ${fmtSnapLabel(dateKey)}`);
+  } catch(e){
+    setSyncStatus('⚠ Cloud error','rgba(220,38,38,.7)');
+    showToast('⚠️ Cloud save failed — kept locally');
+  }
 }
+function saveData(){ saveSnapshot(); }
 
-// ── Update the snapshot dropdown & count badge ──
-function refreshSnapUI(){
+// ── Snapshot dropdown ──
+async function refreshSnapUI(){
   const sel = document.getElementById('snap-select');
   const cnt = document.getElementById('snap-count');
   if(!sel) return;
-  const snaps = getAllSnapshots();
-  const dates = Object.keys(snaps).sort().reverse(); // newest first
-  const prevVal = sel.value;
-  sel.innerHTML = '<option value="">— Load Saved Date —</option>' +
-    dates.map(d=>`<option value="${d}"${d===prevVal?' selected':''}>${fmtSnapLabel(d)}</option>`).join('');
-  if(cnt) cnt.textContent = dates.length ? `${dates.length} saved date${dates.length===1?'':'s'}` : '';
+  const allDates = new Set(Object.keys(getAllLocalSnapshots()));
+  if(window.FB&&window.FB.ready){
+    try{
+      const qs = await window.FB.getDocs(window.FB.collection(window.FB.db,'snapshots'));
+      qs.forEach(d=>allDates.add(d.id));
+    }catch(e){}
+  }
+  const dates = [...allDates].sort().reverse();
+  const prev = sel.value;
+  sel.innerHTML = '<option value="">— Load Saved Date —</option>'+
+    dates.map(d=>`<option value="${d}"${d===prev?' selected':''}>${fmtSnapLabel(d)}</option>`).join('');
+  if(cnt) cnt.textContent = dates.length ? dates.length+' saved date'+(dates.length===1?'':'s') : '';
 }
 
-// Highlight the dropdown when a date is selected
 function onSnapSelectChange(){
   const sel = document.getElementById('snap-select');
   if(sel) sel.style.borderColor = sel.value ? 'var(--ab-lt)' : '';
 }
 
-// ── Delete selected snapshot ──
-function deleteSnapshot(){
+// ── Load snapshot ──
+async function loadSnapshot(){
   const sel = document.getElementById('snap-select');
-  const dateKey = sel ? sel.value : '';
-  if(!dateKey){ showToast('ℹ️ Select a date to delete'); return }
+  const dateKey = sel?.value||'';
+  if(!dateKey){ showToast('ℹ️ Select a saved date first'); return; }
+  if(window.FB&&window.FB.ready){
+    setSyncStatus('⟳ Loading…','rgba(44,168,224,.7)');
+    try{
+      const snap = await window.FB.getDoc(window.FB.doc(window.FB.db,'snapshots',dateKey));
+      if(snap.exists()){
+        data = _guard(_mergePhotos(snap.data()));
+        setSyncStatus('',null); renderForm(); renderDashboard();
+        showToast(`📅 Loaded — ${fmtSnapLabel(dateKey)}`); return;
+      }
+    }catch(e){ console.warn('Cloud snapshot load failed:',e.message); }
+  }
+  const loc = getAllLocalSnapshots()[dateKey];
+  if(loc){
+    data = _guard(JSON.parse(JSON.stringify(loc)));
+    setSyncStatus('',null); renderForm(); renderDashboard();
+    showToast(`📅 Loaded locally — ${fmtSnapLabel(dateKey)}`);
+  } else { showToast('⚠️ Snapshot not found'); setSyncStatus('',null); }
+}
+
+// ── Delete snapshot ──
+async function deleteSnapshot(){
+  if(!_isEditor){ showToast('🔒 Editor sign-in required'); showLogin(); return; }
+  const sel = document.getElementById('snap-select');
+  const dateKey = sel?.value||'';
+  if(!dateKey){ showToast('ℹ️ Select a date to delete'); return; }
   if(!confirm(`Delete snapshot for ${fmtSnapLabel(dateKey)}?`)) return;
-  const snaps = getAllSnapshots();
-  delete snaps[dateKey];
-  setAllSnapshots(snaps);
-  refreshSnapUI();
+  try{ const s=getAllLocalSnapshots(); delete s[dateKey]; setLocalSnapshots(s); }catch(e){}
+  if(window.FB&&window.FB.ready){
+    try{ await window.FB.deleteDoc(window.FB.doc(window.FB.db,'snapshots',dateKey)); }catch(e){}
+  }
+  await refreshSnapUI();
   showToast(`🗑 Deleted — ${fmtSnapLabel(dateKey)}`);
 }
 
-// ── Load latest working data on startup ──
-function loadData(){
+// ── Local helpers ──
+function getAllLocalSnapshots(){
+  try{ return JSON.parse(localStorage.getItem(SNAP_KEY)||'{}'); }catch(e){ return {}; }
+}
+function setLocalSnapshots(obj){
+  try{ localStorage.setItem(SNAP_KEY,JSON.stringify(obj)); }catch(e){}
+}
+function fmtSnapLabel(dateStr){
+  if(!dateStr) return dateStr;
+  try{ return new Date(dateStr+'T12:00:00').toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'2-digit'}); }
+  catch(e){ return dateStr; }
+}
+function loadData(){ loadLocal(); }
+function loadLocal(){
   try{
     const r = localStorage.getItem(SK);
     if(r){
-      const parsed = JSON.parse(r);
-      if(parsed.civilPkgs&&parsed.civilPkgs.length>0){
-        data = parsed;
-      } else {
-        localStorage.removeItem(SK);
-        data = JSON.parse(JSON.stringify(DEF_FROZEN));
-      }
-      if(!data.photoRows)   data.photoRows=[];
-      if(!data.civilCities) data.civilCities=['Madinah','Abha','Jizan'];
-      if(!data.civilPkgs)   data.civilPkgs=JSON.parse(JSON.stringify(DEF_FROZEN.civilPkgs));
+      const p = JSON.parse(r);
+      if(p.civilPkgs&&p.civilPkgs.length>0){ data=p; }
+      else{ localStorage.removeItem(SK); data=JSON.parse(JSON.stringify(DEF_FROZEN)); }
+      _guard(data);
     }
   }catch(e){ data=JSON.parse(JSON.stringify(DEF_FROZEN)); }
 }
-
 function resetData(){
-  if(!confirm('Reset working data to defaults? (Saved snapshots are kept)')) return;
-  data = JSON.parse(JSON.stringify(DEF_FROZEN));
+  if(!_isEditor){ showToast('🔒 Editor sign-in required'); showLogin(); return; }
+  if(!confirm('Reset working data to defaults? (Saved history is kept.)')) return;
+  data=JSON.parse(JSON.stringify(DEF_FROZEN));
   localStorage.removeItem(SK);
   renderForm(); renderDashboard();
   showToast('🔄 Reset to defaults');
@@ -2282,6 +2566,7 @@ function animateTableRows(tbody){
 /* ════ END ANIMATION ENGINE ════ */
 
 /* ════ INIT ════ */
+// Clear stale old-version keys
 ['dcsr_v5','dcsr_v4','dcsr_v3','dcsr_v2','dpr_data_v2'].forEach(k=>{
   try{
     const old=localStorage.getItem(k);
@@ -2289,11 +2574,15 @@ function animateTableRows(tbody){
   }catch(e){localStorage.removeItem(k)}
 });
 
+// 1. Show local cache immediately so the dashboard doesn't feel blank on load
 loadData();
 renderForm();
 bindFields();
 renderDashboard();
-refreshSnapUI();   // populate the history dropdown on startup
+updateAuthUI();   // hide Data Entry tab for public users immediately
+
+// 2. Then init Firebase auth — when ready it will load cloud data and re-render
+initAuth();
 </script>
 
 </body>
