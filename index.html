@@ -279,7 +279,7 @@ body::before{
 
 /* ══ CIVIL TABLE ══ */
 .civil-wrap{overflow-x:auto;border-radius:0 0 var(--r) var(--r)}
-table.civil-tbl{width:100%;border-collapse:collapse;font-size:12.5px}
+table.civil-tbl{width:100%;border-collapse:collapse;font-size:12.5px;table-layout:fixed}
 
 /* Header */
 .civil-tbl thead tr th{
@@ -288,11 +288,9 @@ table.civil-tbl{width:100%;border-collapse:collapse;font-size:12.5px}
   padding:12px 18px;text-align:left;border-bottom:1px solid rgba(255,255,255,.1);
   white-space:nowrap;
 }
-.civil-tbl thead tr th.act-hd{min-width:220px;width:230px}
-.civil-tbl thead tr th.cities-hd{border-left:1px solid rgba(255,255,255,.1)}
-.civil-tbl thead tr th.remarks-hd{
-  border-left:1px solid rgba(255,255,255,.12);
-  min-width:200px;width:210px}
+.civil-tbl thead tr th.act-hd{width:230px;min-width:230px;max-width:230px}
+.civil-tbl thead tr th.cities-hd{border-left:1px solid rgba(255,255,255,.1);width:calc(100% - 230px)}
+
 
 /* Package/group header rows */
 .civil-tbl tr.pkg-row{cursor:pointer;user-select:none}
@@ -395,7 +393,7 @@ table.civil-tbl{width:100%;border-collapse:collapse;font-size:12.5px}
 .act-name-cell{
   padding:15px 14px 15px 14px;
   display:flex;align-items:flex-start;gap:8px;
-  min-width:210px;width:225px;
+  width:230px;min-width:230px;max-width:230px;box-sizing:border-box;
 }
 .act-status-dot{
   width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:5px;transition:all var(--tr);
@@ -415,12 +413,12 @@ table.civil-tbl{width:100%;border-collapse:collapse;font-size:12.5px}
 .act-label.depth-4{font-size:11px;font-weight:400;padding-left:30px;color:var(--text-faint)}
 
 /* City cards container */
-.city-cards-cell{padding:12px 14px 12px 10px;border-left:1px solid #EBF3FB}
-.city-cards-row{display:flex;gap:12px;align-items:stretch}
+.city-cards-cell{padding:12px 14px;border-left:1px solid #EBF3FB;width:100%;box-sizing:border-box}
+.city-cards-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;width:100%;align-items:stretch}
 
 /* ── CITY CARD — the visual heart ── */
 .city-card{
-  flex:1;min-width:210px;border-radius:var(--rsm);
+  width:100%;min-width:0;max-width:none;border-radius:var(--rsm);
   padding:13px 14px;
   display:flex;flex-direction:column;gap:7px;
   transition:transform .2s cubic-bezier(.4,0,.2,1),
@@ -518,19 +516,7 @@ table.civil-tbl{width:100%;border-collapse:collapse;font-size:12.5px}
 .city-card-row.delivery-row{align-items:center}
 
 /* Remarks cell */
-.civil-tbl td.rmk-cell{
-  padding:10px 12px;
-  vertical-align:top;
-  border-left:1px solid var(--border);
-  background:#FAFCFF;
-  min-width:190px;width:205px;max-width:220px;
-}
-.rmk-cell .rmk-text{
-  color:#7c4a00;
-  font-size:10.5px;
-  line-height:1.6;
-  word-break:break-word;
-}
+
 /* Completed activity row — muted, clean */
 .civil-tbl tr.act-row-done td{background:#F8FFF8!important;opacity:.82}
 .civil-tbl tr.act-row-done:hover td{background:#F0FDF4!important;opacity:1}
@@ -1139,6 +1125,45 @@ table.civil-tbl{width:100%;border-collapse:collapse;font-size:12.5px}
 .delay-chip-big.late{background:rgba(220,38,38,.1); color:var(--crit);  border:1px solid rgba(220,38,38,.2)}
 .delay-chip-big.done{background:rgba(22,163,74,.12);color:var(--success);border:1px solid rgba(22,163,74,.2)}
 
+
+/* ── N/A City Card ── */
+/* N/A card — same flex structure as city-card so all cards stretch equally */
+.city-card.cc-na{
+  background:linear-gradient(145deg,#F8FAFC,#F1F5F9);
+  border:1px dashed #CBD5E1 !important;
+  opacity:.78;
+  width:100%;min-width:0;
+}
+.city-card.cc-na::before{ background:linear-gradient(90deg,#CBD5E1,#E2E8F0) !important; animation:none !important; }
+.city-card.cc-na::after { display:none !important; }
+.city-card.cc-na .city-card-name{ color:#64748B !important; }
+/* Na badge inside card */
+.cc-na-badge{
+  display:inline-flex;align-items:center;justify-content:center;
+  background:#F1F5F9;border:1px solid #CBD5E1;border-radius:6px;
+  padding:5px 14px;font-size:14px;font-weight:900;
+  color:#94A3B8;letter-spacing:.8px;margin:4px 0;
+}
+.cc-na-note{
+  font-size:9px;color:#94A3B8;line-height:1.4;font-style:italic;
+}
+/* Per-city remarks box — used in ALL card types */
+.city-card-remarks{
+  margin-top:auto;
+  padding:6px 8px;
+  background:rgba(0,96,181,.04);
+  border:1px solid rgba(0,96,181,.1);
+  border-radius:4px;
+  font-size:9.5px;
+  color:var(--text-muted);
+  line-height:1.45;
+}
+.city-card-remarks .rmk-label{
+  font-size:8.5px;font-weight:800;letter-spacing:.5px;
+  text-transform:uppercase;color:var(--text-faint);
+  display:block;margin-bottom:3px;
+}
+
 /* ════ REPORT HISTORY / SNAPSHOT BAR ════ */
 .snapshot-bar{
   display:flex;align-items:center;gap:10px;flex-wrap:wrap;
@@ -1367,79 +1392,8 @@ table.civil-tbl{width:100%;border-collapse:collapse;font-size:12.5px}
 
 
 /* === V11: Executive Remarks Styling === */
-.civil-tbl td.rmk-cell{
-  padding:10px 12px !important;
-  vertical-align:top !important;
-  background:linear-gradient(145deg,#FFFDF7,#FFFBEB) !important;
-  border-left:1px solid rgba(245,158,11,.28) !important;
-  min-width:230px !important;
-  width:260px !important;
-  max-width:280px !important;
-}
-.rmk-cell .rmk-text{
-  display:block !important;
-  position:relative !important;
-  color:#7C4A00 !important;
-  font-size:10.5px !important;
-  line-height:1.55 !important;
-  font-weight:600 !important;
-  padding:9px 10px 9px 28px !important;
-  border-radius:10px !important;
-  background:rgba(255,247,214,.82) !important;
-  border:1px solid rgba(244,197,66,.45) !important;
-  box-shadow:0 2px 8px rgba(217,119,6,.08) !important;
-  max-height:74px !important;
-  overflow:hidden !important;
-  word-break:break-word !important;
-}
-.rmk-cell .rmk-text::before{
-  content:"⚠" !important;
-  position:absolute !important;
-  left:9px !important;
-  top:8px !important;
-  font-size:12px !important;
-  color:#D97706 !important;
-}
-.rmk-cell .rmk-text::after{
-  content:"" !important;
-  position:absolute !important;
-  left:0 !important;
-  right:0 !important;
-  bottom:0 !important;
-  height:20px !important;
-  background:linear-gradient(180deg,rgba(255,247,214,0),rgba(255,247,214,.96)) !important;
-  pointer-events:none !important;
-}
-.rmk-cell .rmk-text:hover{
-  max-height:none !important;
-  overflow:visible !important;
-  z-index:20 !important;
-  box-shadow:0 8px 24px rgba(217,119,6,.18) !important;
-}
-.rmk-cell .rmk-text:hover::after{display:none !important;}
-.rmk-cell:empty,
-.rmk-cell .rmk-text:empty{
-  background:transparent !important;
-  border:none !important;
-  box-shadow:none !important;
-}
-.rmk-cell .rmk-empty{
-  color:#9AAFC4 !important;
-  font-style:italic !important;
-  font-size:10px !important;
-}
-
 
 /* === V12: Clean empty remarks + single completed badge === */
-.civil-tbl td.rmk-cell:has(.rmk-empty),
-.civil-tbl td.rmk-cell.rmk-empty-cell{
-  background:transparent !important;
-  border-left:1px solid var(--border) !important;
-  box-shadow:none !important;
-}
-.rmk-cell .rmk-empty{
-  display:none !important;
-}
 .city-done-footer{
   justify-content:flex-start !important;
 }
@@ -2121,6 +2075,31 @@ table.civil-tbl{width:100%;border-collapse:collapse;font-size:12.5px}
   display:none !important;
 }
 
+
+/* ══ CIVIL TABLE — 2-column layout after Remarks removal ══
+   Activity col: fixed 230px
+   City cards col: fills all remaining width
+   Cards: CSS grid, 3 equal columns, full width
+══ */
+table.civil-tbl{width:100% !important;table-layout:fixed !important}
+.civil-tbl th.act-hd,
+.civil-tbl td:first-child{width:230px !important;min-width:230px !important;max-width:230px !important}
+.civil-tbl th.cities-hd,
+.city-cards-cell{width:calc(100% - 230px) !important;box-sizing:border-box !important}
+.act-name-cell{width:230px !important;min-width:230px !important;max-width:230px !important;box-sizing:border-box !important}
+.city-cards-row{
+  display:grid !important;
+  grid-template-columns:repeat(3,1fr) !important;
+  gap:12px !important;
+  width:100% !important;
+  align-items:stretch !important;
+}
+.city-card,.city-card.cc-na{
+  width:100% !important;
+  min-width:0 !important;
+  max-width:none !important;
+  flex:none !important;
+}
 </style>
   <!-- Firebase SDK (v10 modular) -->
   <script type="module">
@@ -2779,29 +2758,29 @@ const DEF = {
       },remarks:'PO Done Manfacturing in process Delivery to be on 30-Jun-26'},
   ],remarks:''},
   {id:'n30',label:'Other Buildings',expanded:true,children:[
-    {id:'n31',label:'Fire Pump',cityData:{
+    {id:'n31',hideDelivery:true,label:'Fire Pump',cityData:{
         Madinah:{delivery:'N/A',siteProgress:98,plannedFinish:'07-May-26',expectedDate:'07-Jul-26',status:'Delayed'},
         Abha:{delivery:'N/A',siteProgress:98,plannedFinish:'07-May-26',expectedDate:'07-Jul-26',status:'Delayed'},
         Jizan:{delivery:'N/A',siteProgress:60,plannedFinish:'10-Jun-26',expectedDate:'07-Jul-26',status:'Delayed'}
       },remarks:'MAD Remaining HMD Waiting Permenant Acc\'s to be delivered by 30-Jun-26 (7 days installation) Monorail Remaining to be delivered ….. (3 DAYS AFTER DELIVERY) ABHA Remaining HMD Waiting Permenant Acc\'s Monorail Remaining to be delivered ….. (3 DAYS AFTER DELIVERY) Jizan Block Work e'},
-    {id:'n32',label:'Security Building',cityData:{
+    {id:'n32',hideDelivery:true,label:'Security Building',cityData:{
         Madinah:{delivery:'N/A',siteProgress:70,plannedFinish:'18-May-26',expectedDate:'12-Jul-26',status:'Delayed'},
         Abha:{delivery:'N/A',siteProgress:90,plannedFinish:'07-May-26',expectedDate:'07-Jul-26',status:'Delayed'},
         Jizan:{delivery:'N/A',siteProgress:65,plannedFinish:'25-May-26',expectedDate:'07-Jul-26',status:'Delayed'}
       },remarks:'MAD External Painting to be completed on 18-Jun-26 Internal Plastering to be completed by 25-Jun-26 Internal Painting to be completed on 5-Jul-26 Porcelain to be delivered on …..... And installed on ….. (7 days) Raised Floor & False Ceiling to be completed by 12-Jul-26 Bullet pro'},
-    {id:'n33',label:'Guard House',cityData:{
+    {id:'n33',hideDelivery:true,label:'Guard House',cityData:{
         Madinah:{delivery:'N/A',siteProgress:80,plannedFinish:'10-May-26',expectedDate:'07-Jul-26',status:'Delayed'},
         Abha:{delivery:'N/A',siteProgress:85,plannedFinish:'10-May-26',expectedDate:'07-Jul-26',status:'Delayed'},
         Jizan:{delivery:'N/A',siteProgress:55,plannedFinish:'10-May-26',expectedDate:'07-Jul-26',status:'Delayed'}
       },remarks:'MAD External Painting to be completed on 18-Jun-26 Internal Plastering to be completed by 18-Jun-26 Internal Painting to be completed on 21-Jun-26 Porcelain to be delivered on …..... And installed on ….. (7 days) Bullet proof door & Window glass to be delivered on 30-Jun-26 depen'},
-    {id:'n34',label:'Utility Building',cityData:{
+    {id:'n34',hideDelivery:true,label:'Utility Building',cityData:{
         Madinah:{delivery:'N/A',siteProgress:98,plannedFinish:'10-May-26',expectedDate:'07-Jul-26',status:'Delayed'},
         Abha:{delivery:'N/A',siteProgress:98,plannedFinish:'10-May-26',expectedDate:'01-Jul-26',status:'Delayed'},
         Jizan:{delivery:'N/A',siteProgress:98,plannedFinish:'10-May-26',expectedDate:'07-Jul-26',status:'Delayed'}
       },remarks:'Remaining HMD Waiting Permenant Acc\'s'},
-    {id:'n35',label:'Septic Tank',cityData:{
-        Madinah:{delivery:'N/A',siteProgress:'N/A',plannedFinish:'N/A',expectedDate:'N/A',status:'Not Started'},
-        Abha:{delivery:'N/A',siteProgress:'N/A',plannedFinish:'N/A',expectedDate:'N/A',status:'Not Started'},
+    {id:'n35',hideDelivery:true,label:'Septic Tank',cityData:{
+        Madinah:{applicable:false,delivery:'N/A',siteProgress:0,plannedFinish:'',expectedDate:'',status:'Not Applicable'},
+        Abha:{applicable:false,delivery:'N/A',siteProgress:0,plannedFinish:'',expectedDate:'',status:'Not Applicable'},
         Jizan:{delivery:'N/A',siteProgress:0,plannedFinish:null,expectedDate:null,status:'Not Started'}
       },remarks:'Constrution to be 1.5 Months from Offical Approval for Septic Tank Location'},
   ],remarks:''},
@@ -2958,33 +2937,49 @@ function worstStatus(statuses){
   return 'On Track';
 }
 
-/* ── Auto-calculate status from progress + dates (correct priority) ──
-   Priority order: Completed > Delayed > In Progress > Not Started
-   Delayed fires when: expectedFinish > plannedFinish  OR  today > plannedFinish
-   Both conditions apply regardless of progress value (as long as < 100%).
-   This means 92% + expected after planned = DELAYED, not In Progress.
-── */
-function calcAutoStatus(sp, plannedFinish, expectedFinish, reportDate){
-  const progress = sp != null ? +sp : 0;
+/* ════ AUTO STATUS — required rules ════
+  Rule 1: applicable===false         → "Not Applicable"
+  Rule 2: sp === 100                 → "Completed"   (dates ignored)
+  Rule 3: sp === 0 AND planned≥expected (or no dates)  → "Not Started"
+  Rule 4: planned < expected AND sp 0–99             → "Delayed"
+  Rule 5: sp 1–99 AND planned≥expected               → "In Progress"
+  Ties / empty dates: favour Not Started when sp=0, In Progress when sp>0.
+════ */
+function calcAutoStatus(sp, plannedFinish, expectedFinish, reportDate, applicable){
+  // Rule 1 — not applicable
+  if(applicable === false) return 'Not Applicable';
 
-  // 1. Completed always wins
+  const progress = (sp != null && sp !== '') ? +sp : 0;
+
+  // Rule 2 — completed
   if(progress >= 100) return 'Completed';
 
-  // 2. Delayed: expected > planned OR today > planned
-  const today = _toDateObj(reportDate || new Date().toISOString().slice(0,10));
-  const pd    = _toDateObj(plannedFinish);
-  const ed    = _toDateObj(expectedFinish);
-
-  if(pd){
-    if(ed && ed > pd)              return 'Delayed'; // expected slipped past planned
-    if(today && today > pd)        return 'Delayed'; // overdue today
+  // Parse dates — use UTC midnight so no timezone drift
+  function toMs(v){
+    if(!v || v==='' || v==='N/A') return null;
+    const d = new Date(v + (v.includes('T')?'':'T00:00:00Z'));
+    return isNaN(d) ? null : d.getTime();
   }
+  const pdMs = toMs(plannedFinish);
+  const edMs = toMs(expectedFinish);
 
-  // 3. In Progress
-  if(progress > 0) return 'In Progress';
+  // Rule 4 — Delayed: expected strictly later than planned (applies at any sp 0–99)
+  if(pdMs !== null && edMs !== null && edMs > pdMs) return 'Delayed';
 
-  // 4. Not Started
-  return 'Not Started';
+  // Rule 3 — Not Started: sp=0
+  if(progress <= 0) return 'Not Started';
+
+  // Rule 5 — In Progress: sp 1–99 with planned ≥ expected (or no dates)
+  return 'In Progress';
+}
+
+/* Status → CSS colour map */
+function statusColor(st){
+  if(st==='Completed')     return 'var(--success)';
+  if(st==='Delayed')       return 'var(--crit)';
+  if(st==='In Progress')   return 'var(--ab)';
+  if(st==='Not Applicable')return 'var(--text-faint)';
+  return 'var(--text-muted)'; // Not Started
 }
 
 /* Apply auto-status to all leaves (call before render and before save) */
@@ -2994,7 +2989,9 @@ function applyAutoStatus(){
     (data.civilCities||[]).forEach(city=>{
       const cd = leaf.cityData?.[city];
       if(!cd) return;
-      cd.status = calcAutoStatus(cd.siteProgress, cd.plannedFinish, cd.expectedDate, reportDate);
+      cd.status = calcAutoStatus(
+        cd.siteProgress, cd.plannedFinish, cd.expectedDate, reportDate, cd.applicable
+      );
     });
   });
 }
@@ -3052,8 +3049,8 @@ function renderDashboard(){
   const reportDate = d.date || new Date().toISOString().slice(0,10);
   const allVals = leaves.flatMap(l=>cities.map(c=>{
     const cd = l.cityData?.[c];
-    if(!cd) return null;
-    return { ...cd, status: calcAutoStatus(cd.siteProgress, cd.plannedFinish, cd.expectedDate, reportDate) };
+    if(!cd || cd.applicable===false) return null;   // exclude N/A
+    return { ...cd, status: calcAutoStatus(cd.siteProgress, cd.plannedFinish, cd.expectedDate, reportDate, cd.applicable) };
   }).filter(Boolean));
   const total    = allVals.length;
   const done     = allVals.filter(v=>v.status==='Completed').length;
@@ -3108,7 +3105,7 @@ function _renderCityProgressBar(d, leaves, reportDate){
   function fmtD2(dt){ return dt ? dt.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'2-digit'}) : '—'; }
 
   bar.innerHTML = cities.map((city,ci)=>{
-    const vals  = leaves.map(l=>l.cityData?.[city] || {siteProgress:0, delivery:'', plannedFinish:'', expectedDate:''});
+    const vals  = leaves.map(l=>l.cityData?.[city]).filter(cd=>cd && cd.applicable!==false);
     const total = leaves.length; // Total activities per city = all WBS/activity leaves, regardless of status or filters
     const avg   = total ? Math.round(vals.reduce((s,v)=>s+(+v.siteProgress||0),0)/total) : 0;
     const cDone     = vals.filter(v=>(+v.siteProgress||0)>=100).length;
@@ -3263,12 +3260,13 @@ function _renderCityProgressBar(d, leaves, reportDate){
 function _pkgSummaryData(node, cities, reportDate){
   const leaves = allLeaves([node]);
   const vals   = leaves.flatMap(l => cities.map(c => l.cityData?.[c]).filter(Boolean));
-  if(!vals.length) return null;
-  // Average progress
-  const avgProg = Math.round(vals.reduce((s,v)=>s+(+v.siteProgress||0),0)/vals.length);
-  // Latest planned / expected among non-completed
+  const applicableVals = vals.filter(v=>v.applicable!==false);
+  if(!applicableVals.length) return null;
+  // Average progress (N/A excluded)
+  const avgProg = Math.round(applicableVals.reduce((s,v)=>s+(+v.siteProgress||0),0)/applicableVals.length);
+  // Latest planned / expected among non-completed, non-NA
   let latestPlan = null, latestExp = null;
-  vals.forEach(v=>{
+  applicableVals.forEach(v=>{
     if((+v.siteProgress||0)>=100) return;
     const pd = _toDateObj(v.plannedFinish);
     const ed = _toDateObj(v.expectedDate);
@@ -3293,10 +3291,12 @@ function _pkgSummaryHtml(node){
     });
   });
   if(!vals.length) return '';
-  const progressVals = vals.map(v=>+v.siteProgress||0);
+  const applicableVals2 = vals.filter(v=>v.applicable!==false);
+  if(!applicableVals2.length) return '';
+  const progressVals = applicableVals2.map(v=>+v.siteProgress||0);
   const avgProg = Math.round(progressVals.reduce((a,b)=>a+b,0)/progressVals.length);
   let latestPlan=null, latestExp=null;
-  vals.forEach(v=>{
+  applicableVals2.forEach(v=>{
     if((+v.siteProgress||0)>=100) return;
     const pd=_toDateObj(v.plannedFinish);
     const ed=_toDateObj(v.expectedDate);
@@ -3333,15 +3333,14 @@ function renderCivilTable(){
   thead.innerHTML = `<tr class="hd-cities">
     <th class="act-hd wide"># &nbsp; Activity / Work Package</th>
     <th class="cities-hd">City Progress — ${cities.map(c=>`<span style="color:rgba(255,255,255,.9);font-weight:900">${esc(c)}</span>`).join(' &nbsp;·&nbsp; ')}</th>
-    <th class="remarks-hd">Remarks / Constraint / Action</th>
   </tr>`;
 
   const tbody = document.getElementById('civil-tbody');
   tbody.innerHTML = '';
   let shown = 0;
 
-  const dotCls = s => s==='Completed'?'dot-completed':s==='In Progress'?'dot-on-track':s==='Delayed'?'dot-delayed':'dot-not-started';
-  const cardCls= s => s==='Completed'?'cc-completed':s==='In Progress'?'cc-on-track':s==='Delayed'?'cc-delayed':'cc-not-started';
+  const dotCls = s => s==='Completed'?'dot-completed':s==='In Progress'?'dot-on-track':s==='Delayed'?'dot-delayed':s==='Not Applicable'?'dot-not-started':'dot-not-started';
+  const cardCls= s => s==='Completed'?'cc-completed':s==='In Progress'?'cc-on-track':s==='Delayed'?'cc-delayed':s==='Not Applicable'?'cc-na':'cc-not-started';
   const dateCls= s => s==='Delayed'?'delayed':s==='Completed'?'completed':'';
 
   // ── COLLAPSE FIX — strict separation of filter vs visibility:
@@ -3381,7 +3380,7 @@ function renderCivilTable(){
       tr.dataset.id = node.id;
       const indent = depth > 0 ? `padding-left:${depth*16+16}px` : '';
       const pkgSummary = _pkgSummaryHtml(node);
-      tr.innerHTML = `<td colspan="3" class="pkg-cell-flex" style="${indent}">
+      tr.innerHTML = `<td colspan="2" class="pkg-cell-flex" style="${indent}">
         <div class="pkg-row-inner">
           <span class="pkg-main-left">
             <span class="cat-toggle${isExp?' open':''}" id="tog-${node.id}">▶</span>
@@ -3427,20 +3426,34 @@ function renderCivilTable(){
     let cardsHtml = `<div class="city-cards-row">`;
     cities.forEach(city=>{
       const cd  = node.cityData?.[city]||{};
+
+      // ── N/A Card — same city-card structure for equal height ──
+      if(cd.applicable === false){
+        const naRmk = (cd.cityRemarks && cd.cityRemarks.trim()) ? esc(cd.cityRemarks.trim()) : '';
+        cardsHtml += `<div class="city-card cc-na" style="justify-content:space-between">
+          <div class="city-card-name">${esc(city)}</div>
+          <div style="flex:1;display:flex;align-items:center;justify-content:center">
+            <span style="font-size:18px;font-weight:900;letter-spacing:1px;color:#94A3B8;
+              background:#F1F5F9;border:1.5px solid #CBD5E1;border-radius:8px;
+              padding:6px 20px">N/A</span>
+          </div>
+          ${naRmk ? `<div class="city-card-remarks"><span class="rmk-label">Remarks</span>${naRmk}</div>` : ''}
+        </div>`;
+        return;
+      }
+
       const sp  = cd.siteProgress!=null ? +cd.siteProgress : 0;
       const del = cd.delivery!=null ? cd.delivery : '';
       // Always use auto-calculated status for rendering
-      const st  = calcAutoStatus(sp, cd.plannedFinish, cd.expectedDate, data.date);
+      const st  = calcAutoStatus(sp, cd.plannedFinish, cd.expectedDate, data.date, cd.applicable);
       const isCompleted = st === 'Completed';
-
-      // Debug: log field values to console so issues are visible
-      // console.log(`[${city}] ${node.label}: sp=${sp} planned=${cd.plannedFinish} expected=${cd.expectedDate} status=${st}`);
 
       if(isCompleted){
         // Clean completed card — no dates, no delay chip
         const finDate = (cd.expectedDate && cd.expectedDate!=='N/A') ? cd.expectedDate
                       : (cd.plannedFinish && cd.plannedFinish!=='N/A') ? cd.plannedFinish
                       : null;
+        const doneRmk = (cd.cityRemarks && cd.cityRemarks.trim()) ? esc(cd.cityRemarks.trim()) : '';
         cardsHtml += `<div class="city-card cc-completed city-card-done">
           <div class="city-card-name">${esc(city)}</div>
           <div class="city-card-row">
@@ -3451,6 +3464,7 @@ function renderCivilTable(){
             <span class="city-done-badge">✔ Completed</span>
             ${finDate?`<span class="city-done-date">${fmtDS(finDate)}</span>`:''}
           </div>
+          ${doneRmk ? `<div class="city-card-remarks"><span class="rmk-label">Remarks</span>${doneRmk}</div>` : ''}
         </div>`;
       } else {
         const dc2 = calcDelay(cd.plannedFinish, cd.expectedDate);
@@ -3468,13 +3482,13 @@ function renderCivilTable(){
         const expectedStr = cd.expectedDate   && cd.expectedDate   !== 'N/A' ? fmtDS(cd.expectedDate)   : '';
         cardsHtml += `<div class="city-card ${cardCls(st)}">
           <div class="city-card-name">${esc(city)}</div>
-          <div class="city-card-row delivery-row">
+          ${(node.hideDelivery || del==='' || del===null || del==='N/A') ? '' : `<div class="city-card-row delivery-row">
             <span class="city-card-row-label">Delivery</span>
             <span class="delivery-inline">
               ${delDisplay}
-              ${deliveryDateStr?`<span class="delivery-date-chip">${deliveryDateStr}</span>`:''}
+              ${deliveryDateStr?'<span class="delivery-date-chip">'+deliveryDateStr+'</span>':''}
             </span>
-          </div>
+          </div>`}
           <div class="city-card-row">
             <span class="city-card-row-label">Site %</span>
             ${pp(sp)}
@@ -3490,6 +3504,7 @@ function renderCivilTable(){
             </div>`:''}
             ${delChip?`<div style="text-align:right;margin-top:2px">${delChip}</div>`:''}
           </div>
+          ${(cd.cityRemarks && cd.cityRemarks.trim()) ? `<div class="city-card-remarks"><span class="rmk-label">Remarks</span>${esc(cd.cityRemarks.trim())}</div>` : ''}
         </div>`;
       }
     });
@@ -3497,13 +3512,6 @@ function renderCivilTable(){
     cardsTd.innerHTML = cardsHtml;
     tr.appendChild(cardsTd);
 
-    // Remarks cell — hide for fully completed
-    const rmkTd = document.createElement('td');
-    rmkTd.className = 'rmk-cell';
-    if(node.remarks && !allDone){
-      rmkTd.innerHTML = `<span class="rmk-text">${esc(node.remarks)}</span>`;
-    }
-    tr.appendChild(rmkTd);
     tbody.appendChild(tr);
   }
 
@@ -3525,7 +3533,7 @@ function renderCivilTable(){
     // Truly nothing rendered at all (empty data or filter wiped everything)
     const row = document.createElement('tr');
     if(hasFilter){
-      row.innerHTML = `<td colspan="3" class="civil-empty">No activities match filter.
+      row.innerHTML = `<td colspan="2" class="civil-empty">No activities match filter.
         <button onclick="document.getElementById('flt-status').value='';delayedOnly=false;
           document.getElementById('flt-delayed-btn').classList.add('off');
           document.getElementById('srch-civil').value='';renderCivilTable()"
@@ -3534,7 +3542,7 @@ function renderCivilTable(){
             font-size:11px;font-weight:700">Clear Filters</button>
       </td>`;
     } else {
-      row.innerHTML = `<td colspan="3" class="civil-empty">No civil works data yet.</td>`;
+      row.innerHTML = `<td colspan="2" class="civil-empty">No civil works data yet.</td>`;
     }
     tbody.appendChild(row);
   }
@@ -3792,19 +3800,30 @@ function buildPkgRow(node,depth){
     cities.forEach(city=>{
       const cd=node.cityData?.[city]||{};
       html+=`<div style="background:var(--g50);border:1px solid var(--g200);border-radius:var(--rsm);padding:11px;margin-bottom:8px">
-        <div style="font-size:11px;font-weight:800;color:var(--navy);margin-bottom:8px;border-bottom:1px solid var(--g200);padding-bottom:5px">📍 ${esc(city)}</div>
-        <div class="form-g5" style="grid-template-columns:repeat(6,1fr)">
-          <div class="fg"><label>Delivery %</label><input type="number" value="${cd.delivery??0}" min="0" max="100" onchange="updNodeCity('${node.id}','${city}','delivery',this.value);renderCivilForm()"/></div>
-          <div class="fg"><label>Delivery Date</label><input type="date" value="${(+cd.delivery>=100)?'':(cd.deliveryDate||'')}" ${(+cd.delivery>=100)?'disabled':''} onchange="updNodeCity('${node.id}','${city}','deliveryDate',this.value)"/></div>
+        <div style="font-size:11px;font-weight:800;color:var(--navy);margin-bottom:8px;border-bottom:1px solid var(--g200);padding-bottom:5px;display:flex;align-items:center;justify-content:space-between">
+          <span>📍 ${esc(city)}</span>
+          <label style="display:flex;align-items:center;gap:6px;font-size:10px;font-weight:700;color:var(--text-muted);cursor:pointer">
+            <input type="checkbox" ${cd.applicable===false?'':'checked'} onchange="updNodeCity('${node.id}','${city}','applicable',this.checked)" style="width:14px;height:14px;cursor:pointer"/>
+            Applicable
+          </label>
+        </div>
+        <div class="form-g5" style="grid-template-columns:repeat(6,1fr);${cd.applicable===false?'opacity:.4;pointer-events:none':''}">
+          ${node.hideDelivery ? '' : `<div class="fg"><label>Delivery %</label><input type="number" value="${cd.delivery??0}" min="0" max="100" onchange="updNodeCity('${node.id}','${city}','delivery',this.value);renderCivilForm()"/></div>`}
+          <div class="fg"><label>Delivery Date</label><input type="date" value="${cd.deliveryDate||''}" ${(+cd.delivery>=100)?'readonly style="opacity:.45;cursor:not-allowed"':''} onchange="updNodeCity('${node.id}','${city}','deliveryDate',this.value)"/></div>
           <div class="fg"><label>Site Progress %</label><input type="number" value="${cd.siteProgress??0}" min="0" max="100" onchange="updNodeCity('${node.id}','${city}','siteProgress',this.value)"/></div>
           <div class="fg"><label>📅 Planned Finish</label><input type="date" value="${cd.plannedFinish||''}" onchange="updNodeCity('${node.id}','${city}','plannedFinish',this.value)"/></div>
           <div class="fg"><label>🎯 Expected Finish</label><input type="date" value="${cd.expectedDate||''}" onchange="updNodeCity('${node.id}','${city}','expectedDate',this.value)"/></div>
           <div class="fg"><label>Status (Auto)</label>
-            <div style="padding:8px 11px;border:1.5px solid var(--border);border-radius:var(--rsm);
+            <div id="status-badge-${node.id}-${city.replace(/\s+/g,'_')}"
+              style="padding:8px 11px;border:1.5px solid var(--border);border-radius:var(--rsm);
               background:var(--surface);font-size:12px;font-weight:700;
-              color:${calcAutoStatus(cd.siteProgress,cd.plannedFinish,cd.expectedDate,data.date)==='Completed'?'var(--success)':calcAutoStatus(cd.siteProgress,cd.plannedFinish,data.date)==='Delayed'?'var(--crit)':calcAutoStatus(cd.siteProgress,cd.plannedFinish,data.date)==='In Progress'?'var(--ab)':'var(--text-muted)'}">
-              ${calcAutoStatus(cd.siteProgress,cd.plannedFinish,data.date)}
+              color:${statusColor(calcAutoStatus(cd.siteProgress,cd.plannedFinish,cd.expectedDate,data.date,cd.applicable))}">
+              ${calcAutoStatus(cd.siteProgress,cd.plannedFinish,cd.expectedDate,data.date,cd.applicable)}
             </div>
+          </div>
+          <div class="fg" style="grid-column:span 2"><label>City Remarks</label>
+            <input type="text" value="${esc(cd.cityRemarks||'')}" placeholder="No remarks"
+              onchange="updNodeCity('${node.id}','${city}','cityRemarks',this.value)"/>
           </div>
         </div>
       </div>`;
@@ -3826,8 +3845,11 @@ function updNodeCity(id,city,k,v){
   if(!n.cityData)n.cityData={};
   if(!n.cityData[city])n.cityData[city]={};
   // String fields: plannedFinish, expectedDate — must NOT be converted to numbers
-  const STRING_FIELDS = ['plannedFinish','expectedDate','deliveryDate','status'];
-  if(STRING_FIELDS.includes(k)){
+  const STRING_FIELDS = ['plannedFinish','expectedDate','deliveryDate','status','cityRemarks'];
+  // Boolean fields
+  if(k === 'applicable'){
+    n.cityData[city][k] = v===true || v==='true';
+  } else if(STRING_FIELDS.includes(k)){
     n.cityData[city][k] = v||'';
   } else {
     // Numeric fields: delivery, siteProgress
@@ -3837,13 +3859,25 @@ function updNodeCity(id,city,k,v){
   if(k==='delivery' && +v >= 100){
     n.cityData[city].deliveryDate = '';
   }
-  // Recalculate auto status whenever any city field changes
-  n.cityData[city].status = calcAutoStatus(
-    n.cityData[city].siteProgress,
-    n.cityData[city].plannedFinish,
-    n.cityData[city].expectedDate,
-    data.date
+  // Recalculate auto status — pass applicable flag
+  const cd2 = n.cityData[city];
+  cd2.status = calcAutoStatus(
+    cd2.siteProgress,
+    cd2.plannedFinish,
+    cd2.expectedDate,
+    data.date,
+    cd2.applicable
   );
+
+  // ── Instant DOM update: refresh only the status badge for this city row ──
+  // (Full renderDashboard follows for dashboard sync)
+  const badgeId = `status-badge-${id}-${city.replace(/\s+/g,'_')}`;
+  const badge   = document.getElementById(badgeId);
+  if(badge){
+    badge.textContent = cd2.status;
+    badge.style.color = statusColor(cd2.status);
+  }
+
   renderDashboard();
 }
 function addChildNode(pid){
@@ -4681,46 +4715,13 @@ initAuth();
 </script>
 
 
-<script>
-/* === V11: Normalize remarks display after every render === */
-(function(){
-  function normalizeRemarks(){
-    document.querySelectorAll('td.rmk-cell').forEach(td=>{
-      if(td.querySelector('.rmk-text')) return;
-      const raw = (td.textContent || '').trim();
-      if(!raw){
-        td.classList.add('rmk-empty-cell'); td.innerHTML = '';
-        return;
-      }
-      td.classList.remove('rmk-empty-cell'); td.innerHTML = '<div class="rmk-text" title="'+raw.replace(/"/g,'&quot;')+'">'+raw+'</div>';
-    });
-  }
-  const oldTrigger = window.triggerDashboardAnimations;
-  window.triggerDashboardAnimations = function(){
-    normalizeRemarks();
-    if(typeof oldTrigger === 'function') oldTrigger.apply(this, arguments);
-  };
-  const mo = new MutationObserver(()=>normalizeRemarks());
-  window.addEventListener('DOMContentLoaded', ()=>{
-    normalizeRemarks();
-    const tbl = document.querySelector('.civil-wrap') || document.body;
-    mo.observe(tbl,{childList:true,subtree:true});
-  });
-})();
-</script>
+
 
 
 <script>
-/* === V12: runtime cleanup for empty remarks and duplicate completed text === */
+/* V12: cleanup duplicate completed text */
 (function(){
   function cleanV12(){
-    document.querySelectorAll('td.rmk-cell').forEach(td=>{
-      const txt = (td.textContent || '').trim();
-      if(!txt || txt === '—'){
-        td.classList.add('rmk-empty-cell');
-        td.innerHTML = '';
-      }
-    });
     document.querySelectorAll('.city-card-done .city-done-date').forEach(el=>{
       if((el.textContent || '').trim().toLowerCase() === 'completed') el.remove();
     });
