@@ -3650,7 +3650,7 @@ function renderGallery(){
     }
     photos.forEach((p,i)=>{
       const card=document.createElement('div'); card.className='photo-card';
-      const src = p.base64||p.mediaUrl||'';
+      const src = p.mediaUrl||p.base64||'';
       const isVid = p.mediaType==='video'||(p.base64||'').startsWith('data:video');
       const typeBadge = `<span style="background:${isVid?'rgba(0,96,181,.12)':'rgba(22,163,74,.1)'};
         color:${isVid?'var(--ab)':'var(--success)'};border:1px solid ${isVid?'rgba(0,96,181,.2)':'rgba(22,163,74,.2)'};
@@ -3961,32 +3961,47 @@ function renderPhotoForm(){
   });
   updateCounts();
 }
-/* Track which photo row IDs are currently uploading so onSnapshot
-   doesn't overwrite their mediaUrl with an empty Firestore version */
-const _uploading = new Set();
-const MAX_PHOTOS = 15;
-const PHOTO_SIZE_WARN_KB = 850;
+/* ════ CLOUDINARY PHOTO UPLOAD ════
+   Cloud name : dtwxxt2df
+   Upload preset: AHMED ABDELZAHER  (unsigned)
+   Photos are stored as Cloudinary secure_url + publicId.
+   No base64 or Firebase Storage involved.
+═══════════════════════════════════════════════════════════════ */
+const CLOUDINARY_CLOUD   = 'dtwxxt2df';
+const CLOUDINARY_PRESET  = 'AHMED ABDELZAHER';
+const CLOUDINARY_URL     = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/upload`;
+const MAX_PHOTOS         = 15;
 
 function trigUp(id){const fi=document.getElementById('fi-'+id);if(fi)fi.click()}
 
-/* Compress an image File to a base64 JPEG string via canvas */
-function _compressImage(file, maxW, quality){
+/* Upload file to Cloudinary with XHR so we can show progress */
+function _uploadToCloudinary(file, onProgress){
   return new Promise((resolve, reject)=>{
-    const img = new Image();
-    const url = URL.createObjectURL(file);
-    img.onload = ()=>{
-      URL.revokeObjectURL(url);
-      const ratio  = Math.min(1, maxW / img.width);
-      const w      = Math.round(img.width  * ratio);
-      const h      = Math.round(img.height * ratio);
-      const canvas = document.createElement('canvas');
-      canvas.width  = w;
-      canvas.height = h;
-      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-      resolve(canvas.toDataURL('image/jpeg', quality));
+    const fd = new FormData();
+    fd.append('file',           file);
+    fd.append('upload_preset',  CLOUDINARY_PRESET);
+    // resource_type auto handles images and videos
+    const resourceType = file.type.startsWith('video/') ? 'video' : 'image';
+    const url = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/${resourceType}/upload`;
+
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', url);
+
+    xhr.upload.onprogress = e => {
+      if(e.lengthComputable) onProgress(Math.round(e.loaded / e.total * 100));
     };
-    img.onerror = ()=>{ URL.revokeObjectURL(url); reject(new Error('Image load failed')); };
-    img.src = url;
+    xhr.onload = () => {
+      if(xhr.status === 200){
+        try{ resolve(JSON.parse(xhr.responseText)); }
+        catch(e){ reject(new Error('Invalid JSON from Cloudinary')); }
+      } else {
+        let msg = `Cloudinary error ${xhr.status}`;
+        try{ msg = JSON.parse(xhr.responseText).error?.message || msg; }catch(e){}
+        reject(new Error(msg));
+      }
+    };
+    xhr.onerror = () => reject(new Error('Network error during upload'));
+    xhr.send(fd);
   });
 }
 
@@ -3994,62 +4009,88 @@ function handleUpload(id, input){
   const file = input.files[0]; if(!file) return;
   input.value = '';
 
-  // Max photo limit
-  if(data.photoRows.length > MAX_PHOTOS){
+  if((data.photoRows||[]).length >= MAX_PHOTOS){
     showToast(`⚠️ Maximum ${MAX_PHOTOS} photos allowed`); return;
   }
 
-  const p = data.photoRows.find(x => x.id === id); if(!p) return;
+  // Find the row
+  const rowRef = () => data.photoRows.find(x => x.id === id);
+  const p = rowRef(); if(!p) return;
+
   const isVid = file.type.startsWith('video/');
   p.mediaType = isVid ? 'video' : 'image';
 
-  if(isVid){
-    // Videos: store as base64 directly (user responsibility for size)
-    const rd = new FileReader();
-    rd.onload = e =>{
-      p.base64   = e.target.result;
-      p.mediaUrl = '';
-      renderPhotoForm(); renderGallery();
-      showToast('🎬 Video added (local only)');
-    };
-    rd.readAsDataURL(file);
-    return;
+  // Show uploading state
+  setSyncStatus('⬆ Uploading 0%', 'rgba(44,168,224,.8)');
+  showToast('⬆ Uploading to Cloudinary…');
+
+  _uploadToCloudinary(file, pct => {
+    setSyncStatus(`⬆ Uploading ${pct}%`, 'rgba(44,168,224,.8)');
+  })
+  .then(async res => {
+    // Re-find live row — onSnapshot may have replaced data during upload
+    const liveRow = rowRef();
+    if(!liveRow){ setSyncStatus('',null); return; }
+
+    liveRow.mediaUrl  = res.secure_url;
+    liveRow.publicId  = res.public_id;
+    liveRow.base64    = '';   // never store base64
+    liveRow.mediaType = isVid ? 'video' : 'image';
+
+    console.log('[CLOUDINARY] Upload success:', res.secure_url, 'public_id:', res.public_id);
+
+    setSyncStatus('', null);
+    showToast(isVid ? '☁ Video uploaded to Cloudinary' : '☁ Photo uploaded to Cloudinary');
+
+    renderPhotoForm();
+    renderGallery();
+
+    // Persist to Firestore so all users see the photo immediately
+    await saveSnapshot();
+  })
+  .catch(err => {
+    setSyncStatus('⚠ Upload failed', 'rgba(220,38,38,.7)');
+    showToast('⚠️ Upload failed: ' + err.message);
+    console.error('[CLOUDINARY] Upload error:', err);
+  });
+}
+
+function clrPhoto(id){
+  const p = data.photoRows.find(x => x.id === id); if(!p) return;
+  p.base64=''; p.mediaUrl=''; p.publicId=''; p.mediaType='image';
+  renderPhotoForm(); renderGallery();
+}
+
+function updPhoto(id,k,v){
+  const p = data.photoRows.find(x => x.id === id); if(!p) return;
+  p[k] = v; renderGallery();
+}
+
+async function delPhoto(id){
+  if(!confirm('Delete photo?')) return;
+  const p = data.photoRows.find(x => x.id === id);
+
+  // Best-effort Cloudinary delete via unsigned destroy is not supported.
+  // publicId is stored so a server-side delete can be done later if needed.
+  // For now we just remove the row from data + Firestore.
+  if(p?.publicId){
+    console.log('[CLOUDINARY] Row deleted — publicId for server cleanup:', p.publicId);
   }
 
-  // Images: compress via canvas
-  showToast('🔄 Compressing…');
-  _compressImage(file, 900, 0.45)
-    .then(b64 =>{
-      // Re-find live row (data may have been replaced by onSnapshot)
-      const liveRow = data.photoRows.find(x => x.id === id);
-      if(!liveRow){ showToast('⚠️ Photo row no longer exists'); return; }
+  data.photoRows = data.photoRows.filter(x => x.id !== id);
+  renderPhotoForm(); renderGallery(); updateCounts();
+  showToast('🗑 Deleted');
 
-      liveRow.base64    = b64;
-      liveRow.mediaUrl  = '';
-      liveRow.mediaType = 'image';
+  // Sync deletion to Firestore immediately if editor
+  if(_isEditor) await saveSnapshot();
+}
 
-      const kb = Math.round(b64.length * 0.75 / 1024);
-      console.log(`[PHOTO] Compressed: ${kb} KB  id=${id}`);
-
-      renderPhotoForm(); renderGallery();
-      showToast(`📷 Photo added — ${kb} KB`);
-    })
-    .catch(err => showToast('⚠️ Compression failed: ' + err.message));
-}
-function clrPhoto(id){
-  const p=data.photoRows.find(x=>x.id===id);if(!p)return;
-  p.base64='';p.mediaUrl='';p.mediaType='image';
-  renderPhotoForm();renderGallery();
-}
-function updPhoto(id,k,v){const p=data.photoRows.find(x=>x.id===id);if(!p)return;p[k]=v;renderGallery()}
-function delPhoto(id){
-  if(!confirm('Delete photo?'))return;
-  data.photoRows=data.photoRows.filter(x=>x.id!==id);
-  renderPhotoForm();renderGallery();updateCounts();showToast('🗑 Deleted');
-}
 function addPhotoRow(){
-  data.photoRows.push({id:uid(),city:'',title:'',date:data.date||'',note:'',base64:'',mediaUrl:'',mediaType:'image'});
-  renderPhotoForm();updateCounts();
+  data.photoRows.push({
+    id:uid(), city:'', title:'', date:data.date||'',
+    note:'', base64:'', mediaUrl:'', publicId:'', mediaType:'image'
+  });
+  renderPhotoForm(); updateCounts();
 }
 
 function makeRowHd(title,meta,onDel,rowEl){
@@ -4139,19 +4180,6 @@ function _startLiveListener(){
           (incoming.photoRows||[]).map(p=>({id:p.id,title:p.title,mediaUrl:p.mediaUrl,base64_len:p.base64?.length||0}))
         );
         const cloud = _guard(_mergePhotos(incoming));
-
-        // ── Protect rows currently being uploaded ──
-        // If a photoRow id is in _uploading, keep the current row (with base64 preview)
-        if(cloud.photoRows && data.photoRows && _uploading.size > 0){
-          cloud.photoRows = cloud.photoRows.map(cp => {
-            if(_uploading.has(cp.id)){
-              // Keep the live row with base64 preview; don't overwrite with stale cloud row
-              const live = data.photoRows.find(x => x.id === cp.id);
-              return live || cp;
-            }
-            return cp;
-          });
-        }
 
         // Only re-render if data actually changed
         if(JSON.stringify(cloud) !== JSON.stringify(data)){
@@ -4254,39 +4282,21 @@ function setSyncStatus(msg, color){
 
 /* ── Data helpers ────────────────────────────────────────────────── */
 /* Sanitise before Firestore write.
-   Images are now compressed base64 (<80KB each) so we KEEP base64.
-   Only fields that could be huge (raw uncompressed blobs) are cleared.
-   mediaUrl is also kept if set. */
+   Cloudinary: store mediaUrl + publicId only. Strip base64 defensively. */
 function _sanitise(d){
   const c = JSON.parse(JSON.stringify(d));
-  // Keep base64 — photos are compressed and well within Firestore limits
-  // (15 photos × ~80KB = ~1.2MB of base64 text ≈ ~900KB decoded; fits in 1MB doc)
-  // No stripping needed.
-  console.log('[DEBUG] PHOTO ROWS AFTER SANITISE (what goes to Firestore):',
-    (c.photoRows||[]).map(p=>({id:p.id, title:p.title, mediaUrl:p.mediaUrl, base64_kb: Math.round((p.base64||'').length*0.75/1024)}))
-  );
+  // Strip any accidental base64 (should be empty, but be safe)
+  if(c.photoRows) c.photoRows = c.photoRows.map(p => ({...p, base64:''}));
   return c;
 }
-/* Restore local base64 AND local mediaUrl when cloud row has none */
+/* Merge cloud photo rows — Cloudinary model: cloud is source of truth.
+   mediaUrl and publicId come from Firestore (set after Cloudinary upload).
+   No base64 to restore. */
 function _mergePhotos(cloudData){
-  const loc = JSON.parse(localStorage.getItem(SK)||'null');
-  // DEBUG — log what came from Firestore
-  console.log('[DEBUG] PHOTO ROWS RECEIVED FROM FIRESTORE:',
-    (cloudData.photoRows||[]).map(p=>({id:p.id,title:p.title,mediaUrl:p.mediaUrl,base64_len:p.base64?.length||0}))
-  );
-  if(loc?.photoRows && cloudData.photoRows){
-    cloudData.photoRows = cloudData.photoRows.map(cp => {
-      const lp = (loc.photoRows||[]).find(x => x.id === cp.id);
-      if(!lp) return cp;
-      return {
-        ...cp,
-        // Restore base64 preview from local cache
-        base64:   lp.base64 || '',
-        // If cloud row has no mediaUrl but local does, keep the local one
-        // (handles the race where upload finished locally but Firestore hasn't updated yet)
-        mediaUrl: cp.mediaUrl || lp.mediaUrl || ''
-      };
-    });
+  // Cloud data is already complete — mediaUrl/publicId are in Firestore.
+  // Just ensure base64 is empty (defensive).
+  if(cloudData.photoRows){
+    cloudData.photoRows = cloudData.photoRows.map(p => ({...p, base64:''}));
   }
   return cloudData;
 }
@@ -4325,17 +4335,7 @@ async function saveSnapshot(){
   try{
     const clean = _sanitise(data);
 
-    // ── Guard: warn if photoRows payload is too large for Firestore (1MB doc limit) ──
-    const photoJson = JSON.stringify(clean.photoRows||[]);
-    const photoKB   = Math.round(photoJson.length * 0.75 / 1024);
-    console.log('[DEBUG] PHOTO ROWS BEFORE SAVE:',
-      (data.photoRows||[]).map(p=>({id:p.id,title:p.title,base64_kb:Math.round((p.base64||'').length*0.75/1024),mediaUrl:p.mediaUrl}))
-    );
-    if(photoKB > PHOTO_SIZE_WARN_KB){
-      showToast(`⚠️ Photos too large for cloud sync (${photoKB} KB > ${PHOTO_SIZE_WARN_KB} KB). Remove some photos or reduce quality.`);
-      setSyncStatus('⚠ Too large', 'rgba(220,38,38,.7)');
-      return;
-    }
+    // Photos are stored as Cloudinary URLs — no size concern for Firestore
     /* Write current + snapshot in parallel */
     await Promise.all([
       window.FB.setDoc(window.FB.doc(window.FB.db,'reports',FB_CURRENT), clean),
