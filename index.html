@@ -4156,7 +4156,12 @@ function _startLiveListener(){
   _unsubLive = window.FB.onSnapshot(ref,
     /* onNext */ snap => {
       if(snap.exists()){
-        const cloud = _guard(_mergePhotos(snap.data()));
+        const incoming = snap.data();
+        // DEBUG — raw Firestore payload before any merging
+        console.log('[DEBUG] RAW PHOTO ROWS FROM FIRESTORE (before merge):',
+          (incoming.photoRows||[]).map(p=>({id:p.id,title:p.title,mediaUrl:p.mediaUrl,base64_len:p.base64?.length||0}))
+        );
+        const cloud = _guard(_mergePhotos(incoming));
 
         // ── Protect rows currently being uploaded ──
         // If a photoRow id is in _uploading, keep the current row (with base64 preview)
@@ -4271,19 +4276,35 @@ function setSyncStatus(msg, color){
 }
 
 /* ── Data helpers ────────────────────────────────────────────────── */
-/* Strip base64 photos before writing to Firestore (1 MB doc limit) */
+/* Strip base64 ONLY before writing to Firestore (keeps mediaUrl intact) */
 function _sanitise(d){
   const c = JSON.parse(JSON.stringify(d));
   if(c.photoRows) c.photoRows = c.photoRows.map(p => ({...p, base64:''}));
+  // DEBUG — log what will actually be written to Firestore
+  console.log('[DEBUG] PHOTO ROWS AFTER SANITISE (what goes to Firestore):',
+    (c.photoRows||[]).map(p=>({id:p.id,title:p.title,mediaUrl:p.mediaUrl,base64_len:p.base64?.length||0}))
+  );
   return c;
 }
-/* Restore local base64 photos after loading from cloud */
+/* Restore local base64 AND local mediaUrl when cloud row has none */
 function _mergePhotos(cloudData){
   const loc = JSON.parse(localStorage.getItem(SK)||'null');
+  // DEBUG — log what came from Firestore
+  console.log('[DEBUG] PHOTO ROWS RECEIVED FROM FIRESTORE:',
+    (cloudData.photoRows||[]).map(p=>({id:p.id,title:p.title,mediaUrl:p.mediaUrl,base64_len:p.base64?.length||0}))
+  );
   if(loc?.photoRows && cloudData.photoRows){
     cloudData.photoRows = cloudData.photoRows.map(cp => {
       const lp = (loc.photoRows||[]).find(x => x.id === cp.id);
-      return lp ? {...cp, base64: lp.base64||''} : cp;
+      if(!lp) return cp;
+      return {
+        ...cp,
+        // Restore base64 preview from local cache
+        base64:   lp.base64 || '',
+        // If cloud row has no mediaUrl but local does, keep the local one
+        // (handles the race where upload finished locally but Firestore hasn't updated yet)
+        mediaUrl: cp.mediaUrl || lp.mediaUrl || ''
+      };
     });
   }
   return cloudData;
@@ -4321,6 +4342,10 @@ async function saveSnapshot(){
 
   setSyncStatus('⟳ Saving…', 'rgba(44,168,224,.7)');
   try{
+    // DEBUG — log before sanitise
+    console.log('[DEBUG] PHOTO ROWS BEFORE SAVE:',
+      (data.photoRows||[]).map(p=>({id:p.id,title:p.title,mediaUrl:p.mediaUrl,base64_len:p.base64?.length||0}))
+    );
     const clean = _sanitise(data);
     /* Write current + snapshot in parallel */
     await Promise.all([
