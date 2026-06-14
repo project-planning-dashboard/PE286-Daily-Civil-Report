@@ -2111,9 +2111,6 @@ table.civil-tbl{width:100% !important;table-layout:fixed !important}
     import { getAuth, signInWithEmailAndPassword,
              signOut, onAuthStateChanged }
       from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
-    import { getStorage, ref as storageRef,
-             uploadBytesResumable, getDownloadURL }
-      from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js';
 
     /* ── Real Firebase config (sdcc-daily-report) ── */
     const firebaseConfig = {
@@ -2129,16 +2126,12 @@ table.civil-tbl{width:100% !important;table-layout:fixed !important}
     const _app     = initializeApp(firebaseConfig);
     const _db      = getFirestore(_app);
     const _auth    = getAuth(_app);
-    const _storage = getStorage(_app);
-
     /* Expose everything the main script needs on window.FB */
     window.FB = {
-      db: _db, auth: _auth, storage: _storage, ready: true,
+      db: _db, auth: _auth, ready: true,
       doc, getDoc, setDoc, deleteDoc,
       collection, getDocs, onSnapshot,
-      signInWithEmailAndPassword, signOut, onAuthStateChanged,
-      /* Storage helpers exposed so main script can use them */
-      storageRef, uploadBytesResumable, getDownloadURL
+      signInWithEmailAndPassword, signOut, onAuthStateChanged
     };
 
     window.dispatchEvent(new Event('fb-ready'));
@@ -3657,7 +3650,7 @@ function renderGallery(){
     }
     photos.forEach((p,i)=>{
       const card=document.createElement('div'); card.className='photo-card';
-      const src = p.mediaUrl||p.base64||'';
+      const src = p.base64||p.mediaUrl||'';
       const isVid = p.mediaType==='video'||(p.base64||'').startsWith('data:video');
       const typeBadge = `<span style="background:${isVid?'rgba(0,96,181,.12)':'rgba(22,163,74,.1)'};
         color:${isVid?'var(--ab)':'var(--success)'};border:1px solid ${isVid?'rgba(0,96,181,.2)':'rgba(22,163,74,.2)'};
@@ -3706,7 +3699,7 @@ function showLb(){
   const p=lbPhotos[lbIdx];if(!p)return;
   const mc = document.getElementById('lb-media');
   if(mc){
-    const src = p.mediaUrl || p.base64 || '';
+    const src = p.base64 || p.mediaUrl || '';
     const isVid = p.mediaType==='video' || (p.base64||'').startsWith('data:video');
     if(isVid){
       mc.innerHTML=`<video controls autoplay style="max-width:90vw;max-height:78vh;border-radius:8px;
@@ -3971,93 +3964,77 @@ function renderPhotoForm(){
 /* Track which photo row IDs are currently uploading so onSnapshot
    doesn't overwrite their mediaUrl with an empty Firestore version */
 const _uploading = new Set();
+const MAX_PHOTOS = 15;
+const PHOTO_SIZE_WARN_KB = 850;
 
 function trigUp(id){const fi=document.getElementById('fi-'+id);if(fi)fi.click()}
+
+/* Compress an image File to a base64 JPEG string via canvas */
+function _compressImage(file, maxW, quality){
+  return new Promise((resolve, reject)=>{
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = ()=>{
+      URL.revokeObjectURL(url);
+      const ratio  = Math.min(1, maxW / img.width);
+      const w      = Math.round(img.width  * ratio);
+      const h      = Math.round(img.height * ratio);
+      const canvas = document.createElement('canvas');
+      canvas.width  = w;
+      canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      resolve(canvas.toDataURL('image/jpeg', quality));
+    };
+    img.onerror = ()=>{ URL.revokeObjectURL(url); reject(new Error('Image load failed')); };
+    img.src = url;
+  });
+}
+
 function handleUpload(id, input){
   const file = input.files[0]; if(!file) return;
-  // Find row NOW (before any async gap)
-  const p0 = data.photoRows.find(x => x.id === id); if(!p0) return;
   input.value = '';
 
+  // Max photo limit
+  if(data.photoRows.length > MAX_PHOTOS){
+    showToast(`⚠️ Maximum ${MAX_PHOTOS} photos allowed`); return;
+  }
+
+  const p = data.photoRows.find(x => x.id === id); if(!p) return;
   const isVid = file.type.startsWith('video/');
-  p0.mediaType = isVid ? 'video' : 'image';
+  p.mediaType = isVid ? 'video' : 'image';
 
-  // Mark this row as uploading so onSnapshot doesn't clobber it
-  _uploading.add(id);
+  if(isVid){
+    // Videos: store as base64 directly (user responsibility for size)
+    const rd = new FileReader();
+    rd.onload = e =>{
+      p.base64   = e.target.result;
+      p.mediaUrl = '';
+      renderPhotoForm(); renderGallery();
+      showToast('🎬 Video added (local only)');
+    };
+    rd.readAsDataURL(file);
+    return;
+  }
 
-  const reader = new FileReader();
-  reader.onload = e => {
-    // Re-find live row (data may have been replaced since reader started)
-    const pLive = data.photoRows.find(x => x.id === id);
-    if(pLive){
-      pLive.base64   = e.target.result;  // local preview
-      pLive.mediaUrl = '';
-      pLive.mediaType = isVid ? 'video' : 'image';
-    }
-    renderPhotoForm();
-    renderGallery();
-    showToast(isVid ? '🎬 Uploading video…' : '📷 Uploading photo…');
+  // Images: compress via canvas
+  showToast('🔄 Compressing…');
+  _compressImage(file, 900, 0.45)
+    .then(b64 =>{
+      // Re-find live row (data may have been replaced by onSnapshot)
+      const liveRow = data.photoRows.find(x => x.id === id);
+      if(!liveRow){ showToast('⚠️ Photo row no longer exists'); return; }
 
-    if(!window.FB || !window.FB.storage){
-      _uploading.delete(id);
-      showToast('⚠️ Firebase Storage not configured — image stored locally only (not shared)');
-      return;
-    }
+      liveRow.base64    = b64;
+      liveRow.mediaUrl  = '';
+      liveRow.mediaType = 'image';
 
-    const path    = `media/${id}_${file.name.replace(/[^a-zA-Z0-9._-]/g,'_')}`;
-    const fileRef = window.FB.storageRef(window.FB.storage, path);
-    const task    = window.FB.uploadBytesResumable(fileRef, file);
-    const uzEl    = document.getElementById('uz-' + id);
+      const kb = Math.round(b64.length * 0.75 / 1024);
+      console.log(`[PHOTO] Compressed: ${kb} KB  id=${id}`);
 
-    task.on('state_changed',
-      snap => {
-        const pct = Math.round(snap.bytesTransferred / snap.totalBytes * 100);
-        if(uzEl) uzEl.title = `Uploading… ${pct}%`;
-        setSyncStatus(`⬆ Uploading ${pct}%`, 'rgba(44,168,224,.8)');
-      },
-      err => {
-        _uploading.delete(id);
-        showToast('⚠️ Upload failed: ' + err.message);
-        setSyncStatus('⚠ Upload failed', 'rgba(220,38,38,.7)');
-      },
-      async () => {
-        try{
-          const url = await window.FB.getDownloadURL(task.snapshot.ref);
-
-          // ── CRITICAL: re-find the live row — data may have been replaced by onSnapshot ──
-          const liveRow = data.photoRows.find(x => x.id === id);
-          if(!liveRow){
-            // Row was deleted while uploading — nothing to update
-            _uploading.delete(id);
-            setSyncStatus('', null);
-            return;
-          }
-
-          liveRow.mediaUrl  = url;
-          liveRow.base64    = '';    // clear local blob; all users load from URL
-          liveRow.mediaType = isVid ? 'video' : 'image';
-
-          console.log('PHOTO URL SAVED:', id, url);
-
-          // Remove upload guard BEFORE saving so Firestore gets the URL
-          _uploading.delete(id);
-
-          renderPhotoForm();
-          renderGallery();
-          setSyncStatus('', null);
-          showToast(isVid ? '☁ Video saved to cloud' : '☁ Photo saved to cloud');
-
-          // Save to Firestore — this is what makes URL visible to all users
-          await saveSnapshot();
-        } catch(err2){
-          _uploading.delete(id);
-          showToast('⚠️ Could not get download URL: ' + err2.message);
-          setSyncStatus('⚠ URL error', 'rgba(220,38,38,.7)');
-        }
-      }
-    );
-  };
-  reader.readAsDataURL(file);
+      renderPhotoForm(); renderGallery();
+      showToast(`📷 Photo added — ${kb} KB`);
+    })
+    .catch(err => showToast('⚠️ Compression failed: ' + err.message));
 }
 function clrPhoto(id){
   const p=data.photoRows.find(x=>x.id===id);if(!p)return;
@@ -4276,13 +4253,17 @@ function setSyncStatus(msg, color){
 }
 
 /* ── Data helpers ────────────────────────────────────────────────── */
-/* Strip base64 ONLY before writing to Firestore (keeps mediaUrl intact) */
+/* Sanitise before Firestore write.
+   Images are now compressed base64 (<80KB each) so we KEEP base64.
+   Only fields that could be huge (raw uncompressed blobs) are cleared.
+   mediaUrl is also kept if set. */
 function _sanitise(d){
   const c = JSON.parse(JSON.stringify(d));
-  if(c.photoRows) c.photoRows = c.photoRows.map(p => ({...p, base64:''}));
-  // DEBUG — log what will actually be written to Firestore
+  // Keep base64 — photos are compressed and well within Firestore limits
+  // (15 photos × ~80KB = ~1.2MB of base64 text ≈ ~900KB decoded; fits in 1MB doc)
+  // No stripping needed.
   console.log('[DEBUG] PHOTO ROWS AFTER SANITISE (what goes to Firestore):',
-    (c.photoRows||[]).map(p=>({id:p.id,title:p.title,mediaUrl:p.mediaUrl,base64_len:p.base64?.length||0}))
+    (c.photoRows||[]).map(p=>({id:p.id, title:p.title, mediaUrl:p.mediaUrl, base64_kb: Math.round((p.base64||'').length*0.75/1024)}))
   );
   return c;
 }
@@ -4342,11 +4323,19 @@ async function saveSnapshot(){
 
   setSyncStatus('⟳ Saving…', 'rgba(44,168,224,.7)');
   try{
-    // DEBUG — log before sanitise
-    console.log('[DEBUG] PHOTO ROWS BEFORE SAVE:',
-      (data.photoRows||[]).map(p=>({id:p.id,title:p.title,mediaUrl:p.mediaUrl,base64_len:p.base64?.length||0}))
-    );
     const clean = _sanitise(data);
+
+    // ── Guard: warn if photoRows payload is too large for Firestore (1MB doc limit) ──
+    const photoJson = JSON.stringify(clean.photoRows||[]);
+    const photoKB   = Math.round(photoJson.length * 0.75 / 1024);
+    console.log('[DEBUG] PHOTO ROWS BEFORE SAVE:',
+      (data.photoRows||[]).map(p=>({id:p.id,title:p.title,base64_kb:Math.round((p.base64||'').length*0.75/1024),mediaUrl:p.mediaUrl}))
+    );
+    if(photoKB > PHOTO_SIZE_WARN_KB){
+      showToast(`⚠️ Photos too large for cloud sync (${photoKB} KB > ${PHOTO_SIZE_WARN_KB} KB). Remove some photos or reduce quality.`);
+      setSyncStatus('⚠ Too large', 'rgba(220,38,38,.7)');
+      return;
+    }
     /* Write current + snapshot in parallel */
     await Promise.all([
       window.FB.setDoc(window.FB.doc(window.FB.db,'reports',FB_CURRENT), clean),
