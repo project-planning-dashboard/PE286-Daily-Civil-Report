@@ -3670,7 +3670,13 @@ function renderGallery(){
         mediaEl=`<video class="photo-card-img" src="${src}" onclick="openLb(${i})" style="cursor:pointer;object-fit:cover"
           preload="metadata" muted playsinline></video>`;
       } else {
-        mediaEl=`<img class="photo-card-img" src="${src}" alt="${esc(p.title)}" onclick="openLb(${i})" loading="lazy"/>`;
+        mediaEl=`<img class="photo-card-img" src="${src}" alt="${esc(p.title)}" onclick="openLb(${i})" loading="lazy"
+          onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
+          <div class="photo-card-placeholder" style="display:none">
+            <span style="font-size:22px;opacity:.35">⚠️</span>
+            <span style="font-size:11px;color:var(--crit)">Image not accessible</span>
+            <span style="font-size:9px;color:var(--text-faint);text-align:center">Check Storage rules</span>
+          </div>`;
       }
       card.innerHTML=`${mediaEl}
         <div class="photo-card-body">
@@ -3962,37 +3968,46 @@ function renderPhotoForm(){
   });
   updateCounts();
 }
+/* Track which photo row IDs are currently uploading so onSnapshot
+   doesn't overwrite their mediaUrl with an empty Firestore version */
+const _uploading = new Set();
+
 function trigUp(id){const fi=document.getElementById('fi-'+id);if(fi)fi.click()}
 function handleUpload(id, input){
   const file = input.files[0]; if(!file) return;
-  const p = data.photoRows.find(x => x.id === id); if(!p) return;
-  input.value = '';   // reset so same file can be re-selected if needed
+  // Find row NOW (before any async gap)
+  const p0 = data.photoRows.find(x => x.id === id); if(!p0) return;
+  input.value = '';
 
   const isVid = file.type.startsWith('video/');
-  p.mediaType = isVid ? 'video' : 'image';
+  p0.mediaType = isVid ? 'video' : 'image';
 
-  // ── Step 1: show local base64 preview immediately while upload runs ──
+  // Mark this row as uploading so onSnapshot doesn't clobber it
+  _uploading.add(id);
+
   const reader = new FileReader();
   reader.onload = e => {
-    p.base64 = e.target.result;
-    p.mediaUrl = '';
+    // Re-find live row (data may have been replaced since reader started)
+    const pLive = data.photoRows.find(x => x.id === id);
+    if(pLive){
+      pLive.base64   = e.target.result;  // local preview
+      pLive.mediaUrl = '';
+      pLive.mediaType = isVid ? 'video' : 'image';
+    }
     renderPhotoForm();
     renderGallery();
     showToast(isVid ? '🎬 Uploading video…' : '📷 Uploading photo…');
 
-    // ── Step 2: upload to Firebase Storage ──
     if(!window.FB || !window.FB.storage){
+      _uploading.delete(id);
       showToast('⚠️ Firebase Storage not configured — image stored locally only (not shared)');
       return;
     }
 
-    // Path: media/{photoRowId}_{filename} — overwrites on re-upload of same row
     const path    = `media/${id}_${file.name.replace(/[^a-zA-Z0-9._-]/g,'_')}`;
     const fileRef = window.FB.storageRef(window.FB.storage, path);
     const task    = window.FB.uploadBytesResumable(fileRef, file);
-
-    // Show progress in the upload zone
-    const uzEl = document.getElementById('uz-' + id);
+    const uzEl    = document.getElementById('uz-' + id);
 
     task.on('state_changed',
       snap => {
@@ -4001,22 +4016,44 @@ function handleUpload(id, input){
         setSyncStatus(`⬆ Uploading ${pct}%`, 'rgba(44,168,224,.8)');
       },
       err => {
+        _uploading.delete(id);
         showToast('⚠️ Upload failed: ' + err.message);
         setSyncStatus('⚠ Upload failed', 'rgba(220,38,38,.7)');
       },
       async () => {
-        // ── Step 3: get public download URL and save it ──
-        const url = await window.FB.getDownloadURL(task.snapshot.ref);
-        p.mediaUrl = url;
-        p.base64   = '';   // clear local blob — all users will load from URL
+        try{
+          const url = await window.FB.getDownloadURL(task.snapshot.ref);
 
-        renderPhotoForm();
-        renderGallery();
-        setSyncStatus('', null);
-        showToast(isVid ? '☁ Video saved to cloud' : '☁ Photo saved to cloud');
+          // ── CRITICAL: re-find the live row — data may have been replaced by onSnapshot ──
+          const liveRow = data.photoRows.find(x => x.id === id);
+          if(!liveRow){
+            // Row was deleted while uploading — nothing to update
+            _uploading.delete(id);
+            setSyncStatus('', null);
+            return;
+          }
 
-        // Auto-save so Firestore gets the mediaUrl immediately
-        await saveSnapshot();
+          liveRow.mediaUrl  = url;
+          liveRow.base64    = '';    // clear local blob; all users load from URL
+          liveRow.mediaType = isVid ? 'video' : 'image';
+
+          console.log('PHOTO URL SAVED:', id, url);
+
+          // Remove upload guard BEFORE saving so Firestore gets the URL
+          _uploading.delete(id);
+
+          renderPhotoForm();
+          renderGallery();
+          setSyncStatus('', null);
+          showToast(isVid ? '☁ Video saved to cloud' : '☁ Photo saved to cloud');
+
+          // Save to Firestore — this is what makes URL visible to all users
+          await saveSnapshot();
+        } catch(err2){
+          _uploading.delete(id);
+          showToast('⚠️ Could not get download URL: ' + err2.message);
+          setSyncStatus('⚠ URL error', 'rgba(220,38,38,.7)');
+        }
       }
     );
   };
@@ -4120,6 +4157,20 @@ function _startLiveListener(){
     /* onNext */ snap => {
       if(snap.exists()){
         const cloud = _guard(_mergePhotos(snap.data()));
+
+        // ── Protect rows currently being uploaded ──
+        // If a photoRow id is in _uploading, keep the current row (with base64 preview)
+        if(cloud.photoRows && data.photoRows && _uploading.size > 0){
+          cloud.photoRows = cloud.photoRows.map(cp => {
+            if(_uploading.has(cp.id)){
+              // Keep the live row with base64 preview; don't overwrite with stale cloud row
+              const live = data.photoRows.find(x => x.id === cp.id);
+              return live || cp;
+            }
+            return cp;
+          });
+        }
+
         // Only re-render if data actually changed
         if(JSON.stringify(cloud) !== JSON.stringify(data)){
           data = cloud;
