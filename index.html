@@ -3948,8 +3948,8 @@ function renderPhotoForm(){
       <div class="fg"><label>Date</label><input type="date" value="${p.date||''}" onchange="updPhoto('${p.id}','date',this.value)"/></div>
       <div class="fg"><label>Progress Note</label><input type="text" value="${esc(p.note||'')}" onchange="updPhoto('${p.id}','note',this.value)"/></div>
     </div>
-    <div class="upload-zone ${hasSrc?'has-img':''}" id="uz-${p.id}" onclick="trigUp('${p.id}')">
-      <input type="file" accept="image/*,video/*" id="fi-${p.id}" style="display:none" onchange="handleUpload('${p.id}',this)"/>
+    <div class="upload-zone ${hasSrc?'has-img':''}" id="uz-${p.id}" onclick="document.getElementById('fi-${p.id}').click()">
+      <input type="file" accept="image/*,video/*" id="fi-${p.id}" style="display:none" onchange="handleUploadReplace('${p.id}',this)"/>
       ${hasSrc
         ? (isVid
           ? `<video class="upload-thumb" src="${src}" controls style="height:110px;width:100%;object-fit:cover"></video>`
@@ -3962,96 +3962,175 @@ function renderPhotoForm(){
   updateCounts();
 }
 /* ════ CLOUDINARY PHOTO UPLOAD ════
-   Cloud name : dtwxxt2df
-   Upload preset: AHMED ABDELZAHER  (unsigned)
-   Photos are stored as Cloudinary secure_url + publicId.
-   No base64 or Firebase Storage involved.
+   Cloud name   : dtwxxt2df
+   Upload preset: sdcc_upload  (unsigned)
+   Flow: Cloudinary upload FIRST → only on success add row to data + save to Firestore.
+   If upload fails: NO row is created. NO Firestore write.
 ═══════════════════════════════════════════════════════════════ */
-const CLOUDINARY_CLOUD   = 'dtwxxt2df';
-const CLOUDINARY_PRESET  = 'AHMED ABDELZAHER';
-const CLOUDINARY_URL     = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/upload`;
-const MAX_PHOTOS         = 15;
+const CLOUDINARY_CLOUD  = 'dtwxxt2df';
+const CLOUDINARY_PRESET = 'sdcc_upload';
+const MAX_PHOTOS        = 15;
 
-function trigUp(id){const fi=document.getElementById('fi-'+id);if(fi)fi.click()}
+function trigUp(id){
+  // id here is a temp placeholder — actual row created after upload succeeds
+  const fi = document.getElementById('fi-'+id);
+  if(fi) fi.click();
+}
 
-/* Upload file to Cloudinary with XHR so we can show progress */
+/* Upload file to Cloudinary with XHR progress tracking */
 function _uploadToCloudinary(file, onProgress){
   return new Promise((resolve, reject)=>{
-    const fd = new FormData();
-    fd.append('file',           file);
-    fd.append('upload_preset',  CLOUDINARY_PRESET);
-    // resource_type auto handles images and videos
-    const resourceType = file.type.startsWith('video/') ? 'video' : 'image';
-    const url = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/${resourceType}/upload`;
+    const isVid      = file.type.startsWith('video/');
+    const endpoint   = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/${isVid?'video':'image'}/upload`;
+    const fd         = new FormData();
+    fd.append('file',          file);
+    fd.append('upload_preset', CLOUDINARY_PRESET);
 
     const xhr = new XMLHttpRequest();
-    xhr.open('POST', url);
-
+    xhr.open('POST', endpoint);
     xhr.upload.onprogress = e => {
       if(e.lengthComputable) onProgress(Math.round(e.loaded / e.total * 100));
     };
     xhr.onload = () => {
       if(xhr.status === 200){
         try{ resolve(JSON.parse(xhr.responseText)); }
-        catch(e){ reject(new Error('Invalid JSON from Cloudinary')); }
+        catch(e){ reject(new Error('Invalid Cloudinary response')); }
       } else {
-        let msg = `Cloudinary error ${xhr.status}`;
-        try{ msg = JSON.parse(xhr.responseText).error?.message || msg; }catch(e){}
+        let msg = `Cloudinary HTTP ${xhr.status}`;
+        try{ msg = JSON.parse(xhr.responseText).error?.message || msg; }catch(_){}
         reject(new Error(msg));
       }
     };
-    xhr.onerror = () => reject(new Error('Network error during upload'));
+    xhr.onerror   = () => reject(new Error('Network error — check internet connection'));
+    xhr.onabort   = () => reject(new Error('Upload cancelled'));
     xhr.send(fd);
   });
 }
 
+/* Called from the "Add Photo" button — opens file picker immediately.
+   A real row is NOT added until the upload completes successfully. */
+function addPhotoRow(){
+  if((data.photoRows||[]).length >= MAX_PHOTOS){
+    showToast(`⚠️ Maximum ${MAX_PHOTOS} photos allowed`); return;
+  }
+  // Use a temp id just to wire up the file input
+  const tempId = 'tmp_' + uid();
+
+  // Build a minimal invisible file input and trigger it
+  const fi = document.createElement('input');
+  fi.type   = 'file';
+  fi.accept = 'image/*,video/*';
+  fi.style.display = 'none';
+  fi.id = 'fi-' + tempId;
+  document.body.appendChild(fi);
+
+  fi.onchange = () => {
+    handleUpload(tempId, fi);
+    fi.remove();
+  };
+  fi.click();
+}
+
+/* Main upload handler — called after user picks a file.
+   Does NOT touch data.photoRows until Cloudinary returns secure_url. */
 function handleUpload(id, input){
-  const file = input.files[0]; if(!file) return;
+  const file = input.files[0];
+  if(!file){ return; }
   input.value = '';
 
   if((data.photoRows||[]).length >= MAX_PHOTOS){
     showToast(`⚠️ Maximum ${MAX_PHOTOS} photos allowed`); return;
   }
 
-  // Find the row
-  const rowRef = () => data.photoRows.find(x => x.id === id);
-  const p = rowRef(); if(!p) return;
-
   const isVid = file.type.startsWith('video/');
-  p.mediaType = isVid ? 'video' : 'image';
 
-  // Show uploading state
+  console.log('CLOUDINARY UPLOAD START', file.name, '— size:', Math.round(file.size/1024)+'KB');
   setSyncStatus('⬆ Uploading 0%', 'rgba(44,168,224,.8)');
   showToast('⬆ Uploading to Cloudinary…');
 
   _uploadToCloudinary(file, pct => {
     setSyncStatus(`⬆ Uploading ${pct}%`, 'rgba(44,168,224,.8)');
   })
-  .then(async res => {
-    // Re-find live row — onSnapshot may have replaced data during upload
-    const liveRow = rowRef();
-    if(!liveRow){ setSyncStatus('',null); return; }
+  .then(async result => {
+    const secureUrl = result.secure_url;
+    const publicId  = result.public_id;
 
-    liveRow.mediaUrl  = res.secure_url;
-    liveRow.publicId  = res.public_id;
-    liveRow.base64    = '';   // never store base64
-    liveRow.mediaType = isVid ? 'video' : 'image';
+    if(!secureUrl){
+      throw new Error('Cloudinary returned no secure_url');
+    }
 
-    console.log('[CLOUDINARY] Upload success:', res.secure_url, 'public_id:', res.public_id);
+    console.log('CLOUDINARY UPLOAD SUCCESS', secureUrl);
+
+    // ── Only NOW create the row and add it to data ──
+    const newRow = {
+      id:        uid(),          // permanent id, different from temp
+      city:      '',
+      title:     file.name.replace(/\.[^.]+$/, '') || 'Photo',
+      date:      data.date || new Date().toISOString().slice(0,10),
+      note:      '',
+      mediaUrl:  secureUrl,
+      publicId:  publicId,
+      mediaType: isVid ? 'video' : 'image',
+      base64:    ''              // never store base64
+    };
+
+    data.photoRows = [...(data.photoRows||[]), newRow];
 
     setSyncStatus('', null);
-    showToast(isVid ? '☁ Video uploaded to Cloudinary' : '☁ Photo uploaded to Cloudinary');
+    showToast(isVid ? '☁ Video uploaded' : '☁ Photo uploaded');
 
     renderPhotoForm();
     renderGallery();
+    updateCounts();
 
-    // Persist to Firestore so all users see the photo immediately
+    // Save to Firestore — all users will see the photo row with mediaUrl
     await saveSnapshot();
   })
   .catch(err => {
+    console.error('CLOUDINARY UPLOAD FAILED', err);
     setSyncStatus('⚠ Upload failed', 'rgba(220,38,38,.7)');
     showToast('⚠️ Upload failed: ' + err.message);
-    console.error('[CLOUDINARY] Upload error:', err);
+    // No row created — nothing added to Firestore
+  });
+}
+
+/* Replace the image on an existing photo row (row already in data.photoRows) */
+function handleUploadReplace(id, input){
+  const file = input.files[0]; if(!file) return;
+  input.value = '';
+  const isVid = file.type.startsWith('video/');
+
+  console.log('CLOUDINARY UPLOAD START (replace)', file.name);
+  setSyncStatus('⬆ Uploading 0%', 'rgba(44,168,224,.8)');
+  showToast('⬆ Replacing photo…');
+
+  _uploadToCloudinary(file, pct => {
+    setSyncStatus(`⬆ Uploading ${pct}%`, 'rgba(44,168,224,.8)');
+  })
+  .then(async result => {
+    const secureUrl = result.secure_url;
+    if(!secureUrl) throw new Error('No secure_url from Cloudinary');
+
+    console.log('CLOUDINARY UPLOAD SUCCESS (replace)', secureUrl);
+
+    // Re-find row — data may have been replaced by onSnapshot during upload
+    const liveRow = data.photoRows.find(x => x.id === id);
+    if(!liveRow){ setSyncStatus('',null); showToast('⚠️ Row no longer exists'); return; }
+
+    liveRow.mediaUrl  = secureUrl;
+    liveRow.publicId  = result.public_id;
+    liveRow.mediaType = isVid ? 'video' : 'image';
+    liveRow.base64    = '';
+
+    setSyncStatus('', null);
+    showToast('☁ Photo replaced');
+    renderPhotoForm(); renderGallery();
+    await saveSnapshot();
+  })
+  .catch(err => {
+    console.error('CLOUDINARY UPLOAD FAILED (replace)', err);
+    setSyncStatus('⚠ Upload failed', 'rgba(220,38,38,.7)');
+    showToast('⚠️ Upload failed: ' + err.message);
   });
 }
 
@@ -4063,34 +4142,20 @@ function clrPhoto(id){
 
 function updPhoto(id,k,v){
   const p = data.photoRows.find(x => x.id === id); if(!p) return;
-  p[k] = v; renderGallery();
+  p[k] = v;
+  renderGallery();
 }
 
 async function delPhoto(id){
   if(!confirm('Delete photo?')) return;
   const p = data.photoRows.find(x => x.id === id);
-
-  // Best-effort Cloudinary delete via unsigned destroy is not supported.
-  // publicId is stored so a server-side delete can be done later if needed.
-  // For now we just remove the row from data + Firestore.
   if(p?.publicId){
-    console.log('[CLOUDINARY] Row deleted — publicId for server cleanup:', p.publicId);
+    console.log('[CLOUDINARY] Deleted row — publicId for server cleanup:', p.publicId);
   }
-
   data.photoRows = data.photoRows.filter(x => x.id !== id);
   renderPhotoForm(); renderGallery(); updateCounts();
   showToast('🗑 Deleted');
-
-  // Sync deletion to Firestore immediately if editor
   if(_isEditor) await saveSnapshot();
-}
-
-function addPhotoRow(){
-  data.photoRows.push({
-    id:uid(), city:'', title:'', date:data.date||'',
-    note:'', base64:'', mediaUrl:'', publicId:'', mediaType:'image'
-  });
-  renderPhotoForm(); updateCounts();
 }
 
 function makeRowHd(title,meta,onDel,rowEl){
