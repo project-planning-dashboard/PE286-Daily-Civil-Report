@@ -3211,7 +3211,8 @@ function _renderCityProgressBar(d, leaves, reportDate){
 
   bar.innerHTML = cities.map((city,ci)=>{
     const vals  = leaves.map(l=>l.cityData?.[city]).filter(cd=>cd && cd.applicable!==false);
-    const total = leaves.length; // Total activities per city = all WBS/activity leaves, regardless of status or filters
+    // Total activities per city must exclude N/A scope (e.g. Septic Tank for Abha & Madinah)
+    const total = vals.length;
     const avg   = total ? Math.round(vals.reduce((s,v)=>s+(+v.siteProgress||0),0)/total) : 0;
     const cDone     = vals.filter(v=>(+v.siteProgress||0)>=100).length;
     const cInProg   = vals.filter(v=>{ const p=+v.siteProgress||0; return p>0&&p<100; }).length;
@@ -3631,7 +3632,8 @@ function renderCivilTable(){
   // ── Empty state: ONLY append an empty row — NEVER overwrite tbody.innerHTML ──
   // pkg header rows are already in tbody; overwriting them would make them disappear.
   const hasFilter    = !!(search||fStatus||delayedOnly);
-  const totalLeaves  = allLeaves(pkgs).length;
+  // Count rendered/applicable city-activity records only; N/A scope is excluded from the counter
+  const totalLeaves  = allLeaves(pkgs).flatMap(l => (cities||[]).map(c => l.cityData?.[c]).filter(cd => cd && cd.applicable !== false)).length;
   const hasPkgRows   = tbody.querySelectorAll('tr.pkg-row').length > 0;
 
   if(shown === 0 && !hasPkgRows){
