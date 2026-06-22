@@ -3957,7 +3957,11 @@ function buildPkgRow(node,depth){
       <textarea onchange="updNode('${node.id}','remarks',this.value)">${esc(node.remarks||'')}</textarea></div>`;
   }
   body.innerHTML=html;row.appendChild(body);
-  if(!isLeaf&&node.expanded!==false){
+  /* Data Entry must be independent from the dashboard WBS collapse state.
+     node.expanded is used only for the Civil Works dashboard table.
+     If Data Entry follows node.expanded, closing WBS packages in the dashboard hides
+     their children here. Always render all children in Data Entry so no saved rows disappear. */
+  if(!isLeaf){
     const cw=document.createElement('div');cw.style.paddingTop='4px';
     (node.children||[]).forEach(child=>cw.appendChild(buildPkgRow(child,depth+1)));
     row.appendChild(cw);
